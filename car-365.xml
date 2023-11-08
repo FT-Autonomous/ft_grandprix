@@ -1,0 +1,805 @@
+
+<mujoco model="MuJoCo Model">
+  <compiler autolimits="true"/>
+  <visual>
+    <headlight ambient="0.5 0.5 0.5"/>
+    <quality shadowsize="0"/>
+  </visual>
+  <statistic meansize="0.509902" extent="1.6099" center="0 0 0.704951"/>
+  <default class="main">
+    <joint  damping="0.03"/>
+    <default class="wheel">
+      <geom size="0.03 0.01 0" type="cylinder" rgba="0.5 0.5 1 1"/>
+    </default>
+    <default class="decor">
+      <site type="box" rgba="0.5 1 0.5 1"/>
+    </default>
+    <default class="tester">
+    </default>
+  </default>
+  <asset>
+    <mesh name="nog" file="/media/projects/hmm/output.stl"/>
+    <texture type="2d" name="grid" builtin="checker" rgb1="0.1 0.2 0.3" rgb2="0.2 0.3 0.4" width="512" height="512"/>
+    <material name="grid" texture="grid" texuniform="true" reflectance="0.2"/>
+    <mesh name="chasis" vertex="9 2 0 -10 10 10 9 -2 0 10 3 -10 10 -3 -10 -8 10 -10 -10 -10 10 -8 -10 -10 -5 0 20" scale="0.01 0.006 0.0015"/>
+    <hfield name="grandprix" size="10 10 0.3 0.1" file="track.png"/>
+  </asset>
+  <worldbody>
+    <geom name="floor" type="hfield" hfield="grandprix"/>
+    <!-- <geom type="mesh" mesh="nog" pos="0 0 0" /> -->
+    <geom name="plane" size="10 10 0.1" pos="0 0 0.01" type="plane" rgba="0.9 0 0 1"/>
+    <light pos="0 0 3" dir="0 0 -1" diffuse="0.5 0.5 0.5"/>
+    <body pos="0 0 100">
+      <joint name="pin" pos="0 0 0.5" axis="0 1 0"/>
+      <geom name="tube" size="0.1 0.5" type="cylinder" mass="0.1" rgba="0 0.9 0 1"/>
+    </body>
+    <body>
+      <joint type="free"/>
+    <geom type="box" pos="7 0 5" size="0.5 .5 .5"/>
+    </body>
+    <body name="car" pos="5.5 0 1">
+      <joint type="free"  damping="0"/>
+      <geom name="chasis" type="mesh" mesh="chasis"/>
+      <geom name="front wheel" size="0.015" pos="0.08 0 -0.015" condim="1" priority="1"/>
+      <light name="top light" pos="0 0 2" dir="0 0 -1" diffuse="0.4 0.4 0.4" mode="trackcom"/>
+      <light name="front light" pos="0.1 0 0.02" dir="0.894427 0 -0.447214" diffuse="1 1 1"/>
+      <body euler="0 -90 0" pos="0 0 0.04">
+      <site name="front light site #0" euler="0 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #1" euler="2 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #2" euler="4 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #3" euler="6 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #4" euler="8 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #5" euler="10 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #6" euler="12 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #7" euler="14 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #8" euler="16 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #9" euler="18 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #10" euler="20 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #11" euler="22 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #12" euler="24 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #13" euler="26 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #14" euler="28 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #15" euler="30 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #16" euler="32 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #17" euler="34 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #18" euler="36 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #19" euler="38 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #20" euler="40 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #21" euler="42 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #22" euler="44 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #23" euler="46 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #24" euler="48 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #25" euler="50 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #26" euler="52 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #27" euler="54 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #28" euler="56 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #29" euler="58 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #30" euler="60 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #31" euler="62 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #32" euler="64 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #33" euler="66 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #34" euler="68 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #35" euler="70 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #36" euler="72 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #37" euler="74 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #38" euler="76 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #39" euler="78 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #40" euler="80 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #41" euler="82 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #42" euler="84 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #43" euler="86 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #44" euler="88 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #45" euler="90 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #46" euler="92 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #47" euler="94 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #48" euler="96 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #49" euler="98 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #50" euler="100 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #51" euler="102 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #52" euler="104 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #53" euler="106 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #54" euler="108 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #55" euler="110 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #56" euler="112 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #57" euler="114 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #58" euler="116 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #59" euler="118 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #60" euler="120 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #61" euler="122 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #62" euler="124 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #63" euler="126 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #64" euler="128 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #65" euler="130 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #66" euler="132 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #67" euler="134 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #68" euler="136 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #69" euler="138 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #70" euler="140 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #71" euler="142 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #72" euler="144 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #73" euler="146 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #74" euler="148 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #75" euler="150 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #76" euler="152 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #77" euler="154 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #78" euler="156 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #79" euler="158 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #80" euler="160 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #81" euler="162 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #82" euler="164 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #83" euler="166 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #84" euler="168 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #85" euler="170 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #86" euler="172 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #87" euler="174 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #88" euler="176 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #89" euler="178 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #90" euler="180 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #91" euler="182 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #92" euler="184 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #93" euler="186 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #94" euler="188 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #95" euler="190 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #96" euler="192 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #97" euler="194 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #98" euler="196 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #99" euler="198 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #100" euler="200 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #101" euler="202 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #102" euler="204 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #103" euler="206 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #104" euler="208 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #105" euler="210 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #106" euler="212 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #107" euler="214 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #108" euler="216 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #109" euler="218 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #110" euler="220 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #111" euler="222 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #112" euler="224 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #113" euler="226 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #114" euler="228 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #115" euler="230 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #116" euler="232 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #117" euler="234 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #118" euler="236 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #119" euler="238 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #120" euler="240 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #121" euler="242 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #122" euler="244 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #123" euler="246 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #124" euler="248 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #125" euler="250 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #126" euler="252 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #127" euler="254 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #128" euler="256 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #129" euler="258 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #130" euler="260 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #131" euler="262 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #132" euler="264 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #133" euler="266 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #134" euler="268 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #135" euler="270 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #136" euler="272 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #137" euler="274 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #138" euler="276 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #139" euler="278 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #140" euler="280 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #141" euler="282 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #142" euler="284 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #143" euler="286 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #144" euler="288 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #145" euler="290 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #146" euler="292 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #147" euler="294 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #148" euler="296 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #149" euler="298 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #150" euler="300 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #151" euler="302 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #152" euler="304 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #153" euler="306 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #154" euler="308 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #155" euler="310 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #156" euler="312 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #157" euler="314 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #158" euler="316 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #159" euler="318 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #160" euler="320 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #161" euler="322 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #162" euler="324 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #163" euler="326 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #164" euler="328 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #165" euler="330 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #166" euler="332 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #167" euler="334 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #168" euler="336 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #169" euler="338 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #170" euler="340 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #171" euler="342 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #172" euler="344 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #173" euler="346 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #174" euler="348 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #175" euler="350 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #176" euler="352 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #177" euler="354 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #178" euler="356 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #179" euler="358 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #180" euler="360 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #181" euler="362 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #182" euler="364 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #183" euler="366 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #184" euler="368 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #185" euler="370 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #186" euler="372 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #187" euler="374 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #188" euler="376 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #189" euler="378 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #190" euler="380 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #191" euler="382 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #192" euler="384 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #193" euler="386 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #194" euler="388 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #195" euler="390 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #196" euler="392 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #197" euler="394 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #198" euler="396 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #199" euler="398 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #200" euler="400 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #201" euler="402 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #202" euler="404 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #203" euler="406 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #204" euler="408 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #205" euler="410 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #206" euler="412 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #207" euler="414 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #208" euler="416 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #209" euler="418 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #210" euler="420 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #211" euler="422 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #212" euler="424 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #213" euler="426 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #214" euler="428 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #215" euler="430 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #216" euler="432 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #217" euler="434 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #218" euler="436 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #219" euler="438 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #220" euler="440 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #221" euler="442 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #222" euler="444 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #223" euler="446 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #224" euler="448 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #225" euler="450 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #226" euler="452 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #227" euler="454 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #228" euler="456 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #229" euler="458 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #230" euler="460 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #231" euler="462 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #232" euler="464 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #233" euler="466 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #234" euler="468 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #235" euler="470 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #236" euler="472 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #237" euler="474 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #238" euler="476 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #239" euler="478 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #240" euler="480 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #241" euler="482 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #242" euler="484 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #243" euler="486 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #244" euler="488 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #245" euler="490 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #246" euler="492 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #247" euler="494 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #248" euler="496 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #249" euler="498 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #250" euler="500 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #251" euler="502 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #252" euler="504 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #253" euler="506 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #254" euler="508 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #255" euler="510 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #256" euler="512 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #257" euler="514 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #258" euler="516 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #259" euler="518 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #260" euler="520 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #261" euler="522 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #262" euler="524 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #263" euler="526 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #264" euler="528 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #265" euler="530 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #266" euler="532 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #267" euler="534 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #268" euler="536 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #269" euler="538 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #270" euler="540 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #271" euler="542 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #272" euler="544 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #273" euler="546 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #274" euler="548 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #275" euler="550 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #276" euler="552 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #277" euler="554 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #278" euler="556 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #279" euler="558 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #280" euler="560 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #281" euler="562 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #282" euler="564 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #283" euler="566 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #284" euler="568 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #285" euler="570 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #286" euler="572 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #287" euler="574 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #288" euler="576 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #289" euler="578 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #290" euler="580 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #291" euler="582 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #292" euler="584 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #293" euler="586 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #294" euler="588 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #295" euler="590 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #296" euler="592 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #297" euler="594 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #298" euler="596 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #299" euler="598 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #300" euler="600 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #301" euler="602 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #302" euler="604 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #303" euler="606 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #304" euler="608 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #305" euler="610 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #306" euler="612 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #307" euler="614 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #308" euler="616 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #309" euler="618 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #310" euler="620 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #311" euler="622 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #312" euler="624 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #313" euler="626 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #314" euler="628 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #315" euler="630 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #316" euler="632 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #317" euler="634 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #318" euler="636 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #319" euler="638 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #320" euler="640 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #321" euler="642 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #322" euler="644 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #323" euler="646 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #324" euler="648 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #325" euler="650 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #326" euler="652 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #327" euler="654 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #328" euler="656 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #329" euler="658 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #330" euler="660 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #331" euler="662 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #332" euler="664 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #333" euler="666 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #334" euler="668 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #335" euler="670 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #336" euler="672 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #337" euler="674 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #338" euler="676 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #339" euler="678 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #340" euler="680 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #341" euler="682 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #342" euler="684 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #343" euler="686 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #344" euler="688 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #345" euler="690 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #346" euler="692 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #347" euler="694 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #348" euler="696 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #349" euler="698 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #350" euler="700 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #351" euler="702 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #352" euler="704 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #353" euler="706 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #354" euler="708 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #355" euler="710 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #356" euler="712 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #357" euler="714 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #358" euler="716 0 0" pos="0 0 0" class="tester"/>
+      <site name="front light site #359" euler="718 0 0" pos="0 0 0" class="tester"/>
+      
+      </body>
+      <body name="left wheel" pos="-0.07 0.06 0" quat="0.707107 -0.707107 0 0">
+        <joint name="left" pos="0 0 0" axis="0 0 1"/>
+        <geom class="wheel"/>
+        <site class="decor" pos="0 0 0" size="0.006 0.025 0.012"/>
+        <site class="decor" pos="0 0 0" size="0.025 0.006 0.012"/>
+      </body>
+      <body name="right wheel" pos="-0.07 -0.06 0" quat="0.707107 -0.707107 0 0">
+        <joint name="right" pos="0 0 0" axis="0 0 1"/>
+        <geom class="wheel"/>
+        <site class="decor" pos="0 0 0" size="0.006 0.025 0.012"/>
+        <site class="decor" pos="0 0 0" size="0.025 0.006 0.012"/>
+      </body>
+    </body>
+  </worldbody>
+  <tendon>
+    <fixed name="forward">
+      <joint joint="left" coef="0.5"/>
+      <joint joint="right" coef="0.5"/>
+    </fixed>
+    <fixed name="turn">
+      <joint joint="left" coef="-0.5"/>
+      <joint joint="right" coef="0.5"/>
+    </fixed>
+  </tendon>
+  <actuator>
+    <general name="torque" joint="pin" ctrlrange="-10 10"/>
+    <general name="position servo" joint="pin" biastype="affine" gainprm="10 0 0 0 0 0 0 0 0 0" biasprm="0 -10 0 0 0 0 0 0 0 0"/>
+    <general name="velocity servo" joint="pin" biastype="affine" gainprm="10 0 0 0 0 0 0 0 0 0" biasprm="0 0 -10 0 0 0 0 0 0 0"/>
+    <general name="forward" tendon="forward" ctrlrange="-1 1"/>
+    <general name="turn" tendon="turn" ctrlrange="-1 1"/>
+  </actuator>
+  <sensor>
+    <jointactuatorfrc joint="right" name="right"/>
+    <jointactuatorfrc joint="left" name="left"/>
+    <rangefinder site="front light site #0"/>
+    <rangefinder site="front light site #1"/>
+    <rangefinder site="front light site #2"/>
+    <rangefinder site="front light site #3"/>
+    <rangefinder site="front light site #4"/>
+    <rangefinder site="front light site #5"/>
+    <rangefinder site="front light site #6"/>
+    <rangefinder site="front light site #7"/>
+    <rangefinder site="front light site #8"/>
+    <rangefinder site="front light site #9"/>
+    <rangefinder site="front light site #10"/>
+    <rangefinder site="front light site #11"/>
+    <rangefinder site="front light site #12"/>
+    <rangefinder site="front light site #13"/>
+    <rangefinder site="front light site #14"/>
+    <rangefinder site="front light site #15"/>
+    <rangefinder site="front light site #16"/>
+    <rangefinder site="front light site #17"/>
+    <rangefinder site="front light site #18"/>
+    <rangefinder site="front light site #19"/>
+    <rangefinder site="front light site #20"/>
+    <rangefinder site="front light site #21"/>
+    <rangefinder site="front light site #22"/>
+    <rangefinder site="front light site #23"/>
+    <rangefinder site="front light site #24"/>
+    <rangefinder site="front light site #25"/>
+    <rangefinder site="front light site #26"/>
+    <rangefinder site="front light site #27"/>
+    <rangefinder site="front light site #28"/>
+    <rangefinder site="front light site #29"/>
+    <rangefinder site="front light site #30"/>
+    <rangefinder site="front light site #31"/>
+    <rangefinder site="front light site #32"/>
+    <rangefinder site="front light site #33"/>
+    <rangefinder site="front light site #34"/>
+    <rangefinder site="front light site #35"/>
+    <rangefinder site="front light site #36"/>
+    <rangefinder site="front light site #37"/>
+    <rangefinder site="front light site #38"/>
+    <rangefinder site="front light site #39"/>
+    <rangefinder site="front light site #40"/>
+    <rangefinder site="front light site #41"/>
+    <rangefinder site="front light site #42"/>
+    <rangefinder site="front light site #43"/>
+    <rangefinder site="front light site #44"/>
+    <rangefinder site="front light site #45"/>
+    <rangefinder site="front light site #46"/>
+    <rangefinder site="front light site #47"/>
+    <rangefinder site="front light site #48"/>
+    <rangefinder site="front light site #49"/>
+    <rangefinder site="front light site #50"/>
+    <rangefinder site="front light site #51"/>
+    <rangefinder site="front light site #52"/>
+    <rangefinder site="front light site #53"/>
+    <rangefinder site="front light site #54"/>
+    <rangefinder site="front light site #55"/>
+    <rangefinder site="front light site #56"/>
+    <rangefinder site="front light site #57"/>
+    <rangefinder site="front light site #58"/>
+    <rangefinder site="front light site #59"/>
+    <rangefinder site="front light site #60"/>
+    <rangefinder site="front light site #61"/>
+    <rangefinder site="front light site #62"/>
+    <rangefinder site="front light site #63"/>
+    <rangefinder site="front light site #64"/>
+    <rangefinder site="front light site #65"/>
+    <rangefinder site="front light site #66"/>
+    <rangefinder site="front light site #67"/>
+    <rangefinder site="front light site #68"/>
+    <rangefinder site="front light site #69"/>
+    <rangefinder site="front light site #70"/>
+    <rangefinder site="front light site #71"/>
+    <rangefinder site="front light site #72"/>
+    <rangefinder site="front light site #73"/>
+    <rangefinder site="front light site #74"/>
+    <rangefinder site="front light site #75"/>
+    <rangefinder site="front light site #76"/>
+    <rangefinder site="front light site #77"/>
+    <rangefinder site="front light site #78"/>
+    <rangefinder site="front light site #79"/>
+    <rangefinder site="front light site #80"/>
+    <rangefinder site="front light site #81"/>
+    <rangefinder site="front light site #82"/>
+    <rangefinder site="front light site #83"/>
+    <rangefinder site="front light site #84"/>
+    <rangefinder site="front light site #85"/>
+    <rangefinder site="front light site #86"/>
+    <rangefinder site="front light site #87"/>
+    <rangefinder site="front light site #88"/>
+    <rangefinder site="front light site #89"/>
+    <rangefinder site="front light site #90"/>
+    <rangefinder site="front light site #91"/>
+    <rangefinder site="front light site #92"/>
+    <rangefinder site="front light site #93"/>
+    <rangefinder site="front light site #94"/>
+    <rangefinder site="front light site #95"/>
+    <rangefinder site="front light site #96"/>
+    <rangefinder site="front light site #97"/>
+    <rangefinder site="front light site #98"/>
+    <rangefinder site="front light site #99"/>
+    <rangefinder site="front light site #100"/>
+    <rangefinder site="front light site #101"/>
+    <rangefinder site="front light site #102"/>
+    <rangefinder site="front light site #103"/>
+    <rangefinder site="front light site #104"/>
+    <rangefinder site="front light site #105"/>
+    <rangefinder site="front light site #106"/>
+    <rangefinder site="front light site #107"/>
+    <rangefinder site="front light site #108"/>
+    <rangefinder site="front light site #109"/>
+    <rangefinder site="front light site #110"/>
+    <rangefinder site="front light site #111"/>
+    <rangefinder site="front light site #112"/>
+    <rangefinder site="front light site #113"/>
+    <rangefinder site="front light site #114"/>
+    <rangefinder site="front light site #115"/>
+    <rangefinder site="front light site #116"/>
+    <rangefinder site="front light site #117"/>
+    <rangefinder site="front light site #118"/>
+    <rangefinder site="front light site #119"/>
+    <rangefinder site="front light site #120"/>
+    <rangefinder site="front light site #121"/>
+    <rangefinder site="front light site #122"/>
+    <rangefinder site="front light site #123"/>
+    <rangefinder site="front light site #124"/>
+    <rangefinder site="front light site #125"/>
+    <rangefinder site="front light site #126"/>
+    <rangefinder site="front light site #127"/>
+    <rangefinder site="front light site #128"/>
+    <rangefinder site="front light site #129"/>
+    <rangefinder site="front light site #130"/>
+    <rangefinder site="front light site #131"/>
+    <rangefinder site="front light site #132"/>
+    <rangefinder site="front light site #133"/>
+    <rangefinder site="front light site #134"/>
+    <rangefinder site="front light site #135"/>
+    <rangefinder site="front light site #136"/>
+    <rangefinder site="front light site #137"/>
+    <rangefinder site="front light site #138"/>
+    <rangefinder site="front light site #139"/>
+    <rangefinder site="front light site #140"/>
+    <rangefinder site="front light site #141"/>
+    <rangefinder site="front light site #142"/>
+    <rangefinder site="front light site #143"/>
+    <rangefinder site="front light site #144"/>
+    <rangefinder site="front light site #145"/>
+    <rangefinder site="front light site #146"/>
+    <rangefinder site="front light site #147"/>
+    <rangefinder site="front light site #148"/>
+    <rangefinder site="front light site #149"/>
+    <rangefinder site="front light site #150"/>
+    <rangefinder site="front light site #151"/>
+    <rangefinder site="front light site #152"/>
+    <rangefinder site="front light site #153"/>
+    <rangefinder site="front light site #154"/>
+    <rangefinder site="front light site #155"/>
+    <rangefinder site="front light site #156"/>
+    <rangefinder site="front light site #157"/>
+    <rangefinder site="front light site #158"/>
+    <rangefinder site="front light site #159"/>
+    <rangefinder site="front light site #160"/>
+    <rangefinder site="front light site #161"/>
+    <rangefinder site="front light site #162"/>
+    <rangefinder site="front light site #163"/>
+    <rangefinder site="front light site #164"/>
+    <rangefinder site="front light site #165"/>
+    <rangefinder site="front light site #166"/>
+    <rangefinder site="front light site #167"/>
+    <rangefinder site="front light site #168"/>
+    <rangefinder site="front light site #169"/>
+    <rangefinder site="front light site #170"/>
+    <rangefinder site="front light site #171"/>
+    <rangefinder site="front light site #172"/>
+    <rangefinder site="front light site #173"/>
+    <rangefinder site="front light site #174"/>
+    <rangefinder site="front light site #175"/>
+    <rangefinder site="front light site #176"/>
+    <rangefinder site="front light site #177"/>
+    <rangefinder site="front light site #178"/>
+    <rangefinder site="front light site #179"/>
+    <rangefinder site="front light site #180"/>
+    <rangefinder site="front light site #181"/>
+    <rangefinder site="front light site #182"/>
+    <rangefinder site="front light site #183"/>
+    <rangefinder site="front light site #184"/>
+    <rangefinder site="front light site #185"/>
+    <rangefinder site="front light site #186"/>
+    <rangefinder site="front light site #187"/>
+    <rangefinder site="front light site #188"/>
+    <rangefinder site="front light site #189"/>
+    <rangefinder site="front light site #190"/>
+    <rangefinder site="front light site #191"/>
+    <rangefinder site="front light site #192"/>
+    <rangefinder site="front light site #193"/>
+    <rangefinder site="front light site #194"/>
+    <rangefinder site="front light site #195"/>
+    <rangefinder site="front light site #196"/>
+    <rangefinder site="front light site #197"/>
+    <rangefinder site="front light site #198"/>
+    <rangefinder site="front light site #199"/>
+    <rangefinder site="front light site #200"/>
+    <rangefinder site="front light site #201"/>
+    <rangefinder site="front light site #202"/>
+    <rangefinder site="front light site #203"/>
+    <rangefinder site="front light site #204"/>
+    <rangefinder site="front light site #205"/>
+    <rangefinder site="front light site #206"/>
+    <rangefinder site="front light site #207"/>
+    <rangefinder site="front light site #208"/>
+    <rangefinder site="front light site #209"/>
+    <rangefinder site="front light site #210"/>
+    <rangefinder site="front light site #211"/>
+    <rangefinder site="front light site #212"/>
+    <rangefinder site="front light site #213"/>
+    <rangefinder site="front light site #214"/>
+    <rangefinder site="front light site #215"/>
+    <rangefinder site="front light site #216"/>
+    <rangefinder site="front light site #217"/>
+    <rangefinder site="front light site #218"/>
+    <rangefinder site="front light site #219"/>
+    <rangefinder site="front light site #220"/>
+    <rangefinder site="front light site #221"/>
+    <rangefinder site="front light site #222"/>
+    <rangefinder site="front light site #223"/>
+    <rangefinder site="front light site #224"/>
+    <rangefinder site="front light site #225"/>
+    <rangefinder site="front light site #226"/>
+    <rangefinder site="front light site #227"/>
+    <rangefinder site="front light site #228"/>
+    <rangefinder site="front light site #229"/>
+    <rangefinder site="front light site #230"/>
+    <rangefinder site="front light site #231"/>
+    <rangefinder site="front light site #232"/>
+    <rangefinder site="front light site #233"/>
+    <rangefinder site="front light site #234"/>
+    <rangefinder site="front light site #235"/>
+    <rangefinder site="front light site #236"/>
+    <rangefinder site="front light site #237"/>
+    <rangefinder site="front light site #238"/>
+    <rangefinder site="front light site #239"/>
+    <rangefinder site="front light site #240"/>
+    <rangefinder site="front light site #241"/>
+    <rangefinder site="front light site #242"/>
+    <rangefinder site="front light site #243"/>
+    <rangefinder site="front light site #244"/>
+    <rangefinder site="front light site #245"/>
+    <rangefinder site="front light site #246"/>
+    <rangefinder site="front light site #247"/>
+    <rangefinder site="front light site #248"/>
+    <rangefinder site="front light site #249"/>
+    <rangefinder site="front light site #250"/>
+    <rangefinder site="front light site #251"/>
+    <rangefinder site="front light site #252"/>
+    <rangefinder site="front light site #253"/>
+    <rangefinder site="front light site #254"/>
+    <rangefinder site="front light site #255"/>
+    <rangefinder site="front light site #256"/>
+    <rangefinder site="front light site #257"/>
+    <rangefinder site="front light site #258"/>
+    <rangefinder site="front light site #259"/>
+    <rangefinder site="front light site #260"/>
+    <rangefinder site="front light site #261"/>
+    <rangefinder site="front light site #262"/>
+    <rangefinder site="front light site #263"/>
+    <rangefinder site="front light site #264"/>
+    <rangefinder site="front light site #265"/>
+    <rangefinder site="front light site #266"/>
+    <rangefinder site="front light site #267"/>
+    <rangefinder site="front light site #268"/>
+    <rangefinder site="front light site #269"/>
+    <rangefinder site="front light site #270"/>
+    <rangefinder site="front light site #271"/>
+    <rangefinder site="front light site #272"/>
+    <rangefinder site="front light site #273"/>
+    <rangefinder site="front light site #274"/>
+    <rangefinder site="front light site #275"/>
+    <rangefinder site="front light site #276"/>
+    <rangefinder site="front light site #277"/>
+    <rangefinder site="front light site #278"/>
+    <rangefinder site="front light site #279"/>
+    <rangefinder site="front light site #280"/>
+    <rangefinder site="front light site #281"/>
+    <rangefinder site="front light site #282"/>
+    <rangefinder site="front light site #283"/>
+    <rangefinder site="front light site #284"/>
+    <rangefinder site="front light site #285"/>
+    <rangefinder site="front light site #286"/>
+    <rangefinder site="front light site #287"/>
+    <rangefinder site="front light site #288"/>
+    <rangefinder site="front light site #289"/>
+    <rangefinder site="front light site #290"/>
+    <rangefinder site="front light site #291"/>
+    <rangefinder site="front light site #292"/>
+    <rangefinder site="front light site #293"/>
+    <rangefinder site="front light site #294"/>
+    <rangefinder site="front light site #295"/>
+    <rangefinder site="front light site #296"/>
+    <rangefinder site="front light site #297"/>
+    <rangefinder site="front light site #298"/>
+    <rangefinder site="front light site #299"/>
+    <rangefinder site="front light site #300"/>
+    <rangefinder site="front light site #301"/>
+    <rangefinder site="front light site #302"/>
+    <rangefinder site="front light site #303"/>
+    <rangefinder site="front light site #304"/>
+    <rangefinder site="front light site #305"/>
+    <rangefinder site="front light site #306"/>
+    <rangefinder site="front light site #307"/>
+    <rangefinder site="front light site #308"/>
+    <rangefinder site="front light site #309"/>
+    <rangefinder site="front light site #310"/>
+    <rangefinder site="front light site #311"/>
+    <rangefinder site="front light site #312"/>
+    <rangefinder site="front light site #313"/>
+    <rangefinder site="front light site #314"/>
+    <rangefinder site="front light site #315"/>
+    <rangefinder site="front light site #316"/>
+    <rangefinder site="front light site #317"/>
+    <rangefinder site="front light site #318"/>
+    <rangefinder site="front light site #319"/>
+    <rangefinder site="front light site #320"/>
+    <rangefinder site="front light site #321"/>
+    <rangefinder site="front light site #322"/>
+    <rangefinder site="front light site #323"/>
+    <rangefinder site="front light site #324"/>
+    <rangefinder site="front light site #325"/>
+    <rangefinder site="front light site #326"/>
+    <rangefinder site="front light site #327"/>
+    <rangefinder site="front light site #328"/>
+    <rangefinder site="front light site #329"/>
+    <rangefinder site="front light site #330"/>
+    <rangefinder site="front light site #331"/>
+    <rangefinder site="front light site #332"/>
+    <rangefinder site="front light site #333"/>
+    <rangefinder site="front light site #334"/>
+    <rangefinder site="front light site #335"/>
+    <rangefinder site="front light site #336"/>
+    <rangefinder site="front light site #337"/>
+    <rangefinder site="front light site #338"/>
+    <rangefinder site="front light site #339"/>
+    <rangefinder site="front light site #340"/>
+    <rangefinder site="front light site #341"/>
+    <rangefinder site="front light site #342"/>
+    <rangefinder site="front light site #343"/>
+    <rangefinder site="front light site #344"/>
+    <rangefinder site="front light site #345"/>
+    <rangefinder site="front light site #346"/>
+    <rangefinder site="front light site #347"/>
+    <rangefinder site="front light site #348"/>
+    <rangefinder site="front light site #349"/>
+    <rangefinder site="front light site #350"/>
+    <rangefinder site="front light site #351"/>
+    <rangefinder site="front light site #352"/>
+    <rangefinder site="front light site #353"/>
+    <rangefinder site="front light site #354"/>
+    <rangefinder site="front light site #355"/>
+    <rangefinder site="front light site #356"/>
+    <rangefinder site="front light site #357"/>
+    <rangefinder site="front light site #358"/>
+    <rangefinder site="front light site #359"/>
+    
+  </sensor>
+</mujoco>

@@ -1,0 +1,87 @@
+[defun each (f) (loop for i from 0 to 359 if (= 0 (mod i 30)) do (funcall f i))]
+<mujoco model="MuJoCo Model">
+  <compiler autolimits="true"/>
+  <visual>
+    <headlight ambient="0.5 0.5 0.5"/>
+    <quality shadowsize="0"/>
+  </visual>
+  <statistic meansize="0.509902" extent="1.6099" center="0 0 0.704951"/>
+  <default class="main">
+    <joint  damping="0.03"/>
+    <default class="wheel">
+      <geom size="0.03 0.01 0" type="cylinder" rgba="0.5 0.5 1 1"/>
+    </default>
+    <default class="decor">
+      <site type="box" rgba="0.5 1 0.5 1"/>
+    </default>
+    <default class="tester">
+    </default>
+  </default>
+  <asset>
+    <mesh name="nog" file="/media/projects/hmm/output.stl"/>
+    <texture type="2d" name="grid" builtin="checker" rgb1="0.1 0.2 0.3" rgb2="0.2 0.3 0.4" width="512" height="512"/>
+    <material name="grid" texture="grid" texuniform="true" reflectance="0.2"/>
+    <mesh name="chasis" vertex="9 2 0 -10 10 10 9 -2 0 10 3 -10 10 -3 -10 -8 10 -10 -10 -10 10 -8 -10 -10 -5 0 20" scale="0.01 0.006 0.0015"/>
+    <hfield name="grandprix" size="10 10 0.3 0.1" file="track.png"/>
+  </asset>
+  <worldbody>
+    <geom name="floor" type="hfield" hfield="grandprix"/>
+    <!-- <geom type="mesh" mesh="nog" pos="0 0 0" /> -->
+    <geom name="plane" size="10 10 0.1" pos="0 0 0.01" type="plane" rgba="0.9 0 0 1"/>
+    <light pos="0 0 3" dir="0 0 -1" diffuse="0.5 0.5 0.5"/>
+    <body pos="0 0 100">
+      <joint name="pin" pos="0 0 0.5" axis="0 1 0"/>
+      <geom name="tube" size="0.1 0.5" type="cylinder" mass="0.1" rgba="0 0.9 0 1"/>
+    </body>
+    <body>
+      <joint type="free"/>
+    <geom type="box" pos="7 0 5" size="0.5 .5 .5"/>
+    </body>
+    <body name="car" pos="5.5 0 1">
+      <joint type="free"  damping="0"/>
+      <geom name="chasis" type="mesh" mesh="chasis"/>
+      <geom name="front wheel" size="0.015" pos="0.08 0 -0.015" condim="1" priority="1"/>
+      <light name="top light" pos="0 0 2" dir="0 0 -1" diffuse="0.4 0.4 0.4" mode="trackcom"/>
+      <light name="front light" pos="0.1 0 0.02" dir="0.894427 0 -0.447214" diffuse="1 1 1"/>
+      <body euler="0 -90 0" pos="0 0 0.04">
+      [each (lambda (i) [<site name="front light site #[=i]" euler="[~ * 2 i] 0 0" pos="0 0 0" class="tester"/>
+      ])]
+      </body>
+      <body name="left wheel" pos="-0.07 0.06 0" quat="0.707107 -0.707107 0 0">
+        <joint name="left" pos="0 0 0" axis="0 0 1"/>
+        <geom class="wheel"/>
+        <site class="decor" pos="0 0 0" size="0.006 0.025 0.012"/>
+        <site class="decor" pos="0 0 0" size="0.025 0.006 0.012"/>
+      </body>
+      <body name="right wheel" pos="-0.07 -0.06 0" quat="0.707107 -0.707107 0 0">
+        <joint name="right" pos="0 0 0" axis="0 0 1"/>
+        <geom class="wheel"/>
+        <site class="decor" pos="0 0 0" size="0.006 0.025 0.012"/>
+        <site class="decor" pos="0 0 0" size="0.025 0.006 0.012"/>
+      </body>
+    </body>
+  </worldbody>
+  <tendon>
+    <fixed name="forward">
+      <joint joint="left" coef="0.5"/>
+      <joint joint="right" coef="0.5"/>
+    </fixed>
+    <fixed name="turn">
+      <joint joint="left" coef="-0.5"/>
+      <joint joint="right" coef="0.5"/>
+    </fixed>
+  </tendon>
+  <actuator>
+    <general name="torque" joint="pin" ctrlrange="-10 10"/>
+    <general name="position servo" joint="pin" biastype="affine" gainprm="10 0 0 0 0 0 0 0 0 0" biasprm="0 -10 0 0 0 0 0 0 0 0"/>
+    <general name="velocity servo" joint="pin" biastype="affine" gainprm="10 0 0 0 0 0 0 0 0 0" biasprm="0 0 -10 0 0 0 0 0 0 0"/>
+    <general name="forward" tendon="forward" ctrlrange="-1 1"/>
+    <general name="turn" tendon="turn" ctrlrange="-1 1"/>
+  </actuator>
+  <sensor>
+    <jointactuatorfrc joint="right" name="right"/>
+    <jointactuatorfrc joint="left" name="left"/>
+    [each (lambda (i) [<rangefinder site="front light site #[=i]"/>
+    ])]
+  </sensor>
+</mujoco>
