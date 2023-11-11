@@ -1,6 +1,13 @@
-
+@{
+import json
+with open("chunks/metadata.json") as metadata_file:
+     metadata = json.load(metadata_file)
+size_x = 20 / metadata["horizontal_chunks"]
+size_y = 20 / metadata["vertical_chunks"]
+}@
 <mujoco model="MuJoCo Model">
   <compiler autolimits="true"/>
+  <option timestep="0.005"/>
   <visual>
     <headlight ambient="0.5 0.5 0.5"/>
     <quality shadowsize="0"/>
@@ -18,25 +25,19 @@
     </default>
   </default>
   <asset>
-    <mesh name="nog" file="/media/projects/hmm/output.stl"/>
     <texture type="2d" name="grid" builtin="checker" rgb1="0.1 0.2 0.3" rgb2="0.2 0.3 0.4" width="512" height="512"/>
     <material name="grid" texture="grid" texuniform="true" reflectance="0.2"/>
     <mesh name="chasis" vertex="9 2 0 -10 10 10 9 -2 0 10 3 -10 10 -3 -10 -8 10 -10 -10 -10 10 -8 -10 -10 -5 0 20" scale="0.01 0.006 0.0015"/>
-    <hfield name="grandprix" size="10 10 0.3 0.1" file="track.png"/>
+    @[for (x,y) in metadata["chunks"] ]@
+    <hfield name="map-@(f"{x:03}x{y:03}")" file="chunks/@(f"{x:03}x{y:03}.png")" size="@(size_x/2) @(size_y/2) 0.3 0.1"/>
+    @[end for]@
   </asset>
   <worldbody>
-    <geom name="floor" type="hfield" hfield="grandprix"/>
-    <!-- <geom type="mesh" mesh="nog" pos="0 0 0" /> -->
-    <geom name="plane" size="10 10 0.1" pos="0 0 0.01" type="plane" rgba="0.9 0 0 1"/>
+    @[for (x,y) in metadata["chunks"] ]@
+    <geom type="hfield" hfield="map-@(f"{x:03}x{y:03}")" pos="@(size_x * x - 4.5) @(-size_y * y + 8.5) 0"/>
+    @[end for]@
+    <geom name="plane" size="30 30 0.1" pos="0 0 0.01" type="plane" rgba="0.9 0 0 1"/>
     <light pos="0 0 3" dir="0 0 -1" diffuse="0.5 0.5 0.5"/>
-    <body pos="0 0 100">
-      <joint name="pin" pos="0 0 0.5" axis="0 1 0"/>
-      <geom name="tube" size="0.1 0.5" type="cylinder" mass="0.1" rgba="0 0.9 0 1"/>
-    </body>
-    <body>
-      <joint type="free"/>
-    <geom type="box" pos="7 0 5" size="0.5 .5 .5"/>
-    </body>
     <body name="car" pos="5.5 0 1">
       <joint type="free"  damping="0"/>
       <geom name="chasis" type="mesh" mesh="chasis"/>
@@ -44,19 +45,11 @@
       <light name="top light" pos="0 0 2" dir="0 0 -1" diffuse="0.4 0.4 0.4" mode="trackcom"/>
       <light name="front light" pos="0.1 0 0.02" dir="0.894427 0 -0.447214" diffuse="1 1 1"/>
       <body euler="0 -90 0" pos="0 0 0.04">
-      <site name="front light site #0" euler="0 0 0" pos="0 0 0" class="tester"/>
-      <site name="front light site #30" euler="60 0 0" pos="0 0 0" class="tester"/>
-      <site name="front light site #60" euler="120 0 0" pos="0 0 0" class="tester"/>
-      <site name="front light site #90" euler="180 0 0" pos="0 0 0" class="tester"/>
-      <site name="front light site #120" euler="240 0 0" pos="0 0 0" class="tester"/>
-      <site name="front light site #150" euler="300 0 0" pos="0 0 0" class="tester"/>
-      <site name="front light site #180" euler="360 0 0" pos="0 0 0" class="tester"/>
-      <site name="front light site #210" euler="420 0 0" pos="0 0 0" class="tester"/>
-      <site name="front light site #240" euler="480 0 0" pos="0 0 0" class="tester"/>
-      <site name="front light site #270" euler="540 0 0" pos="0 0 0" class="tester"/>
-      <site name="front light site #300" euler="600 0 0" pos="0 0 0" class="tester"/>
-      <site name="front light site #330" euler="660 0 0" pos="0 0 0" class="tester"/>
-      
+      @[for i in range(90) ]@
+      <body euler="@(4*i) 0 0">
+      <site name="front light site #@i" pos="0 0 0.15" class="tester"/>
+      </body>
+      @[end for]@
       </body>
       <body name="left wheel" pos="-0.07 0.06 0" quat="0.707107 -0.707107 0 0">
         <joint name="left" pos="0 0 0" axis="0 0 1"/>
@@ -83,27 +76,14 @@
     </fixed>
   </tendon>
   <actuator>
-    <general name="torque" joint="pin" ctrlrange="-10 10"/>
-    <general name="position servo" joint="pin" biastype="affine" gainprm="10 0 0 0 0 0 0 0 0 0" biasprm="0 -10 0 0 0 0 0 0 0 0"/>
-    <general name="velocity servo" joint="pin" biastype="affine" gainprm="10 0 0 0 0 0 0 0 0 0" biasprm="0 0 -10 0 0 0 0 0 0 0"/>
     <general name="forward" tendon="forward" ctrlrange="-1 1"/>
     <general name="turn" tendon="turn" ctrlrange="-1 1"/>
   </actuator>
   <sensor>
     <jointactuatorfrc joint="right" name="right"/>
     <jointactuatorfrc joint="left" name="left"/>
-    <rangefinder site="front light site #0"/>
-    <rangefinder site="front light site #30"/>
-    <rangefinder site="front light site #60"/>
-    <rangefinder site="front light site #90"/>
-    <rangefinder site="front light site #120"/>
-    <rangefinder site="front light site #150"/>
-    <rangefinder site="front light site #180"/>
-    <rangefinder site="front light site #210"/>
-    <rangefinder site="front light site #240"/>
-    <rangefinder site="front light site #270"/>
-    <rangefinder site="front light site #300"/>
-    <rangefinder site="front light site #330"/>
-    
+    @[for i in range(90) ]@
+    <rangefinder site="front light site #@i"/>
+    @[end for]@
   </sensor>
 </mujoco>
