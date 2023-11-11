@@ -20,6 +20,11 @@ To split a heightmap, invoke:
 python3 -m ft_grandprix.chunk -i IMAGE
 ```
 
+For example,
+```
+python3 -m ft_grandprix.chunk -i track.png
+```
+
 # Environment Generation
 
 The environment is generated based off the chunks using empy.
