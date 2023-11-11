@@ -40,4 +40,4 @@ You can then run the simulator as follows:
 python3 -m mujoco.viewer --mjcf=car.xml
 ```
 
-![images/ft_grandprix.png]
+![an image of the simulator](images/ft_grandprix.png)
