@@ -64,7 +64,7 @@ if __name__ == "__main__":
     parser.add_argument("-o", help="the output directory chunks", dest="output", default="chunks")
     parser.add_argument("-W", help="the chunk height to use", dest="chunk_width", default=20)
     parser.add_argument("-H", help="the chunk width height to use", dest="chunk_height", default=20)
-    parser.add_argument("-q", help="supress output", dest="quiet", action="store_const", const=True, default=False)
+    parser.add_argument("-v", help="verbose output", dest="verbose", action="store_const", const=True, default=False)
     parser.add_argument("-f", help="overwrite any directory", dest="force", action="store_const", const=True, default=False)
     args = parser.parse_args()
     chunk(
@@ -72,6 +72,6 @@ if __name__ == "__main__":
         output_dir=args.output,
         chunk_width=args.chunk_width,
         chunk_height=args.chunk_height,
-        verbose=not args.quiet,
+        verbose=args.verbose,
         force=args.force
     )
