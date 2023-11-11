@@ -12,7 +12,7 @@ This simulator loads in maps as heightmaps.
 Mujoco heightmaps are documented [here](https://mujoco.readthedocs.io/en/latest/XMLreference.html#asset-hfield).
 For performance reasons heigtmaps cannot be loaded in full into the sim, as this severly impacts rangefinder speed.
 For this reason, heightmaps have to be split into multiple smaller heightmaps and sections that do not contribute anything to the final map must be deleted.
-This is the purpose of the ~ft_grandprix.chunk~ utility.
+This is the purpose of the `ft_grandprix.chunk` utility.
 
 To split a heightmap, invoke:
 
