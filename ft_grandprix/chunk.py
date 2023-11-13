@@ -46,7 +46,7 @@ def chunk(path, output_dir="chunks", chunk_width=20, chunk_height=20, verbose=Tr
             else:
                 if verbose: print(f"Not going to produce empty chunk {chunk_basename}")
     
-    with open("chunks/metadata.json", "w") as metadata_file:
+    with open(os.path.join(output_dir, "metadata.json"), "w") as metadata_file:
         metadata = {
             "original_width": image.width,
             "original_height": image.height,
@@ -61,7 +61,7 @@ def chunk(path, output_dir="chunks", chunk_width=20, chunk_height=20, verbose=Tr
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", help="the image file split into chunks", dest="input", required=True)
-    parser.add_argument("-o", help="the output directory chunks", dest="output", default="chunks")
+    parser.add_argument("-o", help="the output directory chunks", dest="output", default="models/chunks")
     parser.add_argument("-W", help="the chunk height to use", dest="chunk_width", default=20)
     parser.add_argument("-H", help="the chunk width height to use", dest="chunk_height", default=20)
     parser.add_argument("-v", help="verbose output", dest="verbose", action="store_const", const=True, default=False)

@@ -1,0 +1,112 @@
+@{
+from math import sin, cos, radians
+size_x = 20 / metadata["horizontal_chunks"]
+size_y = 20 / metadata["vertical_chunks"]
+inter_ray_angle = 360 / rangefinders
+}@
+<mujoco model="MuJoCo Model">
+  <compiler autolimits="true"/>
+  <option timestep="0.005"/>
+  <visual>
+    <rgba rangefinder="1.0 1.0 0.0 0.1"/>
+    <headlight ambient="0.5 0.5 0.5"/>
+    <quality shadowsize="1024"/>
+  </visual>
+  <statistic meansize="0.509902" extent="1.6099" center="0 0 0.704951"/>
+  <default class="main">
+    <joint  damping="0.03"/>
+    <default class="wheel">
+      <geom size="0.03 0.01 0" type="cylinder" rgba="0.1 0.1 0.1 1"/>
+    </default>
+    <default class="decor">
+      <site type="box" rgba="0.5 1 0.5 1"/>
+    </default>
+    <default class="tester">
+    </default>
+  </default>
+  <asset>
+    <texture type="cube" name="noob"  file="noob.png"/>
+    <material name="noob" texture="noob"/>
+    <texture type="2d" name="grid" builtin="checker" rgb1="1 0 0" rgb2="1 1 1" width="512" height="512"/>
+    <material name="grid" texture="grid" texuniform="true" reflectance="0.2"/>
+    <mesh name="chasis" vertex="9 2 0 -10 10 10 9 -2 0 10 3 -10 10 -3 -10 -8 10 -10 -10 -10 10 -8 -10 -10 -5 0 20" scale="0.01 0.006 0.0015"/>
+@[for (x,y) in metadata["chunks"] ]@
+    <hfield name="map-@(f'{x:03}x{y:03}')" file="chunks/@(f'{x:03}x{y:03}.png')" size="@(size_x/2) @(size_y/2) 0.15 0.0001"/>
+@[end for]@
+  </asset>
+  <worldbody>
+@[for (x,y) in metadata["chunks"] ]@
+    <geom condim="1" material="grid" type="hfield" hfield="map-@(f'{x:03}x{y:03}')" pos="@(size_x * x - 4.5) @(-size_y * y + 8.5) 0"/>
+@[end for]@
+    <geom name="plane" size="300 300 0.1" pos="0 0 0.01" type="plane" rgba="0.3 0 0 1"/>
+    <light pos="0 0 3" dir="0 0 -1" diffuse="0.5 0.5 0.5"/>
+@[for i, car in enumerate(cars)]@
+@{
+# primary and secondary colors
+r1, g1, b1 = [x/255 for x in car['primary']]
+r2, g2, b2 = [x/255 for x in car['secondary']]
+}@
+    <body name="car #@i" pos="@car['x'] @car['y'] 0.1">
+      <joint type="free"  damping="0"/>
+      <geom name="chasis #@i" type="mesh" mesh="chasis" rgba="@r1 @g1 @b1  1.0"/>
+      <geom rgba="0 0 0 1.0" name="front wheel #@i" size="0.015" pos="0.08 0 -0.015" condim="1" priority="1"/>
+      <light name="top light #@i" pos="0 0 2" dir="0 0 -1" diffuse="0.4 0.4 0.4" mode="trackcom"/>
+      <light name="front light #@i" pos="0.1 0 0.02" dir="0.894427 0 -0.447214" diffuse="1 1 1"/>
+@{
+# rangefinder origin
+rx, ry, rz = -0.0525, 0.000, 0.030
+# lidar model radius and height
+lr = 0.030
+lh = 0.015
+}@
+     <geom rgba="0.1 0.1 0.1 1.0" type="cylinder" size="@lr @lh 0.01" pos="@rx @ry @(rz - lh/2)"/>
+     <site material="noob" type="cylinder" size="@(lr*0.9) 0.001 0.01" pos="@rx @ry @(rz + lh/2 - 0.0005)"/>
+@[for j in range(rangefinders) ]@ 
+@{
+theta = -radians(inter_ray_angle*j - 90)
+}@
+      <site rgba="@r2 @g2 @b2 1.0" name="rangefinder #@i.#@j" pos="@(rx + lr*sin(theta)) @(lr * cos(theta)) @rz" euler="90 @(inter_ray_angle*j - 90) 0"/>
+@[end for]@
+      <body name="left wheel #@i" pos="-0.07 0.06 0" quat="0.707107 -0.707107 0 0">
+        <joint name="left #@i" pos="0 0 0" axis="0 0 1"/>
+        <geom  class="wheel"/>
+        <site rgba="@r2 @g2 @b2 1.0" class="decor" pos="0 0 0" size="0.006 0.025 0.012"/>
+        <site rgba="@r2 @g2 @b2 1.0" class="decor" pos="0 0 0" size="0.025 0.006 0.012"/>
+      </body>
+      <body name="right wheel #@i" pos="-0.07 -0.06 0" quat="0.707107 -0.707107 0 0">
+        <joint name="right #@i" pos="0 0 0" axis="0 0 1"/>
+        <geom class="wheel"/>
+        <site rgba="@r2 @g2 @b2 1.0" class="decor" pos="0 0 0" size="0.006 0.025 0.012"/>
+        <site rgba="@r2 @g2 @b2 1.0" class="decor" pos="0 0 0" size="0.025 0.006 0.012"/>
+      </body>
+    </body>
+@[end for]@
+  </worldbody>
+  <tendon>
+@[for i, car in enumerate(cars)]@
+    <fixed name="forward #@i">
+      <joint joint="left #@i" coef="0.5"/>
+      <joint joint="right #@i" coef="0.5"/>
+    </fixed>
+    <fixed name="turn #@i">
+      <joint joint="left #@i" coef="-0.5"/>
+      <joint joint="right #@i" coef="0.5"/>
+    </fixed>
+@[end for]@
+  </tendon>
+  <actuator>
+@[for i, car in enumerate(cars)]@
+    <general name="forward #@i" tendon="forward #@i" ctrlrange="-2 2"/>
+    <general name="turn #@i" tendon="turn #@i" ctrlrange="-1 1"/>
+@[end for]@
+  </actuator>
+  <sensor>
+@[for i, car in enumerate(cars) ]@
+    <jointactuatorfrc joint="right #@i" name="right #@i"/>
+    <jointactuatorfrc joint="left #@i" name="left #@i"/>
+@[for j in range(rangefinders) ]@
+    <rangefinder name="rangefinder #@i.#@j" site="rangefinder #@i.#@j"/>
+@[end for]@
+@[end for]@
+  </sensor>
+</mujoco>

@@ -1,0 +1,1684 @@
+<mujoco model="MuJoCo Model">
+  <compiler autolimits="true"/>
+  <option timestep="0.005"/>
+  <visual>
+    <rgba rangefinder="1.0 1.0 0.0 0.1"/>
+    <headlight ambient="0.5 0.5 0.5"/>
+    <quality shadowsize="1024"/>
+  </visual>
+  <statistic meansize="0.509902" extent="1.6099" center="0 0 0.704951"/>
+  <default class="main">
+    <joint  damping="0.03"/>
+    <default class="wheel">
+      <geom size="0.03 0.01 0" type="cylinder" rgba="0.1 0.1 0.1 1"/>
+    </default>
+    <default class="decor">
+      <site type="box" rgba="0.5 1 0.5 1"/>
+    </default>
+    <default class="tester">
+    </default>
+  </default>
+  <asset>
+    <texture type="cube" name="noob"  file="noob.png"/>
+    <material name="noob" texture="noob"/>
+    <texture type="2d" name="grid" builtin="checker" rgb1="1 0 0" rgb2="1 1 1" width="512" height="512"/>
+    <material name="grid" texture="grid" texuniform="true" reflectance="0.2"/>
+    <mesh name="chasis" vertex="9 2 0 -10 10 10 9 -2 0 10 3 -10 10 -3 -10 -8 10 -10 -10 -10 10 -8 -10 -10 -5 0 20" scale="0.01 0.006 0.0015"/>
+    <hfield name="map-013x037" file="chunks/013x037.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-013x038" file="chunks/013x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-013x039" file="chunks/013x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-013x040" file="chunks/013x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-013x041" file="chunks/013x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-013x042" file="chunks/013x042.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-014x036" file="chunks/014x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-014x037" file="chunks/014x037.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-014x038" file="chunks/014x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-014x041" file="chunks/014x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-014x042" file="chunks/014x042.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-014x043" file="chunks/014x043.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-014x044" file="chunks/014x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-014x045" file="chunks/014x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-015x035" file="chunks/015x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-015x036" file="chunks/015x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-015x044" file="chunks/015x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-015x045" file="chunks/015x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-015x046" file="chunks/015x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-015x047" file="chunks/015x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-016x034" file="chunks/016x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-016x035" file="chunks/016x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-016x038" file="chunks/016x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-016x039" file="chunks/016x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-016x040" file="chunks/016x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-016x041" file="chunks/016x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-016x042" file="chunks/016x042.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-016x043" file="chunks/016x043.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-016x046" file="chunks/016x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-016x047" file="chunks/016x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-016x048" file="chunks/016x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-017x033" file="chunks/017x033.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-017x034" file="chunks/017x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-017x037" file="chunks/017x037.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-017x038" file="chunks/017x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-017x042" file="chunks/017x042.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-017x043" file="chunks/017x043.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-017x044" file="chunks/017x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-017x045" file="chunks/017x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-017x048" file="chunks/017x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-018x032" file="chunks/018x032.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-018x033" file="chunks/018x033.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-018x036" file="chunks/018x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-018x037" file="chunks/018x037.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-018x045" file="chunks/018x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-018x046" file="chunks/018x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-018x048" file="chunks/018x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-019x031" file="chunks/019x031.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-019x032" file="chunks/019x032.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-019x035" file="chunks/019x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-019x036" file="chunks/019x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-019x045" file="chunks/019x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-019x046" file="chunks/019x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-019x048" file="chunks/019x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-020x030" file="chunks/020x030.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-020x031" file="chunks/020x031.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-020x034" file="chunks/020x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-020x035" file="chunks/020x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-020x045" file="chunks/020x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-020x048" file="chunks/020x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-021x030" file="chunks/021x030.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-021x033" file="chunks/021x033.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-021x034" file="chunks/021x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-021x045" file="chunks/021x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-021x047" file="chunks/021x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-021x048" file="chunks/021x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-022x030" file="chunks/022x030.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-022x032" file="chunks/022x032.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-022x033" file="chunks/022x033.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-022x044" file="chunks/022x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-022x045" file="chunks/022x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-022x047" file="chunks/022x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-022x048" file="chunks/022x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-023x030" file="chunks/023x030.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-023x032" file="chunks/023x032.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-023x033" file="chunks/023x033.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-023x044" file="chunks/023x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-023x045" file="chunks/023x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-023x047" file="chunks/023x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-024x030" file="chunks/024x030.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-024x031" file="chunks/024x031.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-024x033" file="chunks/024x033.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-024x034" file="chunks/024x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-024x044" file="chunks/024x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-024x046" file="chunks/024x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-024x047" file="chunks/024x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-025x031" file="chunks/025x031.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-025x034" file="chunks/025x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-025x043" file="chunks/025x043.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-025x044" file="chunks/025x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-025x046" file="chunks/025x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-025x047" file="chunks/025x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-026x031" file="chunks/026x031.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-026x032" file="chunks/026x032.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-026x034" file="chunks/026x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-026x035" file="chunks/026x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-026x043" file="chunks/026x043.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-026x046" file="chunks/026x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-026x056" file="chunks/026x056.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x032" file="chunks/027x032.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x035" file="chunks/027x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x038" file="chunks/027x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x039" file="chunks/027x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x040" file="chunks/027x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x041" file="chunks/027x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x043" file="chunks/027x043.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x044" file="chunks/027x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x046" file="chunks/027x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x047" file="chunks/027x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x048" file="chunks/027x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x049" file="chunks/027x049.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x050" file="chunks/027x050.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x051" file="chunks/027x051.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x052" file="chunks/027x052.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x053" file="chunks/027x053.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x054" file="chunks/027x054.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x055" file="chunks/027x055.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x056" file="chunks/027x056.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x057" file="chunks/027x057.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-027x058" file="chunks/027x058.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-028x032" file="chunks/028x032.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-028x035" file="chunks/028x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-028x038" file="chunks/028x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-028x039" file="chunks/028x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-028x040" file="chunks/028x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-028x041" file="chunks/028x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-028x043" file="chunks/028x043.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-028x044" file="chunks/028x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-028x058" file="chunks/028x058.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x031" file="chunks/029x031.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x032" file="chunks/029x032.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x034" file="chunks/029x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x035" file="chunks/029x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x038" file="chunks/029x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x039" file="chunks/029x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x040" file="chunks/029x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x041" file="chunks/029x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x044" file="chunks/029x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x045" file="chunks/029x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x046" file="chunks/029x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x050" file="chunks/029x050.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x051" file="chunks/029x051.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x052" file="chunks/029x052.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x053" file="chunks/029x053.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x054" file="chunks/029x054.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x055" file="chunks/029x055.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x056" file="chunks/029x056.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x058" file="chunks/029x058.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-029x059" file="chunks/029x059.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x031" file="chunks/030x031.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x032" file="chunks/030x032.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x034" file="chunks/030x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x035" file="chunks/030x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x038" file="chunks/030x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x039" file="chunks/030x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x040" file="chunks/030x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x041" file="chunks/030x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x045" file="chunks/030x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x046" file="chunks/030x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x047" file="chunks/030x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x048" file="chunks/030x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x049" file="chunks/030x049.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x050" file="chunks/030x050.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x051" file="chunks/030x051.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x052" file="chunks/030x052.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x056" file="chunks/030x056.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x058" file="chunks/030x058.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-030x059" file="chunks/030x059.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-031x029" file="chunks/031x029.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-031x030" file="chunks/031x030.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-031x031" file="chunks/031x031.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-031x033" file="chunks/031x033.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-031x034" file="chunks/031x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-031x038" file="chunks/031x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-031x039" file="chunks/031x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-031x040" file="chunks/031x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-031x041" file="chunks/031x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-031x055" file="chunks/031x055.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-031x056" file="chunks/031x056.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-031x058" file="chunks/031x058.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-031x059" file="chunks/031x059.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-032x027" file="chunks/032x027.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-032x028" file="chunks/032x028.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-032x029" file="chunks/032x029.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-032x032" file="chunks/032x032.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-032x033" file="chunks/032x033.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-032x038" file="chunks/032x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-032x039" file="chunks/032x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-032x040" file="chunks/032x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-032x041" file="chunks/032x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-032x055" file="chunks/032x055.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-032x058" file="chunks/032x058.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-033x026" file="chunks/033x026.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-033x027" file="chunks/033x027.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-033x028" file="chunks/033x028.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-033x031" file="chunks/033x031.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-033x032" file="chunks/033x032.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-033x038" file="chunks/033x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-033x039" file="chunks/033x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-033x040" file="chunks/033x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-033x041" file="chunks/033x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-033x054" file="chunks/033x054.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-033x055" file="chunks/033x055.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-033x057" file="chunks/033x057.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-033x058" file="chunks/033x058.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-034x024" file="chunks/034x024.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-034x025" file="chunks/034x025.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-034x026" file="chunks/034x026.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-034x029" file="chunks/034x029.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-034x030" file="chunks/034x030.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-034x031" file="chunks/034x031.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-034x038" file="chunks/034x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-034x039" file="chunks/034x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-034x040" file="chunks/034x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-034x041" file="chunks/034x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-034x053" file="chunks/034x053.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-034x054" file="chunks/034x054.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-034x057" file="chunks/034x057.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x023" file="chunks/035x023.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x024" file="chunks/035x024.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x025" file="chunks/035x025.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x027" file="chunks/035x027.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x028" file="chunks/035x028.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x029" file="chunks/035x029.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x038" file="chunks/035x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x039" file="chunks/035x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x040" file="chunks/035x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x041" file="chunks/035x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x044" file="chunks/035x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x045" file="chunks/035x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x046" file="chunks/035x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x047" file="chunks/035x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x053" file="chunks/035x053.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x054" file="chunks/035x054.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x056" file="chunks/035x056.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-035x057" file="chunks/035x057.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x023" file="chunks/036x023.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x024" file="chunks/036x024.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x026" file="chunks/036x026.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x027" file="chunks/036x027.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x028" file="chunks/036x028.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x038" file="chunks/036x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x039" file="chunks/036x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x040" file="chunks/036x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x041" file="chunks/036x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x043" file="chunks/036x043.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x044" file="chunks/036x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x045" file="chunks/036x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x046" file="chunks/036x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x047" file="chunks/036x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x048" file="chunks/036x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x049" file="chunks/036x049.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x050" file="chunks/036x050.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x051" file="chunks/036x051.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x052" file="chunks/036x052.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x053" file="chunks/036x053.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x055" file="chunks/036x055.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-036x056" file="chunks/036x056.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-037x023" file="chunks/037x023.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-037x025" file="chunks/037x025.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-037x026" file="chunks/037x026.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-037x038" file="chunks/037x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-037x039" file="chunks/037x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-037x040" file="chunks/037x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-037x041" file="chunks/037x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-037x042" file="chunks/037x042.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-037x043" file="chunks/037x043.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-037x054" file="chunks/037x054.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-037x055" file="chunks/037x055.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x023" file="chunks/038x023.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x025" file="chunks/038x025.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x026" file="chunks/038x026.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x027" file="chunks/038x027.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x028" file="chunks/038x028.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x029" file="chunks/038x029.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x030" file="chunks/038x030.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x031" file="chunks/038x031.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x032" file="chunks/038x032.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x033" file="chunks/038x033.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x034" file="chunks/038x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x038" file="chunks/038x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x039" file="chunks/038x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x040" file="chunks/038x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x041" file="chunks/038x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x042" file="chunks/038x042.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x043" file="chunks/038x043.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x045" file="chunks/038x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x046" file="chunks/038x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x047" file="chunks/038x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x048" file="chunks/038x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x049" file="chunks/038x049.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x050" file="chunks/038x050.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x051" file="chunks/038x051.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x052" file="chunks/038x052.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x053" file="chunks/038x053.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x054" file="chunks/038x054.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-038x055" file="chunks/038x055.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-039x023" file="chunks/039x023.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-039x024" file="chunks/039x024.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-039x033" file="chunks/039x033.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-039x034" file="chunks/039x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-039x035" file="chunks/039x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-039x038" file="chunks/039x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-039x039" file="chunks/039x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-039x040" file="chunks/039x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-039x041" file="chunks/039x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-039x042" file="chunks/039x042.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-039x043" file="chunks/039x043.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-039x045" file="chunks/039x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x024" file="chunks/040x024.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x025" file="chunks/040x025.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x026" file="chunks/040x026.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x027" file="chunks/040x027.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x028" file="chunks/040x028.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x029" file="chunks/040x029.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x030" file="chunks/040x030.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x031" file="chunks/040x031.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x035" file="chunks/040x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x036" file="chunks/040x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x038" file="chunks/040x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x039" file="chunks/040x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x040" file="chunks/040x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x041" file="chunks/040x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x042" file="chunks/040x042.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x043" file="chunks/040x043.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x045" file="chunks/040x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-040x046" file="chunks/040x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-041x030" file="chunks/041x030.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-041x031" file="chunks/041x031.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-041x032" file="chunks/041x032.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-041x033" file="chunks/041x033.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-041x035" file="chunks/041x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-041x036" file="chunks/041x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-041x038" file="chunks/041x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-041x039" file="chunks/041x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-041x040" file="chunks/041x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-041x041" file="chunks/041x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-041x043" file="chunks/041x043.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-041x046" file="chunks/041x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-042x033" file="chunks/042x033.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-042x036" file="chunks/042x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-042x038" file="chunks/042x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-042x039" file="chunks/042x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-042x040" file="chunks/042x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-042x041" file="chunks/042x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-042x043" file="chunks/042x043.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-042x044" file="chunks/042x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-042x046" file="chunks/042x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-043x033" file="chunks/043x033.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-043x036" file="chunks/043x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-043x038" file="chunks/043x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-043x039" file="chunks/043x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-043x040" file="chunks/043x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-043x041" file="chunks/043x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-043x043" file="chunks/043x043.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-043x044" file="chunks/043x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-043x046" file="chunks/043x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-043x047" file="chunks/043x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-044x033" file="chunks/044x033.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-044x034" file="chunks/044x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-044x036" file="chunks/044x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-044x038" file="chunks/044x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-044x039" file="chunks/044x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-044x040" file="chunks/044x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-044x044" file="chunks/044x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-044x047" file="chunks/044x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-045x033" file="chunks/045x033.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-045x034" file="chunks/045x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-045x036" file="chunks/045x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-045x038" file="chunks/045x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-045x039" file="chunks/045x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-045x040" file="chunks/045x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-045x041" file="chunks/045x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-045x044" file="chunks/045x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-045x045" file="chunks/045x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-045x047" file="chunks/045x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-045x048" file="chunks/045x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-046x034" file="chunks/046x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-046x036" file="chunks/046x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-046x038" file="chunks/046x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-046x039" file="chunks/046x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-046x040" file="chunks/046x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-046x041" file="chunks/046x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-046x045" file="chunks/046x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-046x047" file="chunks/046x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-046x048" file="chunks/046x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-047x034" file="chunks/047x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-047x036" file="chunks/047x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-047x037" file="chunks/047x037.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-047x038" file="chunks/047x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-047x039" file="chunks/047x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-047x040" file="chunks/047x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-047x041" file="chunks/047x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-047x045" file="chunks/047x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-047x048" file="chunks/047x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-048x034" file="chunks/048x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-048x036" file="chunks/048x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-048x037" file="chunks/048x037.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-048x038" file="chunks/048x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-048x039" file="chunks/048x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-048x040" file="chunks/048x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-048x041" file="chunks/048x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-048x045" file="chunks/048x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-048x046" file="chunks/048x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-048x048" file="chunks/048x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-048x049" file="chunks/048x049.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-049x034" file="chunks/049x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-049x037" file="chunks/049x037.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-049x038" file="chunks/049x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-049x039" file="chunks/049x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-049x040" file="chunks/049x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-049x041" file="chunks/049x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-049x046" file="chunks/049x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-049x048" file="chunks/049x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-049x049" file="chunks/049x049.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-050x034" file="chunks/050x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-050x037" file="chunks/050x037.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-050x038" file="chunks/050x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-050x039" file="chunks/050x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-050x040" file="chunks/050x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-050x041" file="chunks/050x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-050x046" file="chunks/050x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-050x047" file="chunks/050x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-050x049" file="chunks/050x049.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-051x034" file="chunks/051x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-051x035" file="chunks/051x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-051x037" file="chunks/051x037.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-051x046" file="chunks/051x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-051x047" file="chunks/051x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-051x049" file="chunks/051x049.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-051x050" file="chunks/051x050.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-052x034" file="chunks/052x034.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-052x035" file="chunks/052x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-052x037" file="chunks/052x037.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-052x047" file="chunks/052x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-052x049" file="chunks/052x049.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-052x050" file="chunks/052x050.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-053x035" file="chunks/053x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-053x037" file="chunks/053x037.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-053x047" file="chunks/053x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-053x050" file="chunks/053x050.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-054x035" file="chunks/054x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-054x037" file="chunks/054x037.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-054x038" file="chunks/054x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-054x047" file="chunks/054x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-054x048" file="chunks/054x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-054x050" file="chunks/054x050.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-055x035" file="chunks/055x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-055x037" file="chunks/055x037.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-055x038" file="chunks/055x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-055x047" file="chunks/055x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-055x048" file="chunks/055x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-055x050" file="chunks/055x050.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-055x051" file="chunks/055x051.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-056x035" file="chunks/056x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-056x038" file="chunks/056x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-056x048" file="chunks/056x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-056x050" file="chunks/056x050.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-056x051" file="chunks/056x051.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-057x035" file="chunks/057x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-057x038" file="chunks/057x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-057x048" file="chunks/057x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-057x051" file="chunks/057x051.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-058x035" file="chunks/058x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-058x036" file="chunks/058x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-058x038" file="chunks/058x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-058x048" file="chunks/058x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-058x049" file="chunks/058x049.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-058x051" file="chunks/058x051.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-059x035" file="chunks/059x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-059x036" file="chunks/059x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-059x038" file="chunks/059x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-059x048" file="chunks/059x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-059x049" file="chunks/059x049.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-059x051" file="chunks/059x051.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-059x052" file="chunks/059x052.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-060x035" file="chunks/060x035.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-060x036" file="chunks/060x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-060x038" file="chunks/060x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-060x039" file="chunks/060x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-060x049" file="chunks/060x049.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-060x051" file="chunks/060x051.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-060x052" file="chunks/060x052.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-061x036" file="chunks/061x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-061x038" file="chunks/061x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-061x039" file="chunks/061x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-061x040" file="chunks/061x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-061x041" file="chunks/061x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-061x042" file="chunks/061x042.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-061x043" file="chunks/061x043.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-061x044" file="chunks/061x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-061x045" file="chunks/061x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-061x046" file="chunks/061x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-061x047" file="chunks/061x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-061x048" file="chunks/061x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-061x049" file="chunks/061x049.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-061x051" file="chunks/061x051.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-061x052" file="chunks/061x052.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-062x036" file="chunks/062x036.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-062x037" file="chunks/062x037.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-062x051" file="chunks/062x051.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-062x052" file="chunks/062x052.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-063x037" file="chunks/063x037.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-063x038" file="chunks/063x038.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-063x039" file="chunks/063x039.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-063x040" file="chunks/063x040.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-063x041" file="chunks/063x041.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-063x042" file="chunks/063x042.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-063x043" file="chunks/063x043.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-063x044" file="chunks/063x044.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-063x045" file="chunks/063x045.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-063x046" file="chunks/063x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-063x047" file="chunks/063x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-063x048" file="chunks/063x048.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-063x049" file="chunks/063x049.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-063x050" file="chunks/063x050.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-063x051" file="chunks/063x051.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-064x046" file="chunks/064x046.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-064x047" file="chunks/064x047.png" size="0.125 0.125 0.15 0.0001"/>
+    <hfield name="map-064x048" file="chunks/064x048.png" size="0.125 0.125 0.15 0.0001"/>
+  </asset>
+  <worldbody>
+    <geom condim="1" material="grid" type="hfield" hfield="map-013x037" pos="-1.25 -0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-013x038" pos="-1.25 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-013x039" pos="-1.25 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-013x040" pos="-1.25 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-013x041" pos="-1.25 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-013x042" pos="-1.25 -2.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-014x036" pos="-1.0 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-014x037" pos="-1.0 -0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-014x038" pos="-1.0 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-014x041" pos="-1.0 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-014x042" pos="-1.0 -2.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-014x043" pos="-1.0 -2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-014x044" pos="-1.0 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-014x045" pos="-1.0 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-015x035" pos="-0.75 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-015x036" pos="-0.75 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-015x044" pos="-0.75 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-015x045" pos="-0.75 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-015x046" pos="-0.75 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-015x047" pos="-0.75 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-016x034" pos="-0.5 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-016x035" pos="-0.5 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-016x038" pos="-0.5 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-016x039" pos="-0.5 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-016x040" pos="-0.5 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-016x041" pos="-0.5 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-016x042" pos="-0.5 -2.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-016x043" pos="-0.5 -2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-016x046" pos="-0.5 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-016x047" pos="-0.5 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-016x048" pos="-0.5 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-017x033" pos="-0.25 0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-017x034" pos="-0.25 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-017x037" pos="-0.25 -0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-017x038" pos="-0.25 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-017x042" pos="-0.25 -2.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-017x043" pos="-0.25 -2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-017x044" pos="-0.25 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-017x045" pos="-0.25 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-017x048" pos="-0.25 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-018x032" pos="0.0 0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-018x033" pos="0.0 0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-018x036" pos="0.0 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-018x037" pos="0.0 -0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-018x045" pos="0.0 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-018x046" pos="0.0 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-018x048" pos="0.0 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-019x031" pos="0.25 0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-019x032" pos="0.25 0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-019x035" pos="0.25 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-019x036" pos="0.25 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-019x045" pos="0.25 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-019x046" pos="0.25 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-019x048" pos="0.25 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-020x030" pos="0.5 1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-020x031" pos="0.5 0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-020x034" pos="0.5 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-020x035" pos="0.5 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-020x045" pos="0.5 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-020x048" pos="0.5 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-021x030" pos="0.75 1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-021x033" pos="0.75 0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-021x034" pos="0.75 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-021x045" pos="0.75 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-021x047" pos="0.75 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-021x048" pos="0.75 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-022x030" pos="1.0 1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-022x032" pos="1.0 0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-022x033" pos="1.0 0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-022x044" pos="1.0 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-022x045" pos="1.0 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-022x047" pos="1.0 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-022x048" pos="1.0 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-023x030" pos="1.25 1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-023x032" pos="1.25 0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-023x033" pos="1.25 0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-023x044" pos="1.25 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-023x045" pos="1.25 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-023x047" pos="1.25 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-024x030" pos="1.5 1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-024x031" pos="1.5 0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-024x033" pos="1.5 0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-024x034" pos="1.5 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-024x044" pos="1.5 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-024x046" pos="1.5 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-024x047" pos="1.5 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-025x031" pos="1.75 0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-025x034" pos="1.75 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-025x043" pos="1.75 -2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-025x044" pos="1.75 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-025x046" pos="1.75 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-025x047" pos="1.75 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-026x031" pos="2.0 0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-026x032" pos="2.0 0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-026x034" pos="2.0 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-026x035" pos="2.0 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-026x043" pos="2.0 -2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-026x046" pos="2.0 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-026x056" pos="2.0 -5.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x032" pos="2.25 0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x035" pos="2.25 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x038" pos="2.25 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x039" pos="2.25 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x040" pos="2.25 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x041" pos="2.25 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x043" pos="2.25 -2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x044" pos="2.25 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x046" pos="2.25 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x047" pos="2.25 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x048" pos="2.25 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x049" pos="2.25 -3.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x050" pos="2.25 -4.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x051" pos="2.25 -4.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x052" pos="2.25 -4.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x053" pos="2.25 -4.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x054" pos="2.25 -5.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x055" pos="2.25 -5.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x056" pos="2.25 -5.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x057" pos="2.25 -5.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-027x058" pos="2.25 -6.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-028x032" pos="2.5 0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-028x035" pos="2.5 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-028x038" pos="2.5 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-028x039" pos="2.5 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-028x040" pos="2.5 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-028x041" pos="2.5 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-028x043" pos="2.5 -2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-028x044" pos="2.5 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-028x058" pos="2.5 -6.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x031" pos="2.75 0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x032" pos="2.75 0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x034" pos="2.75 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x035" pos="2.75 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x038" pos="2.75 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x039" pos="2.75 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x040" pos="2.75 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x041" pos="2.75 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x044" pos="2.75 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x045" pos="2.75 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x046" pos="2.75 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x050" pos="2.75 -4.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x051" pos="2.75 -4.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x052" pos="2.75 -4.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x053" pos="2.75 -4.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x054" pos="2.75 -5.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x055" pos="2.75 -5.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x056" pos="2.75 -5.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x058" pos="2.75 -6.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-029x059" pos="2.75 -6.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x031" pos="3.0 0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x032" pos="3.0 0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x034" pos="3.0 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x035" pos="3.0 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x038" pos="3.0 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x039" pos="3.0 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x040" pos="3.0 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x041" pos="3.0 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x045" pos="3.0 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x046" pos="3.0 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x047" pos="3.0 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x048" pos="3.0 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x049" pos="3.0 -3.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x050" pos="3.0 -4.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x051" pos="3.0 -4.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x052" pos="3.0 -4.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x056" pos="3.0 -5.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x058" pos="3.0 -6.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-030x059" pos="3.0 -6.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-031x029" pos="3.25 1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-031x030" pos="3.25 1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-031x031" pos="3.25 0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-031x033" pos="3.25 0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-031x034" pos="3.25 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-031x038" pos="3.25 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-031x039" pos="3.25 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-031x040" pos="3.25 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-031x041" pos="3.25 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-031x055" pos="3.25 -5.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-031x056" pos="3.25 -5.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-031x058" pos="3.25 -6.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-031x059" pos="3.25 -6.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-032x027" pos="3.5 1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-032x028" pos="3.5 1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-032x029" pos="3.5 1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-032x032" pos="3.5 0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-032x033" pos="3.5 0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-032x038" pos="3.5 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-032x039" pos="3.5 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-032x040" pos="3.5 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-032x041" pos="3.5 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-032x055" pos="3.5 -5.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-032x058" pos="3.5 -6.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-033x026" pos="3.75 2.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-033x027" pos="3.75 1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-033x028" pos="3.75 1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-033x031" pos="3.75 0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-033x032" pos="3.75 0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-033x038" pos="3.75 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-033x039" pos="3.75 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-033x040" pos="3.75 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-033x041" pos="3.75 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-033x054" pos="3.75 -5.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-033x055" pos="3.75 -5.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-033x057" pos="3.75 -5.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-033x058" pos="3.75 -6.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-034x024" pos="4.0 2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-034x025" pos="4.0 2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-034x026" pos="4.0 2.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-034x029" pos="4.0 1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-034x030" pos="4.0 1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-034x031" pos="4.0 0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-034x038" pos="4.0 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-034x039" pos="4.0 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-034x040" pos="4.0 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-034x041" pos="4.0 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-034x053" pos="4.0 -4.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-034x054" pos="4.0 -5.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-034x057" pos="4.0 -5.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x023" pos="4.25 2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x024" pos="4.25 2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x025" pos="4.25 2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x027" pos="4.25 1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x028" pos="4.25 1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x029" pos="4.25 1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x038" pos="4.25 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x039" pos="4.25 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x040" pos="4.25 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x041" pos="4.25 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x044" pos="4.25 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x045" pos="4.25 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x046" pos="4.25 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x047" pos="4.25 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x053" pos="4.25 -4.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x054" pos="4.25 -5.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x056" pos="4.25 -5.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-035x057" pos="4.25 -5.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x023" pos="4.5 2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x024" pos="4.5 2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x026" pos="4.5 2.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x027" pos="4.5 1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x028" pos="4.5 1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x038" pos="4.5 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x039" pos="4.5 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x040" pos="4.5 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x041" pos="4.5 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x043" pos="4.5 -2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x044" pos="4.5 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x045" pos="4.5 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x046" pos="4.5 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x047" pos="4.5 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x048" pos="4.5 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x049" pos="4.5 -3.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x050" pos="4.5 -4.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x051" pos="4.5 -4.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x052" pos="4.5 -4.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x053" pos="4.5 -4.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x055" pos="4.5 -5.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-036x056" pos="4.5 -5.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-037x023" pos="4.75 2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-037x025" pos="4.75 2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-037x026" pos="4.75 2.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-037x038" pos="4.75 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-037x039" pos="4.75 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-037x040" pos="4.75 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-037x041" pos="4.75 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-037x042" pos="4.75 -2.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-037x043" pos="4.75 -2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-037x054" pos="4.75 -5.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-037x055" pos="4.75 -5.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x023" pos="5.0 2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x025" pos="5.0 2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x026" pos="5.0 2.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x027" pos="5.0 1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x028" pos="5.0 1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x029" pos="5.0 1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x030" pos="5.0 1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x031" pos="5.0 0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x032" pos="5.0 0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x033" pos="5.0 0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x034" pos="5.0 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x038" pos="5.0 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x039" pos="5.0 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x040" pos="5.0 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x041" pos="5.0 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x042" pos="5.0 -2.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x043" pos="5.0 -2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x045" pos="5.0 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x046" pos="5.0 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x047" pos="5.0 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x048" pos="5.0 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x049" pos="5.0 -3.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x050" pos="5.0 -4.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x051" pos="5.0 -4.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x052" pos="5.0 -4.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x053" pos="5.0 -4.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x054" pos="5.0 -5.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-038x055" pos="5.0 -5.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-039x023" pos="5.25 2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-039x024" pos="5.25 2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-039x033" pos="5.25 0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-039x034" pos="5.25 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-039x035" pos="5.25 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-039x038" pos="5.25 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-039x039" pos="5.25 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-039x040" pos="5.25 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-039x041" pos="5.25 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-039x042" pos="5.25 -2.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-039x043" pos="5.25 -2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-039x045" pos="5.25 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x024" pos="5.5 2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x025" pos="5.5 2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x026" pos="5.5 2.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x027" pos="5.5 1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x028" pos="5.5 1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x029" pos="5.5 1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x030" pos="5.5 1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x031" pos="5.5 0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x035" pos="5.5 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x036" pos="5.5 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x038" pos="5.5 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x039" pos="5.5 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x040" pos="5.5 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x041" pos="5.5 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x042" pos="5.5 -2.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x043" pos="5.5 -2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x045" pos="5.5 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-040x046" pos="5.5 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-041x030" pos="5.75 1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-041x031" pos="5.75 0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-041x032" pos="5.75 0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-041x033" pos="5.75 0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-041x035" pos="5.75 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-041x036" pos="5.75 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-041x038" pos="5.75 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-041x039" pos="5.75 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-041x040" pos="5.75 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-041x041" pos="5.75 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-041x043" pos="5.75 -2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-041x046" pos="5.75 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-042x033" pos="6.0 0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-042x036" pos="6.0 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-042x038" pos="6.0 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-042x039" pos="6.0 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-042x040" pos="6.0 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-042x041" pos="6.0 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-042x043" pos="6.0 -2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-042x044" pos="6.0 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-042x046" pos="6.0 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-043x033" pos="6.25 0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-043x036" pos="6.25 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-043x038" pos="6.25 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-043x039" pos="6.25 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-043x040" pos="6.25 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-043x041" pos="6.25 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-043x043" pos="6.25 -2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-043x044" pos="6.25 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-043x046" pos="6.25 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-043x047" pos="6.25 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-044x033" pos="6.5 0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-044x034" pos="6.5 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-044x036" pos="6.5 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-044x038" pos="6.5 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-044x039" pos="6.5 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-044x040" pos="6.5 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-044x044" pos="6.5 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-044x047" pos="6.5 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-045x033" pos="6.75 0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-045x034" pos="6.75 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-045x036" pos="6.75 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-045x038" pos="6.75 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-045x039" pos="6.75 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-045x040" pos="6.75 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-045x041" pos="6.75 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-045x044" pos="6.75 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-045x045" pos="6.75 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-045x047" pos="6.75 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-045x048" pos="6.75 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-046x034" pos="7.0 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-046x036" pos="7.0 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-046x038" pos="7.0 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-046x039" pos="7.0 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-046x040" pos="7.0 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-046x041" pos="7.0 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-046x045" pos="7.0 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-046x047" pos="7.0 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-046x048" pos="7.0 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-047x034" pos="7.25 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-047x036" pos="7.25 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-047x037" pos="7.25 -0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-047x038" pos="7.25 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-047x039" pos="7.25 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-047x040" pos="7.25 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-047x041" pos="7.25 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-047x045" pos="7.25 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-047x048" pos="7.25 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-048x034" pos="7.5 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-048x036" pos="7.5 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-048x037" pos="7.5 -0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-048x038" pos="7.5 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-048x039" pos="7.5 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-048x040" pos="7.5 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-048x041" pos="7.5 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-048x045" pos="7.5 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-048x046" pos="7.5 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-048x048" pos="7.5 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-048x049" pos="7.5 -3.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-049x034" pos="7.75 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-049x037" pos="7.75 -0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-049x038" pos="7.75 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-049x039" pos="7.75 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-049x040" pos="7.75 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-049x041" pos="7.75 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-049x046" pos="7.75 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-049x048" pos="7.75 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-049x049" pos="7.75 -3.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-050x034" pos="8.0 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-050x037" pos="8.0 -0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-050x038" pos="8.0 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-050x039" pos="8.0 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-050x040" pos="8.0 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-050x041" pos="8.0 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-050x046" pos="8.0 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-050x047" pos="8.0 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-050x049" pos="8.0 -3.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-051x034" pos="8.25 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-051x035" pos="8.25 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-051x037" pos="8.25 -0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-051x046" pos="8.25 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-051x047" pos="8.25 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-051x049" pos="8.25 -3.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-051x050" pos="8.25 -4.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-052x034" pos="8.5 0.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-052x035" pos="8.5 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-052x037" pos="8.5 -0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-052x047" pos="8.5 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-052x049" pos="8.5 -3.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-052x050" pos="8.5 -4.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-053x035" pos="8.75 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-053x037" pos="8.75 -0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-053x047" pos="8.75 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-053x050" pos="8.75 -4.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-054x035" pos="9.0 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-054x037" pos="9.0 -0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-054x038" pos="9.0 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-054x047" pos="9.0 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-054x048" pos="9.0 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-054x050" pos="9.0 -4.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-055x035" pos="9.25 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-055x037" pos="9.25 -0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-055x038" pos="9.25 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-055x047" pos="9.25 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-055x048" pos="9.25 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-055x050" pos="9.25 -4.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-055x051" pos="9.25 -4.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-056x035" pos="9.5 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-056x038" pos="9.5 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-056x048" pos="9.5 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-056x050" pos="9.5 -4.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-056x051" pos="9.5 -4.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-057x035" pos="9.75 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-057x038" pos="9.75 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-057x048" pos="9.75 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-057x051" pos="9.75 -4.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-058x035" pos="10.0 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-058x036" pos="10.0 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-058x038" pos="10.0 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-058x048" pos="10.0 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-058x049" pos="10.0 -3.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-058x051" pos="10.0 -4.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-059x035" pos="10.25 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-059x036" pos="10.25 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-059x038" pos="10.25 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-059x048" pos="10.25 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-059x049" pos="10.25 -3.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-059x051" pos="10.25 -4.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-059x052" pos="10.25 -4.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-060x035" pos="10.5 -0.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-060x036" pos="10.5 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-060x038" pos="10.5 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-060x039" pos="10.5 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-060x049" pos="10.5 -3.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-060x051" pos="10.5 -4.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-060x052" pos="10.5 -4.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-061x036" pos="10.75 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-061x038" pos="10.75 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-061x039" pos="10.75 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-061x040" pos="10.75 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-061x041" pos="10.75 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-061x042" pos="10.75 -2.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-061x043" pos="10.75 -2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-061x044" pos="10.75 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-061x045" pos="10.75 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-061x046" pos="10.75 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-061x047" pos="10.75 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-061x048" pos="10.75 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-061x049" pos="10.75 -3.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-061x051" pos="10.75 -4.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-061x052" pos="10.75 -4.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-062x036" pos="11.0 -0.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-062x037" pos="11.0 -0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-062x051" pos="11.0 -4.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-062x052" pos="11.0 -4.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-063x037" pos="11.25 -0.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-063x038" pos="11.25 -1.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-063x039" pos="11.25 -1.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-063x040" pos="11.25 -1.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-063x041" pos="11.25 -1.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-063x042" pos="11.25 -2.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-063x043" pos="11.25 -2.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-063x044" pos="11.25 -2.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-063x045" pos="11.25 -2.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-063x046" pos="11.25 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-063x047" pos="11.25 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-063x048" pos="11.25 -3.5 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-063x049" pos="11.25 -3.75 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-063x050" pos="11.25 -4.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-063x051" pos="11.25 -4.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-064x046" pos="11.5 -3.0 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-064x047" pos="11.5 -3.25 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-064x048" pos="11.5 -3.5 0"/>
+    <geom name="plane" size="300 300 0.1" pos="0 0 0.01" type="plane" rgba="0.3 0 0 1"/>
+    <light pos="0 0 3" dir="0 0 -1" diffuse="0.5 0.5 0.5"/>
+    <body name="car #0" pos="5.6 0.1 0.1">
+      <joint type="free"  damping="0"/>
+      <geom name="chasis #0" type="mesh" mesh="chasis" rgba="1.0 0.0 0.0  1.0"/>
+      <geom rgba="0 0 0 1.0" name="front wheel #0" size="0.015" pos="0.08 0 -0.015" condim="1" priority="1"/>
+      <light name="top light #0" pos="0 0 2" dir="0 0 -1" diffuse="0.4 0.4 0.4" mode="trackcom"/>
+      <light name="front light #0" pos="0.1 0 0.02" dir="0.894427 0 -0.447214" diffuse="1 1 1"/>
+     <geom rgba="0.1 0.1 0.1 1.0" type="cylinder" size="0.03 0.015 0.01" pos="-0.0525 0.0 0.0225"/>
+     <site material="noob" type="cylinder" size="0.027 0.001 0.01" pos="-0.0525 0.0 0.037"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#0" pos="-0.0225 1.8369701987210296e-18 0.03" euler="90 -90.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#1" pos="-0.022573078492205273 0.002092694212323757 0.03" euler="90 -86.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#2" pos="-0.022791957937752887 0.004175193028801964 0.03" euler="90 -82.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#3" pos="-0.02315557197798583 0.006237350724532784 0.03" euler="90 -78.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#4" pos="-0.023662149121850433 0.008269120674509975 0.03" euler="90 -74.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#5" pos="-0.02430922137642275 0.010260604299770064 0.03" euler="90 -70.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#6" pos="-0.02509363627072197 0.012202099292274006 0.03" euler="90 -66.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#7" pos="-0.02601157221423219 0.014084146883576724 0.03" euler="90 -62.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#8" pos="-0.02705855711530722 0.015897577926996146 0.03" euler="90 -58.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#9" pos="-0.028229490168751575 0.017633557568774192 0.03" euler="90 -54.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#10" pos="-0.02951866670643066 0.01928362829059618 0.03" euler="90 -50.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#11" pos="-0.030919805989840468 0.020839751113769917 0.03" euler="90 -46.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#12" pos="-0.03242608180923425 0.022294344764321825 0.03" euler="90 -42.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#13" pos="-0.03403015574023025 0.023640322608201658 0.03" euler="90 -38.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#14" pos="-0.03572421289587759 0.02487112717665125 0.03" euler="90 -34.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#15" pos="-0.0375 0.02598076211353316 0.03" euler="90 -30.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#16" pos="-0.03934886559632768 0.02696382138897501 0.03" euler="90 -26.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#17" pos="-0.04126180219752264 0.027815515637003622 0.03" euler="90 -22.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#18" pos="-0.04322949016875158 0.028531695488854605 0.03" euler="90 -18.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#19" pos="-0.04524234313200996 0.029108871788279894 0.03" euler="90 -14.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#20" pos="-0.04729055466999209 0.02954423259036624 0.03" euler="90 -10.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#21" pos="-0.049364146101970395 0.029835656861048197 0.03" euler="90 -6.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#22" pos="-0.05145301509892497 0.02998172481057287 0.03" euler="90 -2.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#23" pos="-0.053546984901075026 0.02998172481057287 0.03" euler="90 2.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#24" pos="-0.0556358538980296 0.029835656861048197 0.03" euler="90 6.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#25" pos="-0.05770944533000791 0.02954423259036624 0.03" euler="90 10.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#26" pos="-0.05975765686799003 0.029108871788279894 0.03" euler="90 14.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#27" pos="-0.06177050983124842 0.028531695488854605 0.03" euler="90 18.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#28" pos="-0.06373819780247736 0.027815515637003622 0.03" euler="90 22.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#29" pos="-0.06565113440367232 0.02696382138897501 0.03" euler="90 26.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#30" pos="-0.06749999999999999 0.02598076211353316 0.03" euler="90 30.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#31" pos="-0.06927578710412241 0.02487112717665125 0.03" euler="90 34.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#32" pos="-0.07096984425976974 0.023640322608201658 0.03" euler="90 38.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#33" pos="-0.07257391819076575 0.022294344764321825 0.03" euler="90 42.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#34" pos="-0.07408019401015953 0.020839751113769917 0.03" euler="90 46.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#35" pos="-0.07548133329356933 0.01928362829059618 0.03" euler="90 50.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#36" pos="-0.07677050983124842 0.017633557568774192 0.03" euler="90 54.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#37" pos="-0.07794144288469278 0.015897577926996146 0.03" euler="90 58.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#38" pos="-0.07898842778576781 0.014084146883576724 0.03" euler="90 62.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#39" pos="-0.07990636372927802 0.012202099292274006 0.03" euler="90 66.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#40" pos="-0.08069077862357725 0.010260604299770064 0.03" euler="90 70.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#41" pos="-0.08133785087814957 0.008269120674509975 0.03" euler="90 74.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#42" pos="-0.08184442802201417 0.006237350724532784 0.03" euler="90 78.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#43" pos="-0.0822080420622471 0.004175193028801964 0.03" euler="90 82.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#44" pos="-0.08242692150779472 0.002092694212323757 0.03" euler="90 86.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#45" pos="-0.08249999999999999 1.8369701987210296e-18 0.03" euler="90 90.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#46" pos="-0.08242692150779472 -0.0020926942123237597 0.03" euler="90 94.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#47" pos="-0.0822080420622471 -0.004175193028801961 0.03" euler="90 98.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#48" pos="-0.08184442802201417 -0.00623735072453278 0.03" euler="90 102.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#49" pos="-0.08133785087814957 -0.008269120674509972 0.03" euler="90 106.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#50" pos="-0.08069077862357725 -0.01026060429977006 0.03" euler="90 110.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#51" pos="-0.07990636372927802 -0.012202099292274008 0.03" euler="90 114.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#52" pos="-0.07898842778576781 -0.014084146883576726 0.03" euler="90 118.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#53" pos="-0.07794144288469278 -0.015897577926996143 0.03" euler="90 122.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#54" pos="-0.07677050983124842 -0.01763355756877419 0.03" euler="90 126.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#55" pos="-0.07548133329356933 -0.01928362829059618 0.03" euler="90 130.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#56" pos="-0.07408019401015953 -0.02083975111376992 0.03" euler="90 134.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#57" pos="-0.07257391819076575 -0.02229434476432182 0.03" euler="90 138.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#58" pos="-0.07096984425976975 -0.023640322608201658 0.03" euler="90 142.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#59" pos="-0.06927578710412241 -0.02487112717665125 0.03" euler="90 146.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#60" pos="-0.06749999999999999 -0.02598076211353316 0.03" euler="90 150.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#61" pos="-0.06565113440367232 -0.02696382138897501 0.03" euler="90 154.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#62" pos="-0.06373819780247736 -0.02781551563700362 0.03" euler="90 158.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#63" pos="-0.061770509831248425 -0.028531695488854605 0.03" euler="90 162.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#64" pos="-0.05975765686799003 -0.029108871788279894 0.03" euler="90 166.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#65" pos="-0.05770944533000791 -0.02954423259036624 0.03" euler="90 170.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#66" pos="-0.05563585389802961 -0.029835656861048197 0.03" euler="90 174.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#67" pos="-0.05354698490107503 -0.02998172481057287 0.03" euler="90 178.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#68" pos="-0.05145301509892497 -0.02998172481057287 0.03" euler="90 182.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#69" pos="-0.049364146101970395 -0.029835656861048197 0.03" euler="90 186.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#70" pos="-0.04729055466999208 -0.02954423259036624 0.03" euler="90 190.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#71" pos="-0.04524234313200998 -0.029108871788279894 0.03" euler="90 194.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#72" pos="-0.04322949016875158 -0.02853169548885461 0.03" euler="90 198.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#73" pos="-0.04126180219752264 -0.027815515637003622 0.03" euler="90 202.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#74" pos="-0.03934886559632768 -0.026963821388975007 0.03" euler="90 206.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#75" pos="-0.03749999999999999 -0.025980762113533156 0.03" euler="90 210.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#76" pos="-0.0357242128958776 -0.024871127176651256 0.03" euler="90 214.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#77" pos="-0.03403015574023026 -0.02364032260820166 0.03" euler="90 218.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#78" pos="-0.03242608180923425 -0.022294344764321825 0.03" euler="90 222.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#79" pos="-0.030919805989840465 -0.020839751113769917 0.03" euler="90 226.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#80" pos="-0.029518666706430663 -0.019283628290596183 0.03" euler="90 230.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#81" pos="-0.028229490168751578 -0.017633557568774196 0.03" euler="90 234.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#82" pos="-0.02705855711530722 -0.01589757792699615 0.03" euler="90 238.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#83" pos="-0.026011572214232188 -0.014084146883576723 0.03" euler="90 242.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#84" pos="-0.025093636270721968 -0.012202099292274003 0.03" euler="90 246.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#85" pos="-0.024309221376422746 -0.010260604299770056 0.03" euler="90 250.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#86" pos="-0.02366214912185043 -0.008269120674509967 0.03" euler="90 254.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#87" pos="-0.02315557197798583 -0.006237350724532793 0.03" euler="90 258.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#88" pos="-0.02279195793775289 -0.0041751930288019745 0.03" euler="90 262.0 0"/>
+
+      <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" name="rangefinder #0.#89" pos="-0.022573078492205273 -0.0020926942123237675 0.03" euler="90 266.0 0"/>
+      <body name="left wheel #0" pos="-0.07 0.06 0" quat="0.707107 -0.707107 0 0">
+        <joint name="left #0" pos="0 0 0" axis="0 0 1"/>
+        <geom  class="wheel"/>
+        <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" class="decor" pos="0 0 0" size="0.006 0.025 0.012"/>
+        <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" class="decor" pos="0 0 0" size="0.025 0.006 0.012"/>
+      </body>
+      <body name="right wheel #0" pos="-0.07 -0.06 0" quat="0.707107 -0.707107 0 0">
+        <joint name="right #0" pos="0 0 0" axis="0 0 1"/>
+        <geom class="wheel"/>
+        <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" class="decor" pos="0 0 0" size="0.006 0.025 0.012"/>
+        <site rgba="1.0 0.7529411764705882 0.796078431372549 1.0" class="decor" pos="0 0 0" size="0.025 0.006 0.012"/>
+      </body>
+    </body>
+    <body name="car #1" pos="5.5 0.0 0.1">
+      <joint type="free"  damping="0"/>
+      <geom name="chasis #1" type="mesh" mesh="chasis" rgba="1.0 0.6470588235294118 0.0  1.0"/>
+      <geom rgba="0 0 0 1.0" name="front wheel #1" size="0.015" pos="0.08 0 -0.015" condim="1" priority="1"/>
+      <light name="top light #1" pos="0 0 2" dir="0 0 -1" diffuse="0.4 0.4 0.4" mode="trackcom"/>
+      <light name="front light #1" pos="0.1 0 0.02" dir="0.894427 0 -0.447214" diffuse="1 1 1"/>
+     <geom rgba="0.1 0.1 0.1 1.0" type="cylinder" size="0.03 0.015 0.01" pos="-0.0525 0.0 0.0225"/>
+     <site material="noob" type="cylinder" size="0.027 0.001 0.01" pos="-0.0525 0.0 0.037"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#0" pos="-0.0225 1.8369701987210296e-18 0.03" euler="90 -90.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#1" pos="-0.022573078492205273 0.002092694212323757 0.03" euler="90 -86.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#2" pos="-0.022791957937752887 0.004175193028801964 0.03" euler="90 -82.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#3" pos="-0.02315557197798583 0.006237350724532784 0.03" euler="90 -78.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#4" pos="-0.023662149121850433 0.008269120674509975 0.03" euler="90 -74.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#5" pos="-0.02430922137642275 0.010260604299770064 0.03" euler="90 -70.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#6" pos="-0.02509363627072197 0.012202099292274006 0.03" euler="90 -66.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#7" pos="-0.02601157221423219 0.014084146883576724 0.03" euler="90 -62.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#8" pos="-0.02705855711530722 0.015897577926996146 0.03" euler="90 -58.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#9" pos="-0.028229490168751575 0.017633557568774192 0.03" euler="90 -54.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#10" pos="-0.02951866670643066 0.01928362829059618 0.03" euler="90 -50.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#11" pos="-0.030919805989840468 0.020839751113769917 0.03" euler="90 -46.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#12" pos="-0.03242608180923425 0.022294344764321825 0.03" euler="90 -42.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#13" pos="-0.03403015574023025 0.023640322608201658 0.03" euler="90 -38.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#14" pos="-0.03572421289587759 0.02487112717665125 0.03" euler="90 -34.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#15" pos="-0.0375 0.02598076211353316 0.03" euler="90 -30.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#16" pos="-0.03934886559632768 0.02696382138897501 0.03" euler="90 -26.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#17" pos="-0.04126180219752264 0.027815515637003622 0.03" euler="90 -22.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#18" pos="-0.04322949016875158 0.028531695488854605 0.03" euler="90 -18.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#19" pos="-0.04524234313200996 0.029108871788279894 0.03" euler="90 -14.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#20" pos="-0.04729055466999209 0.02954423259036624 0.03" euler="90 -10.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#21" pos="-0.049364146101970395 0.029835656861048197 0.03" euler="90 -6.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#22" pos="-0.05145301509892497 0.02998172481057287 0.03" euler="90 -2.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#23" pos="-0.053546984901075026 0.02998172481057287 0.03" euler="90 2.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#24" pos="-0.0556358538980296 0.029835656861048197 0.03" euler="90 6.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#25" pos="-0.05770944533000791 0.02954423259036624 0.03" euler="90 10.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#26" pos="-0.05975765686799003 0.029108871788279894 0.03" euler="90 14.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#27" pos="-0.06177050983124842 0.028531695488854605 0.03" euler="90 18.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#28" pos="-0.06373819780247736 0.027815515637003622 0.03" euler="90 22.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#29" pos="-0.06565113440367232 0.02696382138897501 0.03" euler="90 26.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#30" pos="-0.06749999999999999 0.02598076211353316 0.03" euler="90 30.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#31" pos="-0.06927578710412241 0.02487112717665125 0.03" euler="90 34.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#32" pos="-0.07096984425976974 0.023640322608201658 0.03" euler="90 38.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#33" pos="-0.07257391819076575 0.022294344764321825 0.03" euler="90 42.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#34" pos="-0.07408019401015953 0.020839751113769917 0.03" euler="90 46.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#35" pos="-0.07548133329356933 0.01928362829059618 0.03" euler="90 50.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#36" pos="-0.07677050983124842 0.017633557568774192 0.03" euler="90 54.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#37" pos="-0.07794144288469278 0.015897577926996146 0.03" euler="90 58.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#38" pos="-0.07898842778576781 0.014084146883576724 0.03" euler="90 62.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#39" pos="-0.07990636372927802 0.012202099292274006 0.03" euler="90 66.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#40" pos="-0.08069077862357725 0.010260604299770064 0.03" euler="90 70.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#41" pos="-0.08133785087814957 0.008269120674509975 0.03" euler="90 74.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#42" pos="-0.08184442802201417 0.006237350724532784 0.03" euler="90 78.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#43" pos="-0.0822080420622471 0.004175193028801964 0.03" euler="90 82.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#44" pos="-0.08242692150779472 0.002092694212323757 0.03" euler="90 86.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#45" pos="-0.08249999999999999 1.8369701987210296e-18 0.03" euler="90 90.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#46" pos="-0.08242692150779472 -0.0020926942123237597 0.03" euler="90 94.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#47" pos="-0.0822080420622471 -0.004175193028801961 0.03" euler="90 98.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#48" pos="-0.08184442802201417 -0.00623735072453278 0.03" euler="90 102.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#49" pos="-0.08133785087814957 -0.008269120674509972 0.03" euler="90 106.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#50" pos="-0.08069077862357725 -0.01026060429977006 0.03" euler="90 110.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#51" pos="-0.07990636372927802 -0.012202099292274008 0.03" euler="90 114.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#52" pos="-0.07898842778576781 -0.014084146883576726 0.03" euler="90 118.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#53" pos="-0.07794144288469278 -0.015897577926996143 0.03" euler="90 122.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#54" pos="-0.07677050983124842 -0.01763355756877419 0.03" euler="90 126.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#55" pos="-0.07548133329356933 -0.01928362829059618 0.03" euler="90 130.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#56" pos="-0.07408019401015953 -0.02083975111376992 0.03" euler="90 134.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#57" pos="-0.07257391819076575 -0.02229434476432182 0.03" euler="90 138.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#58" pos="-0.07096984425976975 -0.023640322608201658 0.03" euler="90 142.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#59" pos="-0.06927578710412241 -0.02487112717665125 0.03" euler="90 146.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#60" pos="-0.06749999999999999 -0.02598076211353316 0.03" euler="90 150.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#61" pos="-0.06565113440367232 -0.02696382138897501 0.03" euler="90 154.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#62" pos="-0.06373819780247736 -0.02781551563700362 0.03" euler="90 158.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#63" pos="-0.061770509831248425 -0.028531695488854605 0.03" euler="90 162.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#64" pos="-0.05975765686799003 -0.029108871788279894 0.03" euler="90 166.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#65" pos="-0.05770944533000791 -0.02954423259036624 0.03" euler="90 170.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#66" pos="-0.05563585389802961 -0.029835656861048197 0.03" euler="90 174.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#67" pos="-0.05354698490107503 -0.02998172481057287 0.03" euler="90 178.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#68" pos="-0.05145301509892497 -0.02998172481057287 0.03" euler="90 182.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#69" pos="-0.049364146101970395 -0.029835656861048197 0.03" euler="90 186.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#70" pos="-0.04729055466999208 -0.02954423259036624 0.03" euler="90 190.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#71" pos="-0.04524234313200998 -0.029108871788279894 0.03" euler="90 194.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#72" pos="-0.04322949016875158 -0.02853169548885461 0.03" euler="90 198.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#73" pos="-0.04126180219752264 -0.027815515637003622 0.03" euler="90 202.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#74" pos="-0.03934886559632768 -0.026963821388975007 0.03" euler="90 206.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#75" pos="-0.03749999999999999 -0.025980762113533156 0.03" euler="90 210.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#76" pos="-0.0357242128958776 -0.024871127176651256 0.03" euler="90 214.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#77" pos="-0.03403015574023026 -0.02364032260820166 0.03" euler="90 218.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#78" pos="-0.03242608180923425 -0.022294344764321825 0.03" euler="90 222.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#79" pos="-0.030919805989840465 -0.020839751113769917 0.03" euler="90 226.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#80" pos="-0.029518666706430663 -0.019283628290596183 0.03" euler="90 230.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#81" pos="-0.028229490168751578 -0.017633557568774196 0.03" euler="90 234.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#82" pos="-0.02705855711530722 -0.01589757792699615 0.03" euler="90 238.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#83" pos="-0.026011572214232188 -0.014084146883576723 0.03" euler="90 242.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#84" pos="-0.025093636270721968 -0.012202099292274003 0.03" euler="90 246.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#85" pos="-0.024309221376422746 -0.010260604299770056 0.03" euler="90 250.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#86" pos="-0.02366214912185043 -0.008269120674509967 0.03" euler="90 254.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#87" pos="-0.02315557197798583 -0.006237350724532793 0.03" euler="90 258.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#88" pos="-0.02279195793775289 -0.0041751930288019745 0.03" euler="90 262.0 0"/>
+
+      <site rgba="1.0 0.5490196078431373 0.0 1.0" name="rangefinder #1.#89" pos="-0.022573078492205273 -0.0020926942123237675 0.03" euler="90 266.0 0"/>
+      <body name="left wheel #1" pos="-0.07 0.06 0" quat="0.707107 -0.707107 0 0">
+        <joint name="left #1" pos="0 0 0" axis="0 0 1"/>
+        <geom  class="wheel"/>
+        <site rgba="1.0 0.5490196078431373 0.0 1.0" class="decor" pos="0 0 0" size="0.006 0.025 0.012"/>
+        <site rgba="1.0 0.5490196078431373 0.0 1.0" class="decor" pos="0 0 0" size="0.025 0.006 0.012"/>
+      </body>
+      <body name="right wheel #1" pos="-0.07 -0.06 0" quat="0.707107 -0.707107 0 0">
+        <joint name="right #1" pos="0 0 0" axis="0 0 1"/>
+        <geom class="wheel"/>
+        <site rgba="1.0 0.5490196078431373 0.0 1.0" class="decor" pos="0 0 0" size="0.006 0.025 0.012"/>
+        <site rgba="1.0 0.5490196078431373 0.0 1.0" class="decor" pos="0 0 0" size="0.025 0.006 0.012"/>
+      </body>
+    </body>
+  </worldbody>
+  <tendon>
+    <fixed name="forward #0">
+      <joint joint="left #0" coef="0.5"/>
+      <joint joint="right #0" coef="0.5"/>
+    </fixed>
+    <fixed name="turn #0">
+      <joint joint="left #0" coef="-0.5"/>
+      <joint joint="right #0" coef="0.5"/>
+    </fixed>
+    <fixed name="forward #1">
+      <joint joint="left #1" coef="0.5"/>
+      <joint joint="right #1" coef="0.5"/>
+    </fixed>
+    <fixed name="turn #1">
+      <joint joint="left #1" coef="-0.5"/>
+      <joint joint="right #1" coef="0.5"/>
+    </fixed>
+  </tendon>
+  <actuator>
+    <general name="forward #0" tendon="forward #0" ctrlrange="-2 2"/>
+    <general name="turn #0" tendon="turn #0" ctrlrange="-1 1"/>
+    <general name="forward #1" tendon="forward #1" ctrlrange="-2 2"/>
+    <general name="turn #1" tendon="turn #1" ctrlrange="-1 1"/>
+  </actuator>
+  <sensor>
+    <jointactuatorfrc joint="right #0" name="right #0"/>
+    <jointactuatorfrc joint="left #0" name="left #0"/>
+    <rangefinder name="rangefinder #0.#0" site="rangefinder #0.#0"/>
+    <rangefinder name="rangefinder #0.#1" site="rangefinder #0.#1"/>
+    <rangefinder name="rangefinder #0.#2" site="rangefinder #0.#2"/>
+    <rangefinder name="rangefinder #0.#3" site="rangefinder #0.#3"/>
+    <rangefinder name="rangefinder #0.#4" site="rangefinder #0.#4"/>
+    <rangefinder name="rangefinder #0.#5" site="rangefinder #0.#5"/>
+    <rangefinder name="rangefinder #0.#6" site="rangefinder #0.#6"/>
+    <rangefinder name="rangefinder #0.#7" site="rangefinder #0.#7"/>
+    <rangefinder name="rangefinder #0.#8" site="rangefinder #0.#8"/>
+    <rangefinder name="rangefinder #0.#9" site="rangefinder #0.#9"/>
+    <rangefinder name="rangefinder #0.#10" site="rangefinder #0.#10"/>
+    <rangefinder name="rangefinder #0.#11" site="rangefinder #0.#11"/>
+    <rangefinder name="rangefinder #0.#12" site="rangefinder #0.#12"/>
+    <rangefinder name="rangefinder #0.#13" site="rangefinder #0.#13"/>
+    <rangefinder name="rangefinder #0.#14" site="rangefinder #0.#14"/>
+    <rangefinder name="rangefinder #0.#15" site="rangefinder #0.#15"/>
+    <rangefinder name="rangefinder #0.#16" site="rangefinder #0.#16"/>
+    <rangefinder name="rangefinder #0.#17" site="rangefinder #0.#17"/>
+    <rangefinder name="rangefinder #0.#18" site="rangefinder #0.#18"/>
+    <rangefinder name="rangefinder #0.#19" site="rangefinder #0.#19"/>
+    <rangefinder name="rangefinder #0.#20" site="rangefinder #0.#20"/>
+    <rangefinder name="rangefinder #0.#21" site="rangefinder #0.#21"/>
+    <rangefinder name="rangefinder #0.#22" site="rangefinder #0.#22"/>
+    <rangefinder name="rangefinder #0.#23" site="rangefinder #0.#23"/>
+    <rangefinder name="rangefinder #0.#24" site="rangefinder #0.#24"/>
+    <rangefinder name="rangefinder #0.#25" site="rangefinder #0.#25"/>
+    <rangefinder name="rangefinder #0.#26" site="rangefinder #0.#26"/>
+    <rangefinder name="rangefinder #0.#27" site="rangefinder #0.#27"/>
+    <rangefinder name="rangefinder #0.#28" site="rangefinder #0.#28"/>
+    <rangefinder name="rangefinder #0.#29" site="rangefinder #0.#29"/>
+    <rangefinder name="rangefinder #0.#30" site="rangefinder #0.#30"/>
+    <rangefinder name="rangefinder #0.#31" site="rangefinder #0.#31"/>
+    <rangefinder name="rangefinder #0.#32" site="rangefinder #0.#32"/>
+    <rangefinder name="rangefinder #0.#33" site="rangefinder #0.#33"/>
+    <rangefinder name="rangefinder #0.#34" site="rangefinder #0.#34"/>
+    <rangefinder name="rangefinder #0.#35" site="rangefinder #0.#35"/>
+    <rangefinder name="rangefinder #0.#36" site="rangefinder #0.#36"/>
+    <rangefinder name="rangefinder #0.#37" site="rangefinder #0.#37"/>
+    <rangefinder name="rangefinder #0.#38" site="rangefinder #0.#38"/>
+    <rangefinder name="rangefinder #0.#39" site="rangefinder #0.#39"/>
+    <rangefinder name="rangefinder #0.#40" site="rangefinder #0.#40"/>
+    <rangefinder name="rangefinder #0.#41" site="rangefinder #0.#41"/>
+    <rangefinder name="rangefinder #0.#42" site="rangefinder #0.#42"/>
+    <rangefinder name="rangefinder #0.#43" site="rangefinder #0.#43"/>
+    <rangefinder name="rangefinder #0.#44" site="rangefinder #0.#44"/>
+    <rangefinder name="rangefinder #0.#45" site="rangefinder #0.#45"/>
+    <rangefinder name="rangefinder #0.#46" site="rangefinder #0.#46"/>
+    <rangefinder name="rangefinder #0.#47" site="rangefinder #0.#47"/>
+    <rangefinder name="rangefinder #0.#48" site="rangefinder #0.#48"/>
+    <rangefinder name="rangefinder #0.#49" site="rangefinder #0.#49"/>
+    <rangefinder name="rangefinder #0.#50" site="rangefinder #0.#50"/>
+    <rangefinder name="rangefinder #0.#51" site="rangefinder #0.#51"/>
+    <rangefinder name="rangefinder #0.#52" site="rangefinder #0.#52"/>
+    <rangefinder name="rangefinder #0.#53" site="rangefinder #0.#53"/>
+    <rangefinder name="rangefinder #0.#54" site="rangefinder #0.#54"/>
+    <rangefinder name="rangefinder #0.#55" site="rangefinder #0.#55"/>
+    <rangefinder name="rangefinder #0.#56" site="rangefinder #0.#56"/>
+    <rangefinder name="rangefinder #0.#57" site="rangefinder #0.#57"/>
+    <rangefinder name="rangefinder #0.#58" site="rangefinder #0.#58"/>
+    <rangefinder name="rangefinder #0.#59" site="rangefinder #0.#59"/>
+    <rangefinder name="rangefinder #0.#60" site="rangefinder #0.#60"/>
+    <rangefinder name="rangefinder #0.#61" site="rangefinder #0.#61"/>
+    <rangefinder name="rangefinder #0.#62" site="rangefinder #0.#62"/>
+    <rangefinder name="rangefinder #0.#63" site="rangefinder #0.#63"/>
+    <rangefinder name="rangefinder #0.#64" site="rangefinder #0.#64"/>
+    <rangefinder name="rangefinder #0.#65" site="rangefinder #0.#65"/>
+    <rangefinder name="rangefinder #0.#66" site="rangefinder #0.#66"/>
+    <rangefinder name="rangefinder #0.#67" site="rangefinder #0.#67"/>
+    <rangefinder name="rangefinder #0.#68" site="rangefinder #0.#68"/>
+    <rangefinder name="rangefinder #0.#69" site="rangefinder #0.#69"/>
+    <rangefinder name="rangefinder #0.#70" site="rangefinder #0.#70"/>
+    <rangefinder name="rangefinder #0.#71" site="rangefinder #0.#71"/>
+    <rangefinder name="rangefinder #0.#72" site="rangefinder #0.#72"/>
+    <rangefinder name="rangefinder #0.#73" site="rangefinder #0.#73"/>
+    <rangefinder name="rangefinder #0.#74" site="rangefinder #0.#74"/>
+    <rangefinder name="rangefinder #0.#75" site="rangefinder #0.#75"/>
+    <rangefinder name="rangefinder #0.#76" site="rangefinder #0.#76"/>
+    <rangefinder name="rangefinder #0.#77" site="rangefinder #0.#77"/>
+    <rangefinder name="rangefinder #0.#78" site="rangefinder #0.#78"/>
+    <rangefinder name="rangefinder #0.#79" site="rangefinder #0.#79"/>
+    <rangefinder name="rangefinder #0.#80" site="rangefinder #0.#80"/>
+    <rangefinder name="rangefinder #0.#81" site="rangefinder #0.#81"/>
+    <rangefinder name="rangefinder #0.#82" site="rangefinder #0.#82"/>
+    <rangefinder name="rangefinder #0.#83" site="rangefinder #0.#83"/>
+    <rangefinder name="rangefinder #0.#84" site="rangefinder #0.#84"/>
+    <rangefinder name="rangefinder #0.#85" site="rangefinder #0.#85"/>
+    <rangefinder name="rangefinder #0.#86" site="rangefinder #0.#86"/>
+    <rangefinder name="rangefinder #0.#87" site="rangefinder #0.#87"/>
+    <rangefinder name="rangefinder #0.#88" site="rangefinder #0.#88"/>
+    <rangefinder name="rangefinder #0.#89" site="rangefinder #0.#89"/>
+    <jointactuatorfrc joint="right #1" name="right #1"/>
+    <jointactuatorfrc joint="left #1" name="left #1"/>
+    <rangefinder name="rangefinder #1.#0" site="rangefinder #1.#0"/>
+    <rangefinder name="rangefinder #1.#1" site="rangefinder #1.#1"/>
+    <rangefinder name="rangefinder #1.#2" site="rangefinder #1.#2"/>
+    <rangefinder name="rangefinder #1.#3" site="rangefinder #1.#3"/>
+    <rangefinder name="rangefinder #1.#4" site="rangefinder #1.#4"/>
+    <rangefinder name="rangefinder #1.#5" site="rangefinder #1.#5"/>
+    <rangefinder name="rangefinder #1.#6" site="rangefinder #1.#6"/>
+    <rangefinder name="rangefinder #1.#7" site="rangefinder #1.#7"/>
+    <rangefinder name="rangefinder #1.#8" site="rangefinder #1.#8"/>
+    <rangefinder name="rangefinder #1.#9" site="rangefinder #1.#9"/>
+    <rangefinder name="rangefinder #1.#10" site="rangefinder #1.#10"/>
+    <rangefinder name="rangefinder #1.#11" site="rangefinder #1.#11"/>
+    <rangefinder name="rangefinder #1.#12" site="rangefinder #1.#12"/>
+    <rangefinder name="rangefinder #1.#13" site="rangefinder #1.#13"/>
+    <rangefinder name="rangefinder #1.#14" site="rangefinder #1.#14"/>
+    <rangefinder name="rangefinder #1.#15" site="rangefinder #1.#15"/>
+    <rangefinder name="rangefinder #1.#16" site="rangefinder #1.#16"/>
+    <rangefinder name="rangefinder #1.#17" site="rangefinder #1.#17"/>
+    <rangefinder name="rangefinder #1.#18" site="rangefinder #1.#18"/>
+    <rangefinder name="rangefinder #1.#19" site="rangefinder #1.#19"/>
+    <rangefinder name="rangefinder #1.#20" site="rangefinder #1.#20"/>
+    <rangefinder name="rangefinder #1.#21" site="rangefinder #1.#21"/>
+    <rangefinder name="rangefinder #1.#22" site="rangefinder #1.#22"/>
+    <rangefinder name="rangefinder #1.#23" site="rangefinder #1.#23"/>
+    <rangefinder name="rangefinder #1.#24" site="rangefinder #1.#24"/>
+    <rangefinder name="rangefinder #1.#25" site="rangefinder #1.#25"/>
+    <rangefinder name="rangefinder #1.#26" site="rangefinder #1.#26"/>
+    <rangefinder name="rangefinder #1.#27" site="rangefinder #1.#27"/>
+    <rangefinder name="rangefinder #1.#28" site="rangefinder #1.#28"/>
+    <rangefinder name="rangefinder #1.#29" site="rangefinder #1.#29"/>
+    <rangefinder name="rangefinder #1.#30" site="rangefinder #1.#30"/>
+    <rangefinder name="rangefinder #1.#31" site="rangefinder #1.#31"/>
+    <rangefinder name="rangefinder #1.#32" site="rangefinder #1.#32"/>
+    <rangefinder name="rangefinder #1.#33" site="rangefinder #1.#33"/>
+    <rangefinder name="rangefinder #1.#34" site="rangefinder #1.#34"/>
+    <rangefinder name="rangefinder #1.#35" site="rangefinder #1.#35"/>
+    <rangefinder name="rangefinder #1.#36" site="rangefinder #1.#36"/>
+    <rangefinder name="rangefinder #1.#37" site="rangefinder #1.#37"/>
+    <rangefinder name="rangefinder #1.#38" site="rangefinder #1.#38"/>
+    <rangefinder name="rangefinder #1.#39" site="rangefinder #1.#39"/>
+    <rangefinder name="rangefinder #1.#40" site="rangefinder #1.#40"/>
+    <rangefinder name="rangefinder #1.#41" site="rangefinder #1.#41"/>
+    <rangefinder name="rangefinder #1.#42" site="rangefinder #1.#42"/>
+    <rangefinder name="rangefinder #1.#43" site="rangefinder #1.#43"/>
+    <rangefinder name="rangefinder #1.#44" site="rangefinder #1.#44"/>
+    <rangefinder name="rangefinder #1.#45" site="rangefinder #1.#45"/>
+    <rangefinder name="rangefinder #1.#46" site="rangefinder #1.#46"/>
+    <rangefinder name="rangefinder #1.#47" site="rangefinder #1.#47"/>
+    <rangefinder name="rangefinder #1.#48" site="rangefinder #1.#48"/>
+    <rangefinder name="rangefinder #1.#49" site="rangefinder #1.#49"/>
+    <rangefinder name="rangefinder #1.#50" site="rangefinder #1.#50"/>
+    <rangefinder name="rangefinder #1.#51" site="rangefinder #1.#51"/>
+    <rangefinder name="rangefinder #1.#52" site="rangefinder #1.#52"/>
+    <rangefinder name="rangefinder #1.#53" site="rangefinder #1.#53"/>
+    <rangefinder name="rangefinder #1.#54" site="rangefinder #1.#54"/>
+    <rangefinder name="rangefinder #1.#55" site="rangefinder #1.#55"/>
+    <rangefinder name="rangefinder #1.#56" site="rangefinder #1.#56"/>
+    <rangefinder name="rangefinder #1.#57" site="rangefinder #1.#57"/>
+    <rangefinder name="rangefinder #1.#58" site="rangefinder #1.#58"/>
+    <rangefinder name="rangefinder #1.#59" site="rangefinder #1.#59"/>
+    <rangefinder name="rangefinder #1.#60" site="rangefinder #1.#60"/>
+    <rangefinder name="rangefinder #1.#61" site="rangefinder #1.#61"/>
+    <rangefinder name="rangefinder #1.#62" site="rangefinder #1.#62"/>
+    <rangefinder name="rangefinder #1.#63" site="rangefinder #1.#63"/>
+    <rangefinder name="rangefinder #1.#64" site="rangefinder #1.#64"/>
+    <rangefinder name="rangefinder #1.#65" site="rangefinder #1.#65"/>
+    <rangefinder name="rangefinder #1.#66" site="rangefinder #1.#66"/>
+    <rangefinder name="rangefinder #1.#67" site="rangefinder #1.#67"/>
+    <rangefinder name="rangefinder #1.#68" site="rangefinder #1.#68"/>
+    <rangefinder name="rangefinder #1.#69" site="rangefinder #1.#69"/>
+    <rangefinder name="rangefinder #1.#70" site="rangefinder #1.#70"/>
+    <rangefinder name="rangefinder #1.#71" site="rangefinder #1.#71"/>
+    <rangefinder name="rangefinder #1.#72" site="rangefinder #1.#72"/>
+    <rangefinder name="rangefinder #1.#73" site="rangefinder #1.#73"/>
+    <rangefinder name="rangefinder #1.#74" site="rangefinder #1.#74"/>
+    <rangefinder name="rangefinder #1.#75" site="rangefinder #1.#75"/>
+    <rangefinder name="rangefinder #1.#76" site="rangefinder #1.#76"/>
+    <rangefinder name="rangefinder #1.#77" site="rangefinder #1.#77"/>
+    <rangefinder name="rangefinder #1.#78" site="rangefinder #1.#78"/>
+    <rangefinder name="rangefinder #1.#79" site="rangefinder #1.#79"/>
+    <rangefinder name="rangefinder #1.#80" site="rangefinder #1.#80"/>
+    <rangefinder name="rangefinder #1.#81" site="rangefinder #1.#81"/>
+    <rangefinder name="rangefinder #1.#82" site="rangefinder #1.#82"/>
+    <rangefinder name="rangefinder #1.#83" site="rangefinder #1.#83"/>
+    <rangefinder name="rangefinder #1.#84" site="rangefinder #1.#84"/>
+    <rangefinder name="rangefinder #1.#85" site="rangefinder #1.#85"/>
+    <rangefinder name="rangefinder #1.#86" site="rangefinder #1.#86"/>
+    <rangefinder name="rangefinder #1.#87" site="rangefinder #1.#87"/>
+    <rangefinder name="rangefinder #1.#88" site="rangefinder #1.#88"/>
+    <rangefinder name="rangefinder #1.#89" site="rangefinder #1.#89"/>
+  </sensor>
+</mujoco>
