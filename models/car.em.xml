@@ -10,7 +10,7 @@ inter_ray_angle = 360 / rangefinders
   <visual>
     <rgba rangefinder="1.0 1.0 0.0 0.1"/>
     <headlight ambient="0.5 0.5 0.5"/>
-    <quality shadowsize="1024"/>
+    <quality shadowsize="4096"/>
   </visual>
   <statistic meansize="0.509902" extent="1.6099" center="0 0 0.704951"/>
   <default class="main">
@@ -25,10 +25,13 @@ inter_ray_angle = 360 / rangefinders
     </default>
   </default>
   <asset>
-    <texture type="cube" name="noob"  file="noob.png"/>
-    <material name="noob" texture="noob"/>
+@[for i, car in enumerate(cars) ]@
+    <texture type="cube" name="car #@i icon"  file="@car['icon']"/>
+    <material name="car #@i icon" texture="car #@i icon"/>
+@[end for]@
     <texture type="2d" name="grid" builtin="checker" rgb1="1 0 0" rgb2="1 1 1" width="512" height="512"/>
-    <material name="grid" texture="grid" texuniform="true" reflectance="0.2"/>
+    <material name="plane" reflectance="0.1"/>
+    <material name="grid" texture="grid" texuniform="true" reflectance="0"/>
     <mesh name="chasis" vertex="9 2 0 -10 10 10 9 -2 0 10 3 -10 10 -3 -10 -8 10 -10 -10 -10 10 -8 -10 -10 -5 0 20" scale="0.01 0.006 0.0015"/>
 @[for (x,y) in metadata["chunks"] ]@
     <hfield name="map-@(f'{x:03}x{y:03}')" file="chunks/@(f'{x:03}x{y:03}.png')" size="@(size_x/2) @(size_y/2) 0.15 0.0001"/>
@@ -38,7 +41,7 @@ inter_ray_angle = 360 / rangefinders
 @[for (x,y) in metadata["chunks"] ]@
     <geom condim="1" material="grid" type="hfield" hfield="map-@(f'{x:03}x{y:03}')" pos="@(size_x * x - 4.5) @(-size_y * y + 8.5) 0"/>
 @[end for]@
-    <geom name="plane" size="300 300 0.1" pos="0 0 0.01" type="plane" rgba="0.3 0 0 1"/>
+    <geom name="plane" material="plane" size="300 300 0.1" pos="0 0 0.01" type="plane" rgba="0.3 0 0 1"/>
     <light pos="0 0 3" dir="0 0 -1" diffuse="0.5 0.5 0.5"/>
 @[for i, car in enumerate(cars)]@
 @{
@@ -60,7 +63,7 @@ lr = 0.030
 lh = 0.015
 }@
      <geom rgba="0.1 0.1 0.1 1.0" type="cylinder" size="@lr @lh 0.01" pos="@rx @ry @(rz - lh/2)"/>
-     <site material="noob" type="cylinder" size="@(lr*0.9) 0.001 0.01" pos="@rx @ry @(rz + lh/2 - 0.0005)"/>
+     <site material="car #@i icon" type="cylinder" euler="0 0 -90" size="@(lr*0.9) 0.001 0.01" pos="@rx @ry @(rz + lh/2 - 0.0005)"/>
 @[for j in range(rangefinders) ]@ 
 @{
 theta = -radians(inter_ray_angle*j - 90)

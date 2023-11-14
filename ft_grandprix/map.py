@@ -4,28 +4,31 @@ import em
 from .colors import colors
 import random
 
-def r():
-    return random.choices(list(range(256)), k=3)
-
 def produce_mjcf(
           template_path = "models/car.em.xml",
           metadata_path = "models/chunks/metadata.json",
           mjcf_metadata_path = "models/car.json",
           mjcf_path = "models/car.xml",
-          rangefinders = 90,
+          rangefinders = 100,
           cars = None
 ):
     if cars is None:
+        r = lambda: random.choices(list(range(256)), k=3)
         cars = [
-                { "x" : 5.6 ,"y" : 0.1, "primary" : colors["red"],    "secondary" : colors["pink"]       },
-                { "x" : 5.5, "y" : 0.0, "primary" : colors["orange"], "secondary" : colors["darkorange"] },
-                # { "x" : 5.5, "y" : 0.1, "primary" : colors["blue"],   "secondary" : colors["green"]      },
-                # { "x" : 5.6 ,"y" : 0.1, "primary" : colors["purple"], "secondary" : colors["yellow"]     },
-                # { "x" : 5.5, "y" : 0.0, "primary" : r(), "secondary" : r() },
-                # { "x" : 5.5, "y" : 0.1, "primary" : r(),   "secondary" : r()      },
-                # { "x" : 5.6 ,"y" : 0.1, "primary" : r(),    "secondary" : r()       },
-                # { "x" : 5.6 ,"y" : 0.1, "primary" : r(), "secondary" : r()     }
-               ]
+            # { "x" : 5.5, "y" : 0.1, "primary" : colors["white"],    "secondary" : colors["lightblue"]  , "icon" : "trinity.png" },
+            # { "x" : 5.6 ,"y" : 0.1, "primary" : colors["brown"],    "secondary" : colors["maroon"]     , "icon" : "nuim.png"    },
+            # { "x" : 5.6 ,"y" : 0.1, "primary" : [2, 109, 153],      "secondary" : colors["blue"]       , "icon" : "tu.png"      },
+            { "x" : 5.6 ,"y" : 0.1, "primary" : colors["red"],    "secondary" : colors["pink"]       , "icon" : "noob.png"    },
+            { "x" : 5.5, "y" : 0.0, "primary" : colors["orange"], "secondary" : colors["darkorange"] , "icon" : "noob.png"    },
+            { "x" : 5.5, "y" : 0.1, "primary" : colors["blue"],   "secondary" : colors["green"]      , "icon" : "noob.png"    },
+            # { "x" : 5.6 ,"y" : 0.1, "primary" : colors["purple"], "secondary" : colors["yellow"]     , "icon" : "noob.png"    },
+            # { "x" : 5.5, "y" : 0.0, "primary" : r(),              "secondary" : r()                  , "icon" : "noob.png"    },
+            # { "x" : 5.5, "y" : 0.1, "primary" : r(),              "secondary" : r()                  , "icon" : "noob.png"    },
+            # { "x" : 5.6 ,"y" : 0.1, "primary" : r(),              "secondary" : r()                  , "icon" : "noob.png"    },
+            # { "x" : 5.6 ,"y" : 0.1, "primary" : r(),              "secondary" : r()                  , "icon" : "noob.png"    },
+            # { "x" : 5.5, "y" : 0.0, "primary" : r(),              "secondary" : r()                  , "icon" : "noob.png"    },
+        ]
+        
     with open(metadata_path) as metadata_file:
          metadata = json.load(metadata_file)
     
