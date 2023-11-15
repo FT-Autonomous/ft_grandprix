@@ -5,7 +5,7 @@ size_y = 20 / metadata["vertical_chunks"]
 inter_ray_angle = 360 / rangefinders
 }@
 <mujoco model="MuJoCo Model">
-  <compiler autolimits="true"/>
+  <compiler autolimits="true" texturedir="icons/"/>
   <option timestep="0.005"/>
   <visual>
     <rgba rangefinder="1.0 1.0 0.0 0.1"/>

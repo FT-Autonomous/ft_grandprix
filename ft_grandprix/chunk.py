@@ -7,7 +7,17 @@ import argparse
 import sys
 import shutil
 
-def chunk(path, output_dir="chunks", chunk_width=20, chunk_height=20, verbose=True, force=False):
+def chunk(
+        image_path="track.png",
+        output_dir="rendered/chunks",
+        chunk_width=20,
+        chunk_height=20,
+        verbose=True,
+        force=False
+):
+    if not os.path.isdir("rendered"):
+        os.mkdir("rendered")
+    
     if os.path.exists(output_dir):
         existing_files = os.listdir(output_dir)
         if len(existing_files) != 0:
@@ -20,10 +30,10 @@ def chunk(path, output_dir="chunks", chunk_width=20, chunk_height=20, verbose=Tr
                     print("Refusing to overwrite directory without a `metadata.json` (we may not have created it)")
                     return
         shutil.rmtree(output_dir)
-            
+ 
     os.mkdir(output_dir)
 
-    image = Image.open(path)
+    image = Image.open(image_path)
 
     horizontal_chunks = ceil(image.width / chunk_width)
     vertical_chunks = ceil(image.height / chunk_height)
@@ -61,9 +71,9 @@ def chunk(path, output_dir="chunks", chunk_width=20, chunk_height=20, verbose=Tr
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", help="the image file split into chunks", dest="input", required=True)
-    parser.add_argument("-o", help="the output directory chunks", dest="output", default="models/chunks")
-    parser.add_argument("-W", help="the chunk height to use", dest="chunk_width", default=20)
-    parser.add_argument("-H", help="the chunk width height to use", dest="chunk_height", default=20)
+    parser.add_argument("-o", help="the output directory chunks", dest="output", default="rendered/chunks")
+    parser.add_argument("-W", help="the chunk height to use in pixels", dest="chunk_width", default=20)
+    parser.add_argument("-H", help="the chunk width height to use in pixels", dest="chunk_height", default=20)
     parser.add_argument("-v", help="verbose output", dest="verbose", action="store_const", const=True, default=False)
     parser.add_argument("-f", help="overwrite any directory", dest="force", action="store_const", const=True, default=False)
     args = parser.parse_args()
