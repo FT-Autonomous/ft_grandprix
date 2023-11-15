@@ -13,11 +13,15 @@ def produce_mjcf(
           metadata_path = "rendered/chunks/metadata.json",
           output_dir    = "rendered/",
           rangefinders  = 100,
-          cars = None
+          head          = None,
+          cars          = None
 ):
 
     with open(cars_path) as cars_file:
         cars = json.load(cars_file)
+
+    if head:
+        cars = cars[:head]
 
     # Update this to load valid positions from the map
     template_dir = dirname(template_path)
@@ -90,6 +94,12 @@ if __name__ == "__main__":
          help="the folder where the redered `car.xml` and `car.json` should be stored",
          dest="output_dir",
          default="rendered/"
+     )
+     parser.add_argument(
+         "--head",
+         help="limit the number of cars used from cars.json",
+         dest="head",
+         type=int,
      )
      args = parser.parse_args()
      produce_mjcf(**args.__dict__)
