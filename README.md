@@ -62,4 +62,21 @@ MacOS users should use the command:
 mjpython -m ft_grandprix.drive
 ```
 
-![an image of the simulator](images/ft_grandprix.png)
+# Overall Commands
+
+```
+python3 -m ft_grandprix.chunk -i template/track.png -f
+python3 -m ft_grandprix.map --rangefinders 90
+python3 -m ft_grandprix.drive
+```
+
+# Custom Keybindings
+
+In addition to the existing mujoco keybindings, I have defined
+additional keybindings, namely:
+
+- `N` - focus on next car
+- `P` - focus on previous car
+- `L` - liberate camera
+
+![an image of the simulator](images/ft_grandprix_volume_2.png)
