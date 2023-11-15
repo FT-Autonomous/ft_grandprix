@@ -80,3 +80,6 @@ additional keybindings, namely:
 - `N` - focus on next car
 - `P` - focus on previous car
 - `L` - liberate camera
+
+One default mujoco keybinding you may want use immediately is `S`
+which is used to disable shadows.
