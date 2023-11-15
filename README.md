@@ -1,3 +1,5 @@
+![an image of the simulator](images/ft_grandprix_volume_2.png)
+
 # Install
 
 First install the necessary requirements:
@@ -78,5 +80,3 @@ additional keybindings, namely:
 - `N` - focus on next car
 - `P` - focus on previous car
 - `L` - liberate camera
-
-![an image of the simulator](images/ft_grandprix_volume_2.png)
