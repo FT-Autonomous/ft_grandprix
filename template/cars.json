@@ -1,0 +1,9 @@
+[
+    { "primary" : "red",              "secondary" : "pink"       , "icon" : "noob.png"    },
+    { "primary" : "orange",           "secondary" : "darkorange" , "icon" : "noob.png"    },
+    { "primary" : "blue",             "secondary" : "green"      , "icon" : "noob.png"    },
+    { "primary" : "white",            "secondary" : "lightblue"  , "icon" : "trinity.png" },
+    { "primary" : "brown",            "secondary" : "maroon"     , "icon" : "nuim.png"    },
+    { "primary" : "rgb(2, 109, 153)", "secondary" : "blue"       , "icon" : "tu.png"      },
+    { "primary" : "purple",           "secondary" : "yellow"     , "icon" : "noob.png"    }
+]
