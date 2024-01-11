@@ -39,9 +39,9 @@ def produce_mjcf(
                 car[color] = [int(x) for x in car[color][4:-1].split(",")]
             else:
                 car[color] = colors[car[color]]
-        car["x"] = 5.5 + 0.1 * (index % 3)
-        car["y"] = 0.0 + 0.1 * (index % 3)
-        car["z"] = 0.1 * index
+        car["x"] = 4.5 + 5.5 + 0.1 * (index % 3)
+        car["y"] = -8.5 + 0.0 + 0.1 * (index % 3)
+        car["z"] = 0.1
 
     mjcf_metadata_path = join(output_dir, "car.json")
     mjcf_path = join(output_dir, "car.xml")

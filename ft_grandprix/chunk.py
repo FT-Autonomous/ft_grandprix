@@ -64,7 +64,9 @@ def chunk(
             "chunk_height": chunk_height,
             "horizontal_chunks": horizontal_chunks,
             "vertical_chunks": vertical_chunks,
-            "chunks": chunks
+            "chunks": chunks,
+            "width": image.width,
+            "height": image.height
         }
         json.dump(metadata, metadata_file)
 

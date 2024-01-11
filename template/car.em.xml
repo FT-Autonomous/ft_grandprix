@@ -8,7 +8,7 @@ inter_ray_angle = 360 / rangefinders
   <compiler autolimits="true" texturedir="icons/"/>
   <option timestep="0.005"/>
   <visual>
-    <rgba rangefinder="1.0 1.0 0.0 0.1"/>
+    <rgba rangefinder="1.0 1.0 0.0 0.075"/>
     <headlight ambient="0.5 0.5 0.5"/>
     <quality shadowsize="4096"/>
   </visual>
@@ -26,8 +26,10 @@ inter_ray_angle = 360 / rangefinders
   </default>
   <asset>
 @[for i, car in enumerate(cars) ]@
-    <texture type="cube" name="car #@i icon"  file="@car['icon']"/>
-    <material name="car #@i icon" texture="car #@i icon"/>
+    <!-- <texture type="cube" name="car #@i icon"  file="@car['icon']"/> -->
+    <texture type="2d" name="car #@i icon"  file="@car['icon']" />
+    <!-- <material name="car #@i icon" texture="car #@i icon" reflectance="1"/> -->
+    <material name="car #@i icon" rgba="0.1 0.1 0.1 1.0" reflectance="1"/>
 @[end for]@
     <texture type="2d" name="grid" builtin="checker" rgb1="1 0 0" rgb2="1 1 1" width="512" height="512"/>
     <material name="plane" reflectance="0.1"/>
@@ -39,20 +41,19 @@ inter_ray_angle = 360 / rangefinders
   </asset>
   <worldbody>
 @[for (x,y) in metadata["chunks"] ]@
-    <geom condim="1" material="grid" type="hfield" hfield="map-@(f'{x:03}x{y:03}')" pos="@(size_x * x - 4.5) @(-size_y * y + 8.5) 0"/>
+    <geom condim="1" material="grid" type="hfield" hfield="map-@(f'{x:03}x{y:03}')" pos="@(size_x * x) @(-size_y * y) 0"/>
 @[end for]@
-    <geom name="plane" material="plane" size="300 300 0.1" pos="0 0 0.01" type="plane" rgba="0.3 0 0 1"/>
-    <light pos="0 0 3" dir="0 0 -1" diffuse="0.5 0.5 0.5"/>
+    <geom  name="plane" material="plane" size="300 300 0.1" pos="0 0 0.01" type="plane" rgba="0.3 0 0 1"/>
+    <light pos="4.5 -3.0 3" dir="0 0 -1" diffuse="0.5 0.5 0.5"/>
 @[for i, car in enumerate(cars)]@
 @{
 # primary and secondary colors
 r1, g1, b1 = [x/255 for x in car['primary']]
 r2, g2, b2 = [x/255 for x in car['secondary']]
 }@
-    <body name="car #@i" pos="@car['x'] @car['y'] 0.1">
-      <joint type="free"  damping="0"/>
-      <geom name="chasis #@i" type="mesh" mesh="chasis" rgba="@r1 @g1 @b1  1.0"/>
-      <geom rgba="0 0 0 1.0" name="front wheel #@i" size="0.015" pos="0.08 0 -0.015" condim="1" priority="1"/>
+    <body name="car #@i" pos="@car['x'] @car['y'] @car['z']">
+      <joint name="car #@i" type="free"  damping="0"/>
+      <geom name="chasis #@i" type="mesh" mesh="chasis" rgba="@r1 @g1 @b1 1.0"/>
       <light name="top light #@i" pos="0 0 2" dir="0 0 -1" diffuse="0.4 0.4 0.4" mode="trackcom"/>
       <light name="front light #@i" pos="0.1 0 0.02" dir="0.894427 0 -0.447214" diffuse="1 1 1"/>
 @{
@@ -62,23 +63,30 @@ rx, ry, rz = -0.0525, 0.000, 0.030
 lr = 0.030
 lh = 0.015
 }@
-     <geom rgba="0.1 0.1 0.1 1.0" type="cylinder" size="@lr @lh 0.01" pos="@rx @ry @(rz - lh/2)"/>
-     <site material="car #@i icon" type="cylinder" euler="0 0 -90" size="@(lr*0.9) 0.001 0.01" pos="@rx @ry @(rz + lh/2 - 0.0005)"/>
+       <site name="car #@i accelerometer" euler="0 0 -90" rgba="0 0 0 0"/>
+       <site name="car #@i gyroscope" euler="0 0 -90" rgba="0 0 0 0"/>
+       <geom name="car #@i lidar" rgba="0.1 0.1 0.1 1.0" type="cylinder" size="@lr @lh 0.01" pos="@rx @ry @(rz - lh/2)"/>
+       <site material="car #@i icon" type="ellipsoid" euler="0 0 -90" size="@(lr*0.9) @(lr*0.9) 0.0075" pos="@rx @ry @(rz + lh/2 - 0.0005)"/>
+     <site rgba="@r2 @g2 @b2 1.0" type="ellipsoid" euler="0 0 -90" size="@(lr*1.1) @(lr*1.1) 0.0100" pos="@rx @ry @rz"/>
 @[for j in range(rangefinders) ]@ 
 @{
 theta = -radians(inter_ray_angle*j - 90)
 }@
-      <site rgba="@r2 @g2 @b2 1.0" name="rangefinder #@i.#@j" pos="@(rx + lr*sin(theta)) @(lr * cos(theta)) @rz" euler="90 @(inter_ray_angle*j - 90) 0"/>
-@[end for]@
+      <site rgba="@r2 @g2 @b2 0.0" name="rangefinder #@i.#@j" pos="@(rx + lr*sin(theta)) @(lr * cos(theta)) @rz" euler="90 @(inter_ray_angle*j - 90) 0"/>
+      @[end for]@
+@{
+mw = 0.5
+}@
+      <geom mass="@(mw / 3)" rgba="0 0 0 1.0" name="front wheel #@i" size="0.015" pos="0.08 0 -0.015" condim="1" priority="1"/>
       <body name="left wheel #@i" pos="-0.07 0.06 0" quat="0.707107 -0.707107 0 0">
         <joint name="left #@i" pos="0 0 0" axis="0 0 1"/>
-        <geom  class="wheel"/>
+        <geom mass="@(mw / 3)" class="wheel"/>
         <site rgba="@r2 @g2 @b2 1.0" class="decor" pos="0 0 0" size="0.006 0.025 0.012"/>
         <site rgba="@r2 @g2 @b2 1.0" class="decor" pos="0 0 0" size="0.025 0.006 0.012"/>
       </body>
       <body name="right wheel #@i" pos="-0.07 -0.06 0" quat="0.707107 -0.707107 0 0">
         <joint name="right #@i" pos="0 0 0" axis="0 0 1"/>
-        <geom class="wheel"/>
+        <geom mass="@(mw / 3)" class="wheel"/>
         <site rgba="@r2 @g2 @b2 1.0" class="decor" pos="0 0 0" size="0.006 0.025 0.012"/>
         <site rgba="@r2 @g2 @b2 1.0" class="decor" pos="0 0 0" size="0.025 0.006 0.012"/>
       </body>
@@ -99,7 +107,7 @@ theta = -radians(inter_ray_angle*j - 90)
   </tendon>
   <actuator>
 @[for i, car in enumerate(cars)]@
-    <general name="forward #@i" tendon="forward #@i" ctrlrange="-2 2"/>
+    <general name="forward #@i" tendon="forward #@i" ctrlrange="-4 4"/>
     <general name="turn #@i" tendon="turn #@i" ctrlrange="-1 1"/>
 @[end for]@
   </actuator>
@@ -110,6 +118,10 @@ theta = -radians(inter_ray_angle*j - 90)
 @[for j in range(rangefinders) ]@
     <rangefinder name="rangefinder #@i.#@j" site="rangefinder #@i.#@j"/>
 @[end for]@
+@[end for]@
+@[for i, car in enumerate(cars) ]@
+    <gyro name="car #@i gyro"site="car #@i accelerometer"/>
+    <accelerometer name="car #@i accelerometer" site="car #@i gyroscope"/>
 @[end for]@
   </sensor>
 </mujoco>

@@ -5,15 +5,17 @@ import mujoco.viewer
 import json
 import os
 import numpy as np
-from .nidc import Driver
+from .fast import Driver
 
- # Define the control actions for the car
+# Define the control actions for the car
 control_actions = {
     265: [1.0, 0.0],  # Move the car forward
     264: [-1.0, 0.0],  # Move the car backward
     263: [0.0, 1.0],  # Turn the car left
     262: [0.0, -1.0],  # Turn the car right
 }
+
+# dpg.create_context()
 
 class Simulator:
     def __init__(self, map_dir="rendered"):
@@ -70,7 +72,6 @@ class Simulator:
                 self.data,
                 key_callback=self.key_callback
         ) as viewer:
-            # Close the viewer automatically after 30 wall-seconds.
             while True:
                 for driver, sensors, (forward, turn) in zip(
                         self.drivers,
@@ -79,7 +80,7 @@ class Simulator:
                 ):
                     speed, steering_angle = driver.process_lidar(self.data.sensordata[sensors])
                     self.data.ctrl[forward] = speed
-                    self.data.ctrl[turn] = steering_angle / 1.5
+                    self.data.ctrl[turn] = steering_angle
                 step_start = time.time()
             
                 # mj_step can be replaced with code that also evaluates
@@ -90,6 +91,7 @@ class Simulator:
                 with viewer.lock():
                     if self.watching is not None:
                         viewer.cam.lookat[:] = self.data.body(f"car #{self.watching}").xpos[:]
+                    # breakpoint()
                 # Pick up changes to the physics state, apply perturbations, update options from GUI.
                 viewer.sync()
             
@@ -98,7 +100,7 @@ class Simulator:
                 if time_until_next_step > 0:
                     time.sleep(time_until_next_step)
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--map-dir",
@@ -108,3 +110,6 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     Simulator(**args.__dict__).drive()
+
+if __name__ == "__main__":
+    main()

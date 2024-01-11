@@ -1,4 +1,4 @@
 empy
 numpy
-pillow
 mujoco
+svg.path
