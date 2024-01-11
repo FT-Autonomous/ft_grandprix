@@ -2,3 +2,4 @@ empy
 numpy
 mujoco
 svg.path
+pillow
