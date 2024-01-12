@@ -6,6 +6,7 @@ import numpy as np
 import argparse
 import sys
 import shutil
+import matplotlib.pyplot as plt
 
 def chunk(
         image_path="track.png",
@@ -29,14 +30,17 @@ def chunk(
                 if "metadata.json" not in existing_files:
                     print("Refusing to overwrite directory without a `metadata.json` (we may not have created it)")
                     return
+        if verbose: print(f"Removing `{output_dir}`")
         shutil.rmtree(output_dir)
  
     os.mkdir(output_dir)
 
-    array = np.array(Image.open(image_path))
-    winter = array[:, :, :3].sum(2) != 255 * 3
+    array = np.array(Image.open(image_path).convert("RGB"))
+    winter = array.sum(2) != 255 * 3
     array[winter] = 0
     image = Image.fromarray(array)
+    # plt.imshow(image)
+    # plt.show()
 
     horizontal_chunks = ceil(image.width / chunk_width)
     vertical_chunks = ceil(image.height / chunk_height)
