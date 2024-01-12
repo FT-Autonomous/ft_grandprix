@@ -20,7 +20,7 @@ def produce_mjcf(
     with open(cars_path) as cars_file:
         cars = json.load(cars_file)
 
-    if head:
+    if head is not None:
         cars = cars[:head]
 
     # Update this to load valid positions from the map

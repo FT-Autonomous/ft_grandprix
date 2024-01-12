@@ -33,7 +33,10 @@ def chunk(
  
     os.mkdir(output_dir)
 
-    image = Image.open(image_path)
+    array = np.array(Image.open(image_path))
+    winter = array[:, :, :3].sum(2) != 255 * 3
+    array[winter] = 0
+    image = Image.fromarray(array)
 
     horizontal_chunks = ceil(image.width / chunk_width)
     vertical_chunks = ceil(image.height / chunk_height)
@@ -66,7 +69,8 @@ def chunk(
             "vertical_chunks": vertical_chunks,
             "chunks": chunks,
             "width": image.width,
-            "height": image.height
+            "height": image.height,
+            "name": ".".join(os.path.basename(image_path).split(".")[:-1])
         }
         json.dump(metadata, metadata_file)
 

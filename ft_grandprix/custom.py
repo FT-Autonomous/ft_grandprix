@@ -1,10 +1,9 @@
 # TODO: only render on user input when the thing is paused
-# TODO: remove all python to avoid GIL
-# TODO: dont store car state in 10 billion different arrays
 
 import os
 import math
 import importlib
+import queue
 import json
 import mujoco
 import numpy as np
@@ -13,11 +12,15 @@ import dearpygui.dearpygui as dpg
 from .nidc import Driver
 import threading
 from .curve import extract_path_from_svg
+from .chunk import chunk
+from .map import produce_mjcf
 
-np.set_printoptions(
-    precision=2,
-    formatter={"float": lambda x: f"{x:8.2f}"}
-)
+np.set_printoptions(precision=2, formatter={"float": lambda x: f"{x:8.2f}"})
+
+def runtime_import(path):
+    spec = importlib.util.find_spec(path)
+    module =  spec.loader.load_module()
+    return module
 
 def quaternion_to_angle(x, y, z, w):
     t0 = +2.0 * (w * x + y * z)
@@ -57,56 +60,60 @@ pixels = np.zeros((height, width, 3), dtype=np.float32)
 exit_event = threading.Event()
 
 class Real:
-    def __init__(self, /, meta):
-        self.meta = meta
+    def __init__(self, /, id):
+        self.id = id
         self.completion_id = dpg.generate_uuid()
         self.laps_id = dpg.generate_uuid()
         self.times_id = dpg.generate_uuid()
-        self.reload_code_id = dpg.generate_uuid()
 
 class Meta:
     # TODO: destructure this into mutable current lap data and other
     # persistent / append only data
-    def __init__(self, /, id, forward, turn, sensors, driver, label):
+    def __init__(self, /, id, offset, driver, label, driver_path):
         self.id = id
+        self.offset = offset
         self.completion = 0 # current completion percentage
         self.ready = False # if we are ready for a new lap, set once we get half way around
         self.start = 0 # physics time step we are currently at
         self.laps = 0 # number of laps completed
         self.times = [] # lap times
-        self.forward = forward
-        self.turn = turn
-        self.sensors = sensors
         self.driver = driver
+        self.driver_path = driver_path
         self.label = label
 
-# Only reason this exists is so that combos can have supplemental
-# data?
-class Pun:
-    def __init__(self, data, inner):
-        self.data = data
-        self.inner = inner
-    def __repr__(self):
-        return self.data
+        # lifetime of model/data (use reload_mujoco after construction)
+        self.forward = None
+        self.turn = None
+        self.sensors = None
+        self.joint = None
+        
+    def reload_mujoco(self, data, /, rangefinders):
+        self.forward     = data.actuator(f"forward #{self.id}").id
+        self.turn        = data.actuator(f"turn #{self.id}").id
+        self.joint       = data.joint(f"car #{self.id}")
+        self.sensors     = [data.sensor(f"rangefinder #{self.id}.#{j}").id for j in range(rangefinders)]  
+
+    def reload_code(self):
+        self.driver = runtime_import(self.driver_path).Driver()
     
 class ModelAndView:
-    # inject a list of meta objects into the view
+    # inject a list of meta objects into the view: LIST OF INTEGERS NOW
     def inject_meta(self, meta):
-        meta = { m.id : m for m in meta } # payload being injected
-        for id in dpg.get_item_children("D", 1):
+        meta = set(meta) # payload being injected
+        for id in dpg.get_item_children("Dashboard", 1):
             real = dpg.get_item_configuration(id)['user_data']
-            m = real.meta
+            m = self.mj.meta[real.id]
             if m.id not in meta:
                 dpg.delete_item(id)
             else:
-                del meta[m.id]
+                if real.id in meta: meta.remove(real.id)
                 dpg.set_value(real.completion_id, str(m.completion) + "%")
                 dpg.set_value(real.laps_id, str(m.laps))
                 dpg.set_value(real.times_id, str(m.times))
         for m in meta:
-            m = meta[m]
             real = Real(m)
-            with dpg.collapsing_header(user_data=real, parent="D", label=f"Car #{m.id} - {m.label}", default_open=True):
+            m = self.mj.meta[m]
+            with dpg.collapsing_header(user_data=real, parent="Dashboard", label=f"Car #{m.id} - {m.label}", default_open=True):
                 with dpg.group(horizontal=True):
                     dpg.add_text(f"Completion:")
                     dpg.add_text("0%", tag=real.completion_id)
@@ -114,22 +121,27 @@ class ModelAndView:
                     dpg.add_text(f"Laps:")
                     dpg.add_text("0", tag=real.laps_id)
                 with dpg.group(horizontal=True):
-                    dpg.add_text(f"Laps Times:")
+                    dpg.add_text(f"Lap Times:")
                     dpg.add_text("0", tag=real.times_id)
-                dpg.add_button(label="Reload Code", tag=real.reload_code_id, user_data=real)
-            
-        with dpg.mutex():
-            pass
+                dpg.add_button(label="Reload Code", user_data=real.id, callback=self.reload_code_cb)
+
+    def reload_code_cb(self, sender, value, user_data):
+        if dpg.does_item_exist("reload code modal"):
+            dpg.delete_item("reload code modal")
+        car_index = user_data
+        try:
+            self.mj.reload_code(car_index)
+        except Exception as e:
+            with dpg.window(tag="reload code modal", modal=True, show=True) as window:
+                dpg.add_text(str(e), color=[255, 200, 200])
+                dpg.add_button(label="Try Again", callback=self.reload_code_cb, user_data=car_index)
     
-    def __init__(self):
-        self.mj = Mujoco(self) # our model
-        self.paused = False
+    def __init__(self, track):
+        self.mj = Mujoco(self, track) # our model
         self.last = None
-        self.pause()
 
     def pause(self):
-        self.paused = not self.paused
-        if self.paused:
+        if self.mj.running_event.is_set():
             self.mj.running_event.clear()
         else:
             self.mj.running_event.set()
@@ -144,7 +156,14 @@ class ModelAndView:
         self.last = None
 
     def drag(self, sender, value):
+        state = dpg.get_item_state('simulation')
         [x, y] = dpg.get_mouse_pos(local=False)
+        bounded = \
+            state['rect_min'][0] <= x < state['rect_max'][0] \
+            and state['rect_min'][1] < y <= state['rect_max'][1]
+        if not bounded:
+            return
+            
         delta = [dx, dy] = dpg.get_mouse_drag_delta()
         if self.last is not None:
             dx -= self.last[0]
@@ -152,24 +171,38 @@ class ModelAndView:
             self.last = delta
         else:
             self.last = delta
-        state = dpg.get_item_state('simulation')
-        if state['rect_min'][0] <= x < state['rect_max'][0] \
-           and state['rect_min'][1] < y <= state['rect_max'][1]:
-                self.mj.camera.azimuth -= dx
-                self.mj.camera.elevation -= dy
-
+        if not self.mj.cinematic:
+            self.mj.camera.azimuth   += dx
+            self.mj.camera.elevation += dy
+        else:
+            self.mj.camera_vel[0] += dx / 100
+            self.mj.camera_vel[1] += dy / 100
+        
     def rangefinder(self, sender, value):
         self.mj.model.vis.rgba.rangefinder[3] = value
 
     def release_key(self, sender, keycode):
+        # TODO: Rewrite this so that help can be autogenerated. Each setting
+        # would be a closure that captures this class and implements apply(),
+        # description() and status(). Each closure would then be associated
+        # with a key externally.
+        
         if chr(keycode) == " ":
             self.pause()
+        elif chr(keycode) == "C":
+            self.mj.cinematic = not self.mj.cinematic
+            if not self.mj.cinematic:
+                self.mj.camera_vel[0] = 0
+                self.mj.camera_vel[1] = 0
         elif chr(keycode) == "P":
             self.mj.watching = ((self.mj.watching or 0) - 1) % len(self.mj.meta)
         elif chr(keycode) == "N":
             self.mj.watching = ((self.mj.watching or 0) + 1) % len(self.mj.meta)
         elif chr(keycode) == "L":
             self.mj.watching = None
+        elif chr(keycode) == "R":
+            if self.mj.watching is not None:
+                self.reload_code_cb(None, None, self.mj.watching)
         elif chr(keycode) == "S":
             self.mj.renderer.scene.flags[mujoco.mjtRndFlag.mjRND_SHADOW] ^= 1
         else:
@@ -197,10 +230,7 @@ class ModelAndView:
                     dpg.add_combo(default_value="track", # TODO: make sure that this actually corresponds to the value set in launch.py
                                   items=["track", "blank"], label="map", callback=self.select_map_callback)
                     dpg.add_separator()
-                    
-                    with dpg.group(tag="D"):
-                        pass
-                    
+                    with dpg.group(tag="Dashboard"): pass
                     dpg.add_separator()
                     dpg.add_slider_float(label="rangefinder Intensity", default_value=0.1, max_value=0.3, callback=self.rangefinder)
         dpg.bind_item_handler_registry("simulation", "bem")
@@ -215,87 +245,104 @@ class ModelAndView:
         pass
 
 class Mujoco:
-    def __init__(self, mv):
+    # Use this if the rendered XML file must be changed e.g. the map is changed …
+    def reload_shit(self, world=False):
+        if world:
+            # PROPHESY: You will spend days trying to fix an error caused due to
+            # things being out of sync. This I have seen.
+            map_metadata_path = os.path.join(self.rendered_dir, "chunks", "metadata.json")
+            with open(map_metadata_path) as map_metadata_file:
+                self.map_metadata = json.load(map_metadata_file)
+            mjcf_metadata_path = os.path.join(self.rendered_dir, "car.json")
+            with open(mjcf_metadata_path) as mjcf_metadata_file:
+                self.mjcf_metadata = json.load(mjcf_metadata_file)
+            self.model_path = os.path.join(self.rendered_dir, "car.xml")
+            self.model = mujoco.MjModel.from_xml_path(self.model_path)
+            self.data = mujoco.MjData(self.model)
+            mujoco.mj_kinematics(self.model, self.data)
+            self.path = extract_path_from_svg(os.path.join(self.template_dir, f"{self.map_metadata['name']}-path.svg"))
+            self.path[:, 0] =   self.path[:, 0] / self.map_metadata['width']  * self.map_metadata['chunk_width']
+            self.path[:, 1] = - self.path[:, 1] / self.map_metadata['height'] * self.map_metadata['chunk_height']
+        else:
+            mujoco.mj_resetData(self.model, self.data)
+        if world:
+            self.meta = []
+            for i, car in enumerate(self.mjcf_metadata["cars"]):
+                if car["driver"].startswith("file://"):
+                    path = car["driver"][7:-3].replace("/", ".")
+                    print(f"Loading driver from path '{path}'")
+                    driver = runtime_import(path).Driver()
+                else:
+                    print("Unsupported schema: supported (file://)")
+                meta = Meta(
+                    id          = i,
+                    offset      = (i+5) * 2,
+                    driver_path = path,
+                    driver      = driver,
+                    label       = car["name"],
+                )
+                self.meta.append(meta)
+            self.camera.lookat[:2] = self.path[0]
+        for m in self.meta:
+            m.reload_mujoco(self.data, rangefinders=self.mjcf_metadata["rangefinders"])
+        self.position_vehicles(self.path)
+    
+    def stage(self, track):
+        chunk(os.path.join(self.template_dir, f"{track}.png"), verbose=False, force=True)
+        produce_mjcf(rangefinders=90, head=1)
+
+    def __init__(self, mv, track):
+        print("Running mujoco thread")
         self.reset_event = threading.Event()
         self.running_event = threading.Event()
-        self.running_event.set()
-        self.paused = False
+        # self.running_event.set()
         self.mv = mv
-        
-        print("Running mujoco thread")
-        map_dir = "rendered"
-        mjcf_metadata_path = os.path.join(map_dir, "car.json")
-        map_metadata_path = os.path.join(map_dir, "chunks/metadata.json")
-        with open(map_metadata_path) as map_metadata_file:
-            self.map_metadata = json.load(map_metadata_file)
-        model_path = os.path.join(map_dir, "car.xml")
-        with open(mjcf_metadata_path) as mjcf_metadata_file:
-            self.mjcf_metadata = json.load(mjcf_metadata_file)
-        self.model = mujoco.MjModel.from_xml_path(model_path)
-        self.data = mujoco.MjData(self.model)
-        mujoco.mj_kinematics(self.model, self.data)
-        self.watching = 0
-        self.meta = []
-        
-        for i, car in enumerate(self.mjcf_metadata["cars"]):
-            indices = []
-            for j in range(self.mjcf_metadata["rangefinders"]):
-                sensor = self.model.sensor(f"rangefinder #{i}.#{j}")
-                indices.append(sensor.id)
-            if car["driver"].startswith("file://"):
-                path = car["driver"][7:-3].replace("/", ".")
-                print(f"Loading driver from path '{path}'")
-                spec = importlib.util.find_spec(path)
-                driver = spec.loader.load_module().Driver()
-            else:
-                print("Unsupported schema: supported (file://)")
-            meta = Meta(
-                id      = i,
-                forward = self.model.actuator(f"forward #{i}").id,
-                turn    = self.model.actuator(f"turn #{i}").id,
-                sensors = np.array(indices),
-                driver  = driver,
-                label   = car["name"]
-            )
-            self.meta.append(meta)
-            
+        self.camera_vel = [0, 0]
+        self.camera_friction = [0.01, 0.01]
+        self.cinematic = False
+        self.watching = None
+        self.rendered_dir = "rendered"
+        self.template_dir = "template"
         self.camera = mujoco.MjvCamera()
+        self.stage(track="track")
+        self.reload_shit(world=True)
         self.physics = threading.Thread(target=self.physics_thread)
         self.physics.start()
         self.render = threading.Thread(target=self.render_thread)
         self.render.start()
 
-    def position_vehicles(self, path):
-        # TODO: accomodate for the fact that cars start off at
-        # different locations in lap time / completion computations
+    def reload_code(self, index):
+        self.meta[index].reload_code()
 
+    def position_vehicles(self, path):
         # TODO: make sure that we can function without a
         # path. E.g. for testing maps or for when people make maps
         # without an SVG.
         
-        for i in range(len(self.meta)):
-            joint = self.data.joint(f"car #{i}")
-            i = (i+5)*2
+        for i, m in enumerate(self.meta):
+            i = m.offset
             delta = path[i+1]-path[i]
             angle = math.atan2(delta[1], delta[0])
             quat = euler_to_quaternion([angle, 0, 0])
-            joint.qpos[3:] = np.array(quat)
-            joint.qpos[:2] = path[i]
+            m.joint.qpos[3:] = np.array(quat)
+            m.joint.qpos[:2] = path[i]
 
     def physics_thread(self):
         global exit_event
         last = time.time()
-        path = extract_path_from_svg("template/path1-regular.svg")
-        path[:, 0] =   path[:, 0] / self.map_metadata['width']  * 20
-        path[:, 1] = - path[:, 1] / self.map_metadata['height'] * 20
         physics_steps = 0
-        self.position_vehicles(path)
+        
         while True:
+            if self.cinematic:
+                self.camera_vel[0] *= (1 - self.camera_friction[0])
+                self.camera_vel[1] *= (1 - self.camera_friction[1])
+                self.camera.azimuth -= self.camera_vel[0]
+                self.camera.elevation -= self.camera_vel[1]
+            
             if self.watching is not None:
                 self.camera.lookat[:] = self.data.body(f"car #{self.watching}").xpos[:]
             if self.reset_event.is_set():
-                mujoco.mj_resetData(self.model, self.data)
-                self.position_vehicles(path)
+                self.reload_shit()
                 self.reset_event.clear()
                 # print("RESET")
             if exit_event.is_set():
@@ -305,16 +352,21 @@ class Mujoco:
                 mujoco.mj_forward(self.model, self.data)
                 continue
             for index, meta in enumerate(self.meta):
-                xpos = self.data.joint(f"car #{index}").qpos[0:2]
-                [x, y] = list(xpos)
-                completion = ((path - xpos)**2).sum(1).argmin()
+                xpos = meta.joint.qpos[0:2]
+                completion = (((self.path - xpos)**2).sum(1).argmin() - meta.offset) % 100
                 if 45 <= completion <= 55:
                     meta.ready = True
-                delta = abs(completion - meta.completion)
-                if meta.ready and delta > 90:
-                    meta.times.append((physics_steps - meta.start) * 0.005) # TODO: change this constant to always reflect physics timestep
-                    meta.ready = False
-                    meta.laps += 1
+                delta = completion - meta.completion
+                if meta.ready and abs(delta) > 90:
+                    lap_time = (physics_steps - meta.start) * 0.005
+                    if delta > 0:
+                        meta.laps -= 1
+                        if len(meta.times) != 0:
+                            meta.times.pop()
+                    else:
+                        meta.times.append(lap_time) # TODO: change this constant to always reflect physics timestep
+                        meta.ready = False
+                        meta.laps += 1
                     meta.start = physics_steps
                 meta.completion = completion
 
@@ -337,7 +389,6 @@ class Mujoco:
             last = time.time()
             # print(f"{fps} fps")
 
-        
     def render_thread(self):
         global exit_event
         global pixels
@@ -352,7 +403,7 @@ class Mujoco:
             # make it so that you can reset while paused …
             # self.running_event.wait()
             
-            self.mv.inject_meta(self.meta)
+            self.mv.inject_meta([meta.id for meta in self.meta])
             self.renderer.update_scene(self.data, self.camera)
             self.renderer.render(out=buf)
             pixels[...] = buf / 255.0
@@ -365,7 +416,7 @@ class Mujoco:
 
 if __name__ == "__main__":
     try:
-        ModelAndView().run()
+        ModelAndView(track="track").run()
     except KeyboardInterrupt:
         pass
     exit_event.set()
