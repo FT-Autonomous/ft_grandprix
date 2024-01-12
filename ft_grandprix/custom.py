@@ -14,6 +14,7 @@ import threading
 from .curve import extract_path_from_svg
 from .chunk import chunk
 from .map import produce_mjcf
+from .vendor import Renderer
 
 np.set_printoptions(precision=2, formatter={"float": lambda x: f"{x:8.2f}"})
 
@@ -55,8 +56,7 @@ def scatter(path):
         plt.text(x * (1 + 0.01), y * (1 + 0.01) , i, fontsize=12)
     plt.show()
 
-width, height = 640, 480
-pixels = np.zeros((height, width, 3), dtype=np.float32)
+
 exit_event = threading.Event()
 
 class Real:
@@ -91,13 +91,22 @@ class Meta:
         self.forward     = data.actuator(f"forward #{self.id}").id
         self.turn        = data.actuator(f"turn #{self.id}").id
         self.joint       = data.joint(f"car #{self.id}")
-        self.sensors     = [data.sensor(f"rangefinder #{self.id}.#{j}").id for j in range(rangefinders)]  
+        self.sensors     = [data.sensor(f"rangefinder #{self.id}.#{j}").id for j in range(rangefinders)]
 
     def reload_code(self):
         self.driver = runtime_import(self.driver_path).Driver()
     
 class ModelAndView:
-    # inject a list of meta objects into the view: LIST OF INTEGERS NOW
+    def __init__(self, track, width=1124, height=612):
+        self.window_size = width, height
+        self.pixels = np.zeros((1080, 1920, 3), dtype=np.float32)
+        self.mj = Mujoco(self, track=track) # our model
+        self.last = None
+
+    def simulation_viewport_size(self):
+        return [max(self.window_size[0] - 400, 0),
+                max(self.window_size[1] - 20, 0)]
+    
     def inject_meta(self, meta):
         meta = set(meta) # payload being injected
         for id in dpg.get_item_children("Dashboard", 1):
@@ -123,7 +132,9 @@ class ModelAndView:
                 with dpg.group(horizontal=True):
                     dpg.add_text(f"Lap Times:")
                     dpg.add_text("0", tag=real.times_id)
-                dpg.add_button(label="Reload Code", user_data=real.id, callback=self.reload_code_cb)
+                with dpg.group(horizontal=True):
+                    dpg.add_button(label="Reload Code", user_data=real.id, callback=self.reload_code_cb)
+                    dpg.add_button(label="Info", user_data=real.id)
 
     def reload_code_cb(self, sender, value, user_data):
         if dpg.does_item_exist("reload code modal"):
@@ -136,10 +147,6 @@ class ModelAndView:
                 dpg.add_text(str(e), color=[255, 200, 200])
                 dpg.add_button(label="Try Again", callback=self.reload_code_cb, user_data=car_index)
     
-    def __init__(self, track):
-        self.mj = Mujoco(self, track) # our model
-        self.last = None
-
     def pause(self):
         if self.mj.running_event.is_set():
             self.mj.running_event.clear()
@@ -206,43 +213,71 @@ class ModelAndView:
         elif chr(keycode) == "S":
             self.mj.renderer.scene.flags[mujoco.mjtRndFlag.mjRND_SHADOW] ^= 1
         else:
-            print(keycode)
+            # print(keycode)
+            pass
         
     def run(self):
         print("GUI thread spawned")
         dpg.create_context()
+        with dpg.item_handler_registry(tag="dog"):
+            dpg.add_item_clicked_handler(0, callback=self.tracks_combo_clicked_cb)
         with dpg.handler_registry():
             dpg.add_mouse_wheel_handler(callback=self.scroll)
             dpg.add_mouse_release_handler(callback=self.release)
             dpg.add_mouse_drag_handler(callback=self.drag)
             dpg.add_key_release_handler(callback=self.release_key)
         with dpg.texture_registry(show=False):
-            global pixels
-            dpg.add_raw_texture(width, height, pixels, format=dpg.mvFormat_Float_rgb, tag="texture_tag")
-        with dpg.window(tag="Main"):
+            dpg.add_raw_texture(1920, 1080, self.pixels, format=dpg.mvFormat_Float_rgb, tag="visualisation")
+        with dpg.window(tag="Main", min_size=[400,400]):
             with dpg.group(tag="Main Group", horizontal=True):
-                with dpg.group(tag="Visualisation"):
-                    dpg.add_image("texture_tag", tag="simulation")
+                with dpg.group():
+                    simulation_viewport_size = self.simulation_viewport_size()
+                    dpg.add_image(
+                        texture_tag="visualisation",
+                        tag="simulation",
+                        uv_max=[simulation_viewport_size[0] / 1920, simulation_viewport_size[1] / 1080],
+                        width=simulation_viewport_size[0], height=simulation_viewport_size[1]
+                    )
                 dpg.add_spacer(width=10)
                 with dpg.group(tag="Settings", width=200):
                     dpg.add_button(label="Reset Simulation", callback=self.reset)
                     dpg.add_button(label="Pause Simulation", callback=self.pause)
-                    dpg.add_combo(default_value="track", # TODO: make sure that this actually corresponds to the value set in launch.py
-                                  items=["track", "blank"], label="map", callback=self.select_map_callback)
+                    dpg.add_combo(tag="Tracks Combo",
+                                  default_value=self.mj.map_metadata["name"],
+                                  label="map",
+                                  callback=self.select_map_callback)
                     dpg.add_separator()
                     with dpg.group(tag="Dashboard"): pass
                     dpg.add_separator()
-                    dpg.add_slider_float(label="rangefinder Intensity", default_value=0.1, max_value=0.3, callback=self.rangefinder)
-        dpg.bind_item_handler_registry("simulation", "bem")
-        dpg.create_viewport(title='Custom Title', width=1124, height=612)
+                    dpg.add_slider_float(label="rangefinder intensity", default_value=0.1, max_value=0.3, callback=self.rangefinder)
+        dpg.bind_item_handler_registry("Tracks Combo", "dog")
+        dpg.create_viewport(title="Formula Trinity AI Grand Prix", width=self.window_size[0], height=self.window_size[1])
+        dpg.set_viewport_resize_callback(self.viewport_resize_cb)
         dpg.setup_dearpygui()
         dpg.show_viewport()
         dpg.set_primary_window("Main", True)
         dpg.start_dearpygui()
+
+    def viewport_resize_cb(self, value, app):
+        self.window_size = app[:2]
+        simulation_viewport_size = self.simulation_viewport_size()
+        dpg.configure_item(
+            "simulation", 
+            uv_max=[simulation_viewport_size[0] / 1920, simulation_viewport_size[1] / 1080],
+            width=simulation_viewport_size[0],
+            height=simulation_viewport_size[1]
+        )
+        self.mj.render()
+
+    def tracks_combo_clicked_cb(self):
+        items = [".".join(os.path.basename(f).split(".")[:-1])
+                 for f in os.listdir(self.mj.template_dir)
+                 if "svg" not in f and "png" in f]
+        print("items are: ", items)
+        dpg.configure_item("Tracks Combo", items=items)
         
     def select_map_callback(self, sender, value):
-        print(value)
-        pass
+        self.mj.stage(value)
 
 class Mujoco:
     # Use this if the rendered XML file must be changed e.g. the map is changed …
@@ -258,6 +293,8 @@ class Mujoco:
                 self.mjcf_metadata = json.load(mjcf_metadata_file)
             self.model_path = os.path.join(self.rendered_dir, "car.xml")
             self.model = mujoco.MjModel.from_xml_path(self.model_path)
+            self.model.vis.global_.offwidth = 1920
+            self.model.vis.global_.offheight = 1080
             self.data = mujoco.MjData(self.model)
             mujoco.mj_kinematics(self.model, self.data)
             self.path = extract_path_from_svg(os.path.join(self.template_dir, f"{self.map_metadata['name']}-path.svg"))
@@ -266,7 +303,7 @@ class Mujoco:
         else:
             mujoco.mj_resetData(self.model, self.data)
         if world:
-            self.meta = []
+            metas = []
             for i, car in enumerate(self.mjcf_metadata["cars"]):
                 if car["driver"].startswith("file://"):
                     path = car["driver"][7:-3].replace("/", ".")
@@ -281,15 +318,21 @@ class Mujoco:
                     driver      = driver,
                     label       = car["name"],
                 )
-                self.meta.append(meta)
+                metas.append(meta)
+            self.meta = metas
             self.camera.lookat[:2] = self.path[0]
         for m in self.meta:
             m.reload_mujoco(self.data, rangefinders=self.mjcf_metadata["rangefinders"])
+        # restart the renderer task
+        # print("START")
+        if world: self.render()
+        # print("FINISH")
         self.position_vehicles(self.path)
     
     def stage(self, track):
         chunk(os.path.join(self.template_dir, f"{track}.png"), verbose=False, force=True)
         produce_mjcf(rangefinders=90, head=1)
+        self.reload_shit(world=True)
 
     def __init__(self, mv, track):
         print("Running mujoco thread")
@@ -304,12 +347,22 @@ class Mujoco:
         self.rendered_dir = "rendered"
         self.template_dir = "template"
         self.camera = mujoco.MjvCamera()
-        self.stage(track="track")
-        self.reload_shit(world=True)
-        self.physics = threading.Thread(target=self.physics_thread)
-        self.physics.start()
-        self.render = threading.Thread(target=self.render_thread)
-        self.render.start()
+
+        self.render_exit     = threading.Event()
+        self.render_finished = threading.Event()
+        self.render_finished.set()
+        
+        self.stage(track)
+        self.physics()
+
+    def physics(self):
+        threading.Thread(target=self.physics_thread).start()
+
+    def render(self):
+        if not self.render_finished.is_set():
+            self.render_exit.set()
+            self.render_finished.wait()
+        threading.Thread(target=self.render_thread).start()
 
     def reload_code(self, index):
         self.meta[index].reload_code()
@@ -390,29 +443,31 @@ class Mujoco:
             # print(f"{fps} fps")
 
     def render_thread(self):
+        self.render_finished.clear()
         global exit_event
-        global pixels
-        global width
-        global height
         last = time.time()
-        self.renderer = mujoco.Renderer(self.model, width=width, height=height)
-        buf = np.zeros((height, width, 3), dtype=np.uint8)
+        width, height = self.mv.simulation_viewport_size()
+        self.renderer = Renderer(self.model, width=width, height=height)
+        buf = np.zeros((self.renderer.height, self.renderer.width, 3), dtype=np.uint8)
         self.renderer.scene.flags[mujoco.mjtRndFlag.mjRND_SHADOW] = 0
         max_fps = 5
         while True:
             # make it so that you can reset while paused …
             # self.running_event.wait()
-            
             self.mv.inject_meta([meta.id for meta in self.meta])
             self.renderer.update_scene(self.data, self.camera)
             self.renderer.render(out=buf)
-            pixels[...] = buf / 255.0
+            self.mv.pixels[0:height, 0:width, :] = buf / 255.0
             now = time.time()
             if (now - last < 1/max_fps):
                 time.sleep(1/max_fps - (now - last));
             # print (f"{1/(time.time()-last)} fps")
             last = time.time()
-            if exit_event.is_set(): break
+            if exit_event.is_set() or self.render_exit.is_set():
+                self.renderer.close()
+                self.render_finished.set()
+                self.render_exit.clear()
+                break
 
 if __name__ == "__main__":
     try:
