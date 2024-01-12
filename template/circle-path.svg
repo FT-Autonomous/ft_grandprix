@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   version="1.1"
+   id="svg1"
+   width="1122.6609"
+   height="1055.5428"
+   viewBox="0 0 1122.6609 1055.5428"
+   sodipodi:docname="circle.png"
+   inkscape:export-filename="circle.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#000000"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:export-bgcolor="#00000000" />
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="Image"
+     id="g1"
+     transform="translate(-469.44839,-272.74237)">
+    <path
+       style="fill:none;stroke:#040000;stroke-width:5;stroke-opacity:1;paint-order:stroke fill markers"
+       d="m 1025.4376,275.24322 c 360.8181,3.90144 457.0285,193.84382 484.1438,233.24534 61.6507,89.58525 95.5974,260.56787 72.9649,428.12849 -22.6324,167.56065 -187.02,320.86035 -370.4147,359.26975 -183.3948,38.4094 -326.15082,60.0178 -509.57113,-64.2777 C 644.80206,1192.4689 482.73952,1029.8983 474.65871,895.00899 466.5779,760.11963 468.08085,613.60671 602.11923,483.72963 736.15761,353.85255 822.698,316.93725 893.81641,297.98649 964.9348,279.03572 1025.4376,275.24322 1025.4376,275.24322 Z"
+       id="path1"
+       inkscape:export-filename="circle-path.svg"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96"
+       sodipodi:nodetypes="csssssssc" />
+  </g>
+</svg>
