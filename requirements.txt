@@ -3,3 +3,4 @@ numpy
 mujoco
 svg.path
 pillow
+dearpygui
