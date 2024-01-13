@@ -72,8 +72,6 @@ class Real:
         self.finished_text_id = dpg.generate_uuid()
 
 class Meta:
-    # TODO: destructure this into mutable current lap data and other
-    # persistent / append only data
     def __init__(self, /, id, offset, driver, label, driver_path, data, rangefinders):
         # lifetime of race < lifetime of mujoco, ∴ mujoco is reloaded
         # more often than it needs to be.
@@ -101,9 +99,9 @@ class ModelAndView:
     def __init__(self, track, width=1124, height=612):
         self.window_size = width, height
         self.pixels = np.zeros((1080, 1920, 3), dtype=np.float32)
-        self.mj = Mujoco(self, track=track) # our model
         self.last = None
         self.max_fps = 5
+        self.mj = Mujoco(self, track=track) # our model
 
     def simulation_viewport_size(self):
         return [max(self.window_size[0] - 400, 0),
@@ -303,62 +301,6 @@ class ModelAndView:
         self.mj.stage(value)
 
 class Mujoco:
-    # Use this if the rendered XML file must be changed e.g. the map is changed …
-    def reload(self):
-        mujoco.mj_resetData(self.model, self.data)
-        for m in self.meta:
-            self.unshadow(m.id)
-        metas = []
-        for i, car in enumerate(self.mjcf_metadata["cars"]):
-            if car["driver"].startswith("file://"):
-                path = car["driver"][7:-3].replace("/", ".")
-                print(f"Loading driver from path '{path}'")
-                driver = runtime_import(path).Driver()
-            else:
-                print("Unsupported schema: supported (file://)")
-            meta = Meta(
-                id           = i,
-                offset       = (i+5) * 2,
-                driver_path  = path,
-                driver       = driver,
-                label        = car["name"],
-                # mujoco data source
-                data         = self.data,
-                rangefinders = self.mjcf_metadata["rangefinders"]
-            )
-            metas.append(meta)
-        self.meta = metas
-        self.shadows = {}
-        self.steps = 0
-        # self.original_shadow_material_for_geom = {}
-        self.winners = {}
-        self.camera.lookat[:2] = self.path[0]
-        self.position_vehicles(self.path)
-    
-    def stage(self, track):
-        chunk(os.path.join(self.template_dir, f"{track}.png"), verbose=False, force=True)
-        produce_mjcf(rangefinders=90, head=1)
-        # PROPHESY: You will spend days trying to fix an error caused due to
-        # things being out of sync. This I have seen.
-        map_metadata_path = os.path.join(self.rendered_dir, "chunks", "metadata.json")
-        with open(map_metadata_path) as map_metadata_file:
-            self.map_metadata = json.load(map_metadata_file)
-        mjcf_metadata_path = os.path.join(self.rendered_dir, "car.json")
-        with open(mjcf_metadata_path) as mjcf_metadata_file:
-            self.mjcf_metadata = json.load(mjcf_metadata_file)
-        self.model_path = os.path.join(self.rendered_dir, "car.xml")
-        self.original_model = mujoco.MjModel.from_xml_path(self.model_path)
-        self.model = mujoco.MjModel.from_xml_path(self.model_path)
-        self.model.vis.global_.offwidth = 1920
-        self.model.vis.global_.offheight = 1080
-        self.data = mujoco.MjData(self.model)
-        mujoco.mj_kinematics(self.model, self.data)
-        self.path = extract_path_from_svg(os.path.join(self.template_dir, f"{self.map_metadata['name']}-path.svg"))
-        self.path[:, 0] =   self.path[:, 0] / self.map_metadata['width']  * self.map_metadata['chunk_width']
-        self.path[:, 1] = - self.path[:, 1] / self.map_metadata['height'] * self.map_metadata['chunk_height']
-        self.reload()
-        self.render()
-
     def __init__(self, mv, track):
         print("Running mujoco thread")
         self.reset_event = threading.Event()
@@ -385,6 +327,57 @@ class Mujoco:
         self.stage(track)
         self.physics()
 
+    def reload(self):
+        mujoco.mj_resetData(self.model, self.data)
+        for m in self.meta:
+            self.unshadow(m.id)
+        metas = []
+        for i, car in enumerate(self.mjcf_metadata["cars"]):
+            if car["driver"].startswith("file://"):
+                path = car["driver"][7:-3].replace("/", ".")
+                print(f"Loading driver from python module path '{path}'")
+                driver = runtime_import(path).Driver()
+            else:
+                print("Unsupported schema: supported (file://)")
+            meta = Meta(
+                id           = i,
+                offset       = (i+5) * 2,
+                driver_path  = path,
+                driver       = driver,
+                label        = car["name"],
+                data         = self.data,
+                rangefinders = self.mjcf_metadata["rangefinders"]
+            )
+            metas.append(meta)
+        self.meta = metas
+        self.shadows = {}
+        self.steps = 0
+        self.winners = {}
+        self.camera.lookat[:2] = self.path[0]
+        self.position_vehicles(self.path)
+    
+    def stage(self, track):
+        chunk(os.path.join(self.template_dir, f"{track}.png"), verbose=False, force=True)
+        produce_mjcf(rangefinders=90, head=1)
+        map_metadata_path = os.path.join(self.rendered_dir, "chunks", "metadata.json")
+        with open(map_metadata_path) as map_metadata_file:
+            self.map_metadata = json.load(map_metadata_file)
+        mjcf_metadata_path = os.path.join(self.rendered_dir, "car.json")
+        with open(mjcf_metadata_path) as mjcf_metadata_file:
+            self.mjcf_metadata = json.load(mjcf_metadata_file)
+        self.model_path = os.path.join(self.rendered_dir, "car.xml")
+        self.original_model = mujoco.MjModel.from_xml_path(self.model_path)
+        self.model = mujoco.MjModel.from_xml_path(self.model_path)
+        self.model.vis.global_.offwidth = 1920
+        self.model.vis.global_.offheight = 1080
+        self.data = mujoco.MjData(self.model)
+        mujoco.mj_kinematics(self.model, self.data)
+        self.path = extract_path_from_svg(os.path.join(self.template_dir, f"{self.map_metadata['name']}-path.svg"))
+        self.path[:, 0] =   self.path[:, 0] / self.map_metadata['width']  * self.map_metadata['chunk_width']
+        self.path[:, 1] = - self.path[:, 1] / self.map_metadata['height'] * self.map_metadata['chunk_height']
+        self.render()
+        self.reload()
+
     def physics(self):
         threading.Thread(target=self.physics_thread).start()
 
@@ -398,9 +391,6 @@ class Mujoco:
         self.meta[index].reload_code()
 
     def position_vehicles(self, path):
-        # TODO: make sure that we can function without a
-        # path. E.g. for testing maps or for when people make maps
-        # without an SVG.
         for i, m in enumerate(self.meta):
             i = m.offset
             delta = path[i+1]-path[i]
@@ -427,7 +417,7 @@ class Mujoco:
                 self.reset_event.clear()
             if exit_event.is_set():
                 break
-            self.running_event.wait(timeout=0.25)
+            self.running_event.wait(timeout=1/self.mv.max_fps)
             if not self.running_event.is_set():
                 mujoco.mj_forward(self.model, self.data)
                 continue
@@ -438,13 +428,13 @@ class Mujoco:
                     meta.ready = True
                 delta = completion - meta.completion
                 if meta.ready and abs(delta) > 90:
-                    lap_time = (self.steps - meta.start) * 0.005
+                    lap_time = (self.steps - meta.start) * self.model.opt.timestep
                     if delta > 0:
                         meta.laps -= 1
                         if len(meta.times) != 0:
                             meta.times.pop()
                     else:
-                        meta.times.append(lap_time) # TODO: change this constant to always reflect physics timestep
+                        meta.times.append(lap_time)
                         meta.ready = False
                         meta.laps += 1
                     meta.start = self.steps
@@ -497,7 +487,6 @@ class Mujoco:
             # conaffinity values)
             m.conaffinity = 0
             m.contype = 1 << 1
-            # self.original_shadow_material_for_geom[geom] = m.matid[0]
             m.matid = transparent_material_id
             shadows.append(shadow)
         self.shadows[meta.id] = shadows
@@ -515,7 +504,6 @@ class Mujoco:
             m.conaffinity = 1
             m.contype = 1
             m.matid = self.original_model.geom(geom).matid
-            # m.matid = original_shadow_material_for_geom[geom]
         del self.shadows[i]
 
     def render_thread(self):
@@ -524,23 +512,19 @@ class Mujoco:
         last = time.time()
         width, height = self.mv.simulation_viewport_size()
         self.renderer = Renderer(self.model, width=width, height=height)
+        scene = self.renderer.scene
         buf = np.zeros((self.renderer.height, self.renderer.width, 3), dtype=np.uint8)
-        self.renderer.scene.flags[mujoco.mjtRndFlag.mjRND_SHADOW] = 0
+        scene.flags[mujoco.mjtRndFlag.mjRND_SHADOW] = 0
         
         while True:
-            # make it so that you can reset while paused …
-            # self.running_event.wait()
             self.mv.inject_meta([meta.id for meta in self.meta])
             self.renderer.update_scene(self.data, self.camera)
 
             for shadows in self.shadows.values():
-                for i, shadow in enumerate(shadows):
-                    j = i + self.renderer.scene.ngeom
-                    mujoco.mjv_initGeom(self.renderer.scene.geoms[j], **shadow)
-                    self.renderer.scene.geoms[j].dataid = 0
-                self.renderer.scene.ngeom += len(shadows)
-            
-            # self.renderer.scene.ngeom = len(shadows)
+                for shadow in shadows:
+                    mujoco.mjv_initGeom(scene.geoms[scene.ngeom], **shadow)
+                    self.renderer.scene.geoms[scene.ngeom].dataid = 0
+                    scene.ngeom += 1
             self.renderer.render(out=buf)
             self.mv.pixels[0:height, 0:width, :] = buf / 255.0
             now = time.time()
