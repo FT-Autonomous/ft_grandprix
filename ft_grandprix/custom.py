@@ -183,9 +183,7 @@ class ModelAndView:
         if self.last is not None:
             dx -= self.last[0]
             dy -= self.last[1]
-            self.last = delta
-        else:
-            self.last = delta
+        self.last = delta
         if not self.mj.cinematic:
             self.mj.camera.azimuth   += dx
             self.mj.camera.elevation += dy
