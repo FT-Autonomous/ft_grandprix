@@ -1,6 +1,5 @@
 import re
 import numpy as np
-import matplotlib.pyplot as plt
 import xml.etree.ElementTree as ET
 import svg.path
 

@@ -6,7 +6,6 @@ import numpy as np
 import argparse
 import sys
 import shutil
-import matplotlib.pyplot as plt
 
 def chunk(
         image_path="track.png",
@@ -39,8 +38,6 @@ def chunk(
     winter = array.sum(2) != 255 * 3
     array[winter] = 0
     image = Image.fromarray(array)
-    # plt.imshow(image)
-    # plt.show()
 
     horizontal_chunks = ceil(image.width / chunk_width)
     vertical_chunks = ceil(image.height / chunk_height)
