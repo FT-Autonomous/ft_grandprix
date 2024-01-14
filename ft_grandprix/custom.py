@@ -902,8 +902,12 @@ class Mujoco:
         chunk(os.path.join(self.template_dir, f"{self.track}.png"), verbose=False, force=True)
         if self.option("cars_path") is not None:
             cars_path = os.path.join(self.template_dir, "cars", self.option("cars_path"))
-            with open(cars_path) as cars_file:
-                self.cars = json.load(cars_file)
+            try:
+                with open(cars_path) as cars_file:
+                    self.cars = json.load(cars_file)
+            except Exception:
+                print(f"ERROR: Could not read from `{cars_path}`")
+                self.cars = []
         produce_mjcf(rangefinders=90, cars=self.cars) # tweak cars_path here once you have multiple configs
         map_metadata_path = os.path.join(self.rendered_dir, "chunks", "metadata.json")
         with open(map_metadata_path) as map_metadata_file:
