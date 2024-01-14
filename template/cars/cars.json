@@ -1,0 +1,5 @@
+[
+    { "driver" : "ft_grandprix.nidc", "name" : "red car",      "primary" : "red",              "secondary" : "pink"       , "icon" : "white.png" },
+    { "driver" : "ft_grandprix.fast", "name" : "orange car",   "primary" : "orange",           "secondary" : "darkorange" , "icon" : "white.png" },
+    { "driver" : "ft_grandprix.nidc", "name" : "green car",    "primary" : "blue",             "secondary" : "green"      , "icon" : "white.png" }
+]
