@@ -2,8 +2,8 @@
     { "driver" : "file://ft_grandprix/nidc.py", "name" : "red car",      "primary" : "red",              "secondary" : "pink"       , "icon" : "white.png"    },
     { "driver" : "file://ft_grandprix/fast.py", "name" : "orange car",   "primary" : "orange",           "secondary" : "darkorange" , "icon" : "white.png"    },
     { "driver" : "file://ft_grandprix/nidc.py", "name" : "green car",    "primary" : "blue",             "secondary" : "green"      , "icon" : "white.png"    },
-    { "driver" : "file://ft_grandprix/nidc.py", "name" : "trinity car",  "primary" : "white",            "secondary" : "lightblue"  , "icon" : "trinity.png" },
-    { "driver" : "file://ft_grandprix/nidc.py", "name" : "maynooth car", "primary" : "brown",            "secondary" : "maroon"     , "icon" : "nuim.png"    },
-    { "driver" : "file://ft_grandprix/nidc.py", "name" : "TU car",       "primary" : "rgb(2, 109, 153)", "secondary" : "blue"       , "icon" : "tu.png"      },
+    { "driver" : "file://ft_grandprix/nidc.py", "name" : "trinity car",  "primary" : "white",            "secondary" : "lightblue"  , "icon" : "trinity.png"  },
+    { "driver" : "file://ft_grandprix/nidc.py", "name" : "maynooth car", "primary" : "brown",            "secondary" : "maroon"     , "icon" : "nuim.png"     },
+    { "driver" : "file://ft_grandprix/nidc.py", "name" : "TU car",       "primary" : "rgb(2, 109, 153)", "secondary" : "blue"       , "icon" : "tu.png"       },
     { "driver" : "file://ft_grandprix/nidc.py", "name" : "purple car",   "primary" : "purple",           "secondary" : "yellow"     , "icon" : "white.png"    }
 ]

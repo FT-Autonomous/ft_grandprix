@@ -137,5 +137,13 @@ colors = dict(
     saddlebrown          = [139, 68,  19  ],
     sienna               = [160, 82,  44  ],
     brown                = [165, 42,  42  ],
-    maroon               = [128, 0,   0   ]
+    maroon               = [128, 0,   0   ],
+    error                = [255, 200, 200]
 )
+
+def resolve_color(color):
+    # IMPROVEMENT: Support complementary color generation, probably with a library
+    if type(color) is list:       return color
+    elif color == "random":       return random.choices(list(range(256)), k=3)
+    elif color.startswith("rgb"): return [int(x) for x in color[4:-1].split(",")]
+    else:                         return colors[color]

@@ -3,7 +3,12 @@
 # TODO: consider not using integer meta-keys and identifying cars
 # using some means that is actually unique.
 
+# FIXME: Certain window sizes (at least those with area=0) kill the
+# renderer and don't allowit to come back to life.
+
 import os
+import re
+from PIL import Image
 import tempfile
 import shutil
 import math
@@ -14,7 +19,7 @@ import mujoco
 import mujoco.viewer
 import numpy as np
 import time
-from .colors import colors
+from .colors import colors, resolve_color
 import dearpygui.dearpygui as dpg
 from .lobotomy import Driver as LobotomyDriver
 from threading import Lock, Event, Thread
@@ -22,10 +27,12 @@ from .curve import extract_path_from_svg
 from .chunk import chunk
 from .map import produce_mjcf
 from .vendor import Renderer
+import tracemalloc
+import linecache
 
+# monkey patch so that the viewer doesn't do its own forwarding
 mujoco._mj_forward = mujoco.mj_forward
 mujoco.mj_forward = lambda model, data: None
-ignore = False
 
 np.set_printoptions(precision=2, formatter={"float": lambda x: f"{x:8.2f}"})
 
@@ -135,6 +142,7 @@ class ModelAndView:
             command.tag : command for command in [
                 Command("pause", self.pause),
                 Command("reset", self.reset),
+                Command("hard_reset", self.hard_reset),
                 Command("focus_on_next_car", self.focus_on_next_car),
                 Command("focus_on_previous_car", self.focus_on_previous_car),
                 Command("reload_code",
@@ -149,7 +157,8 @@ class ModelAndView:
                 Command("rotate_camera_left", lambda: self.perturb_camera(-5, 0)),
                 Command("rotate_camera_right", lambda: self.perturb_camera(5, 0)),
                 Command("rotate_camera_up", lambda: self.perturb_camera(0, -5)),
-                Command("rotate_camera_down", lambda: self.perturb_camera(0, 5))
+                Command("rotate_camera_down", lambda: self.perturb_camera(0, 5)),
+                Command("show_cars_modal", self.show_cars_modal)
             ]
         }
         
@@ -178,33 +187,44 @@ class ModelAndView:
         for option in options.values():
             if not option.present:
                 continue
-            if type(option.value) is bool:
-                dpg.add_checkbox(
-                    parent="Options",
+            if dpg.does_item_exist(option.dpg_tag):
+                dpg.set_value(option.dpg_tag, option.value if option.value is not None else option.type())
+            else:
+                default_attributes = dict(
                     tag=option.dpg_tag,
                     label=option.label,
-                    default_value=option.value,
+                    default_value=option.value if option.value is not None else option.type(),
                     callback=lambda sender, value, option: self.mj.option(option.tag, value),
-                    user_data=option
+                    user_data=option,
+                    width=-200
                 )
-            elif type(option.value) is int:
-                tag = dpg.add_input_int(
-                    parent="Options",
-                    label=option.label,
-                    default_value=option.value,
-                    callback=lambda sender, value, option: self.mj.option(option.tag, value),
-                    user_data=option
-                )
-                if option.min_value:
-                    dpg.configure_item(tag, min_value=option.min_value)
-                if option.max_value:
-                    dpg.configure_item(tag, max_value=option.max_value)
-            elif type(option.value) is float:
-                pass
-
+                with dpg.group(parent="Options"):
+                    if option.type is bool:
+                        del default_attributes["width"]
+                        dpg.add_checkbox(**default_attributes)
+                    elif option.type is int:
+                        dpg.add_input_int(**default_attributes)
+                        if option.min_value:
+                            dpg.configure_item(option.tag, min_value=option.min_value)
+                        if option.max_value:
+                            dpg.configure_item(option.tag, max_value=option.max_value)
+                    elif option.type is float:
+                        dpg.add_input_float(**default_attributes)
+                        if option.min_value:
+                            dpg.configure_item(option.tag, min_value=option.min_value)
+                        if option.max_value:
+                            dpg.configure_item(option.ntag, max_value=option.max_value)
+                    elif option.type is str:
+                        if default_attributes["default_value"] is None:
+                            default_attributes["default_value"] = ""
+                        dpg.add_input_text(**default_attributes)
+                    if option.description is not None:
+                        description = re.sub(r"\s+", " ", option.description.strip())
+                        with dpg.group(horizontal=True):
+                            dpg.add_spacer(width=20)
+                            dpg.add_text(description, wrap=300, color=colors["silver"])
     def simulation_viewport_size(self):
-        return [max(self.window_size[0] - 400, 0),
-                max(self.window_size[1] - 20, 0)]
+        return [max(self.window_size[0] - 400, 0), max(self.window_size[1] - 20, 0)]
 
     def set_inline_panel_visibility(self, visibility):
         if visibility:
@@ -265,22 +285,21 @@ class ModelAndView:
                     dpg.add_button(label="Reload Code", user_data=real.id, callback=self.reload_code_cb)
                     dpg.add_button(label="Info", user_data=real.id)
 
-    def reload_code_cb(self, sender, value, user_data):
-        if dpg.does_item_exist("reload code modal"):
-            dpg.delete_item("reload code modal")
-        car_index = user_data
+    def reload_code_cb(self, sender, value, car_index):
         if car_index is None:
             return
         try:
             self.mj.reload_code(car_index)
         except Exception as e:
+            if dpg.does_item_exist("reload code modal"):
+                dpg.delete_item("reload code modal")
             with dpg.window(tag="reload code modal", modal=True, show=True) as window:
-                dpg.add_text(str(e), color=[255, 200, 200])
+                dpg.add_text(str(e), color=colors["error"])
                 dpg.add_button(label="Try Again", callback=self.reload_code_cb, user_data=car_index)
     
     def pause(self):
         """
-        Resets the simulation
+        Pauses the simulation
         """
         if self.mj.running_event.is_set():
             self.mj.running_event.clear()
@@ -289,9 +308,16 @@ class ModelAndView:
 
     def reset(self):
         """
-        Pauses the simulation
+        Resets the simulation
         """
         self.mj.reset_event.set()
+
+    def hard_reset(self):
+        """
+        Triggers a hard reset of the simulation. This will reload the map other race
+        attributes such as the driver paths and names.
+        """
+        self.mj.hard_reset_event.set()
 
     def scroll(self, sender, value):
         state = dpg.get_item_state('simulation')
@@ -336,13 +362,15 @@ class ModelAndView:
         """
         Locks the camera to the next car in the sequence. Cycles at the end
         """
-        self.mj.watching = ((self.mj.watching or 0) - 1) % len(self.mj.meta)
+        if len(self.mj.meta) > 0:
+            self.mj.watching = ((self.mj.watching or 0) + 1) % len(self.mj.meta)
 
     def focus_on_previous_car(self):
         """
         Locks the camera to the previous car in the sequence. Cycles at the end
         """
-        self.mj.watching = ((self.mj.watching or 0) - 1) % len(self.mj.meta)
+        if len(self.mj.meta) > 0:
+            self.mj.watching = ((self.mj.watching or 0) - 1) % len(self.mj.meta) 
 
     def toggle_cinematic_camera(self):
         """
@@ -355,13 +383,19 @@ class ModelAndView:
             self.mj.camera_vel[1] = 0
 
     def release_key(self, sender, keycode):
+        try:
+            if dpg.get_item_configuration("cars modal")["show"]:
+                return
+        except:
+            pass
         command = self.keybindings.get(keycode) or self.keybindings.get(chr(keycode))
         if command is not None:
             command = self.commands[command]
             print(command.tag)
             command.callback()
         else:
-            print(f"Unbound keycode {keycode}")
+            # print(f"Unbound keycode {keycode}")
+            pass
         
     def run(self):
         print("GUI thread spawned")
@@ -387,8 +421,14 @@ class ModelAndView:
                     )
                     dpg.add_spacer(width=10)
                 with dpg.child_window(tag="settings", width=375):
-                    dpg.add_button(label="Reset Simulation", callback=self.reset)
-                    dpg.add_button(label="Pause Simulation", callback=self.pause)
+                    with dpg.table(header_row=False):
+                        dpg.add_table_column()
+                        dpg.add_table_column()
+                        dpg.add_table_column()
+                        with dpg.table_row():
+                            dpg.add_button(label="Reset", callback=self.reset, width=-1)
+                            dpg.add_button(label="Hard Reset", callback=self.hard_reset, width=-1)
+                            dpg.add_button(label="Pause", callback=self.pause, width=-1)
                     dpg.add_checkbox(label="External Viewer (faster)",
                                      callback=lambda sender, value: self.set_inline_panel_visibility(not value))
                     dpg.add_combo(tag="Tracks Combo",
@@ -396,15 +436,20 @@ class ModelAndView:
                                   label="map",
                                   callback=self.select_map_callback)
                     dpg.add_separator()
+                    dpg.add_button(label="Vehicle Info", callback=self.show_cars_modal, width=-1)
                     with dpg.collapsing_header(label="Vehicle Overview", tag="dashboard", default_open=True):
                         pass
                     dpg.add_separator()
                     with dpg.collapsing_header(label="Options", tag="Options", default_open=True):
-                        dpg.add_button(label="Keybindings Info", callback=self.show_keybindings)
+                        dpg.add_button(label="Commands Info", callback=self.show_keybindings_modal, width=-1)
                         dpg.add_separator()
                         pass
                     
-                    # change when there are more options
+                    # change when there are more options. there are
+                    # more now, BUT, having an option trigger a
+                    # command is not implemented. Might just add a
+                    # callback to the Option class
+                    
                     # dpg.add_separator()
                     # dpg.add_slider_float(label="rangefinder intensity", default_value=0.1, max_value=0.3, callback=self.rangefinder)
         dpg.bind_item_handler_registry("Tracks Combo", "map_combo_handler_registry")
@@ -415,15 +460,15 @@ class ModelAndView:
         dpg.set_primary_window("main", True)
 
         last = time.time()
-        self.inject_options(self.mj.options)
         while dpg.is_dearpygui_running():
             now = time.time()
             if (now - last < 1/self.mj.option("max_fps")):
                 time.sleep(1/self.mj.option("max_fps") - (now - last));
             # print (f"{1/(time.time()-last)} fps")
             last = time.time()
-            dpg.render_dearpygui_frame()
             self.inject_meta([meta.id for meta in self.mj.meta])
+            self.inject_options(self.mj.options)
+            dpg.render_dearpygui_frame()
         dpg.destroy_context()
     
     def succ_keys(self, sender, keycode, command):
@@ -434,11 +479,10 @@ class ModelAndView:
                 dpg.add_key_release_handler(callback=self.release_key)
             dpg.configure_item("keybindings select", show=False)
             dpg.configure_item("keybindings dashboard", show=True)
-            # just restore original values if ESC was pressed
+            existing_keycode = invert(self.keybindings).get(command.tag)
+            if existing_keycode is not None:
+                del self.keybindings[existing_keycode]
             if keycode == 256:
-                existing_keycode = invert(self.keybindings).get(command.tag)
-                if existing_keycode is not None:
-                    del self.keybindings[existing_keycode]
                 dpg.configure_item(f"keybinding for {command.tag}", label=f"N/A")
             else:
                 # FIXME: store in unreadable form
@@ -455,16 +499,124 @@ class ModelAndView:
         
         with dpg.handler_registry():
             dpg.add_key_release_handler(callback=self.succ_keys, user_data=command)
+            
+    # FIXME: Define a class similar to "Real", as shuffling the tag lambda is annoying and error-prone
+    def show_cars_modal(self):
+        """
+        Shows the user a dialog they can use to configure the race. The can configure the
+        number of cars involved and the attributes of each car.
+        """
+        def aggregate_cars_from_ui():
+            cars = []
+            for child in dpg.get_item_children("cars", 1):
+                tag = lambda tag: f"cars :: {child} :: {tag}"
+                car = {
+                    "driver" : dpg.get_value(tag("path")),
+                    "name" : dpg.get_value(tag("name")),
+                    "icon" : dpg.get_value(tag("icon")),
+                    # FIXME: support transparency in car colors
+                    "primary" : dpg.get_value(tag("primary"))[:3],
+                    "secondary" : dpg.get_value(tag("secondary"))[:3]
+                }
+                cars.append(car)
+            return cars
 
-    def show_keybindings(self):
+        def apply_cb(sender, value, user_data):
+            self.mj.option("cars_path", None)
+            self.mj.cars = aggregate_cars_from_ui()
+            print(self.mj.cars)
+            self.hard_reset()
+
+        def write_cb(sender, value, user_data):
+            basename = dpg.get_value("cars output")
+            if basename == "":
+                print("Cant write to empty basename")
+                return
+            cars = aggregate_cars_from_ui()
+            path = os.path.join("template", "cars", basename)
+            with open(path, "w") as file:
+                json.dump(cars, file)
+            self.mj.option("cars_path", None)
+        
+        def load_from_existing_cb(sender, value):
+            # FIXME: Exception is raised in python and not handled
+            # right now if the JSON is invalid
+            try:
+                with open(os.path.join("template", "cars", value)) as cars_file:
+                    cars = json.load(cars_file)
+            except Exception as e:
+                print(e)
+                return
+            dpg.delete_item("cars", children_only=True)
+            for car in cars:
+                group, tag = new_car_cb(None, None)
+                dpg.set_value(tag("name"), car["name"])
+                dpg.set_value(tag("path"), car["driver"])
+                dpg.set_value(tag("icon"), car["icon"])
+                icon_cb(None, car["icon"], [tag("icon texture"), tag("icon image")])
+                dpg.set_value(tag("primary"), resolve_color(car["primary"]))
+                dpg.set_value(tag("secondary"), resolve_color(car["secondary"]))
+                
+        def icon_cb(sender, icon_basename, user_data):
+            texture_tag, image_tag = user_data
+            try:
+                image_path = os.path.join("template", "icons", icon_basename)
+                image = Image.open(image_path).convert("RGB").resize((100, 100))
+            except Exception as e:
+                print(e)
+                return
+            dpg.set_value(texture_tag, np.array(image, dtype=np.float32) / 255.0)
+            dpg.configure_item(image_tag, show=True)
+            
+        def delete_car_cb(sender, value, group):
+            dpg.delete_item(group)
+            
+        def new_car_cb(sender, value):
+            with dpg.group(parent="cars") as group:
+                tag = lambda tag: f"cars :: {group} :: {tag}"
+                with dpg.group(horizontal=True):
+                    with dpg.group():
+                        dpg.add_input_text(tag=tag("name"), label="Driver Name")
+                        dpg.add_input_text(tag=tag("path"), label="Driver Path")
+                        dpg.add_input_text(tag=tag("icon"), label="Icon", callback=icon_cb, user_data=[tag("icon texture"), tag("icon image")])
+                        dpg.add_color_edit(tag=tag("primary"), label="Primary")
+                        dpg.add_color_edit(tag=tag("secondary"), label="Secondary")
+                    with dpg.group(tag=tag("icon group")):
+                        pass
+                dpg.add_button(label="Delete", callback=delete_car_cb, user_data=group, width=-1)
+                dpg.add_separator()
+            dpg.add_raw_texture(100, 100, np.zeros((100, 100, 3), dtype=np.float32), tag=tag("icon texture"), parent="car icons", format=dpg.mvFormat_Float_rgb)
+            dpg.add_image(tag("icon texture"), width=40, height=40, show=True, tag=tag("icon image"), parent=tag("icon group"))
+            return group, tag
+        if dpg.does_item_exist("cars modal"):
+            dpg.delete_item("cars modal")
+        if dpg.does_item_exist("car icons"):
+            dpg.delete_item("car icons")
+        dpg.add_texture_registry(tag="car icons")
+        with dpg.window(tag="cars modal", modal=True, width=400, height=400):
+            with dpg.group(tag="cars"):
+                pass
+            dpg.add_button(label="New Car", callback=new_car_cb, width=-1)
+            dpg.add_separator()
+            dpg.add_combo(
+                label="Load from file",
+                items=os.listdir(os.path.join("template", "cars")),
+                callback=load_from_existing_cb
+            )
+            with dpg.group():
+                dpg.add_input_text(tag="cars output", label="Output Name")
+                dpg.add_button(label="Write", callback=write_cb, width=-1)
+                dpg.add_button(label="Apply", callback=apply_cb, width=-1)
+                dpg.add_text(tag="cars error", color=colors["error"])
+
+    def show_keybindings_modal(self):
         inverted_keybindings_index = invert(self.keybindings)
-
         # FIXME: Exiting the keybindings screen early disables all
         # further key presses as the callback isn't restored
         # correctly.
         if dpg.does_item_exist("keybindings modal"):
             dpg.delete_item("keybindings modal")
-        with dpg.window(tag="keybindings modal", modal=True):
+        with dpg.window(tag="keybindings modal"):
             with dpg.group(tag="keybindings select", show=False):
                 dpg.add_text(tag="keybindings target")
                 dpg.add_text("waiting for user input ...", tag="keybindings message", color=colors["silver"])
@@ -472,10 +624,14 @@ class ModelAndView:
             with dpg.group(tag="keybindings dashboard"):
                 for command in self.commands.values():
                     with dpg.group(horizontal=True):
-                        dpg.add_text(command.label + ":")
+                        dpg.add_button(label=command.label + ":",
+                                       callback=lambda sender, value, command: command.callback(),
+                                       user_data=command)
                         key = inverted_keybindings_index.get(command.tag)
-                        if key is None: label = "N/A"
-                        else:           label = f"`{key}`"
+                        if key is None:
+                            label = "N/A"
+                        else:
+                            label = f"`{key}`"
                         dpg.add_button(tag=f"keybinding for {command.tag}",
                                        label=label,
                                        callback=self.supplant,
@@ -484,11 +640,8 @@ class ModelAndView:
                         with dpg.group(horizontal=True):
                             dpg.add_spacer(width=20)
                             with dpg.group():
-                                dpg.add_text(
-                                    command.description.strip().replace("\n", " "),
-                                    wrap=350,
-                                    color=colors["silver"]
-                                )
+                                description = re.sub(r"\s+", " ", command.description.strip())
+                                dpg.add_text(description, wrap=350, color=colors["silver"])
 
     def viewport_resize_cb(self, value, app):
         self.window_size = app[:2]
@@ -520,7 +673,7 @@ class ModelAndView:
 
 # A simple JSON option that can be persisted in the file system
 class Option:
-    def __init__(self, tag, default, _type=None, description="", data=None, label=None, persist=True, min_value=None, max_value=None, present=True):
+    def __init__(self, tag, default, _type=None, description=None, data=None, label=None, persist=True, min_value=None, max_value=None, present=True):
         self.tag = tag
         self.dpg_tag = f"__option__::{tag}"
         self.label = label or tag
@@ -550,17 +703,20 @@ class Mujoco:
     def __init__(self, mv, track):
         print("Running mujoco thread")
         self.reset_event = Event()
+        self.hard_reset_event = Event()
         self.running_event = Event()
         self.launch_viewer_event = Event()
         self.kill_viewer_event = Event()
         self.mv = mv
         self.camera_vel = [0, 0]
         self.camera_friction = [0.01, 0.01]
-        self.watching = 0
+        self.watching = None
         self.rendered_dir = "rendered"
         self.template_dir = "template"
         self.camera = mujoco.MjvCamera()
         self.options = {}
+        self.cars = []
+        
         try:
             with open("aigp_settings.json") as data_file:
                 data = json.load(data_file)
@@ -568,11 +724,14 @@ class Mujoco:
             data = {}
             print("Not loading settings from file")
         
+        self.declare("cars_path", "cars.json", _type=str, label="Cars Path", data=data)
         self.declare("lap_target", 10, data=data, label="Lap Target")
         self.declare("max_fps", 30, data=data, label="Max FPS")
         self.declare("cinematic_camera", False, data=data, label="Cinematic Camera")
         self.declare("pause_on_reload", True, data=data, label="Pause on Reload")
         self.declare("save_on_exit", True, data=data, label="Save on Exit", present=False)
+        self.declare("max_geom", 1500, data=data, label="Mujoco Geom Limit", persist=False,
+                     description="The number of entities that mujoco will render")
 
         self.meta = []
         self.shadows = {}
@@ -617,10 +776,14 @@ class Mujoco:
         for i, car in enumerate(self.mjcf_metadata["cars"]):
             if car["driver"].startswith("file://"):
                 path = car["driver"][7:-3].replace("/", ".")
-                print(f"Loading driver from python module path '{path}'")
-                driver = runtime_import(path).Driver()
+            elif "//" not in car["driver"]:
+                # if no protocol is given, assume module import is
+                # being used
+                path = car["driver"]
             else:
                 print("Unsupported schema: supported (file://)")
+            print(f"Loading driver from python module path '{path}'")
+            driver = runtime_import(path).Driver()
             meta = Meta(
                 id           = i,
                 offset       = (i+5) * 2,
@@ -631,6 +794,8 @@ class Mujoco:
                 rangefinders = self.mjcf_metadata["rangefinders"]
             )
             metas.append(meta)
+        if self.watching is not None and self.watching > len(self.meta):
+            self.watching = None
         self.meta = metas
         self.shadows = {}
         self.steps = 0
@@ -638,9 +803,18 @@ class Mujoco:
         self.camera.lookat[:2] = self.path[0]
         self.position_vehicles(self.path)
     
-    def stage(self, track):
-        chunk(os.path.join(self.template_dir, f"{track}.png"), verbose=False, force=True)
-        produce_mjcf(rangefinders=90, head=4)
+    def stage(self, track=None):
+        if track is None:
+            if self.track is None:
+                raise RuntimeError("stage must be called with a track first")
+        else:
+            self.track = track
+        chunk(os.path.join(self.template_dir, f"{self.track}.png"), verbose=False, force=True)
+        if self.option("cars_path") is not None:
+            cars_path = os.path.join(self.template_dir, "cars", self.option("cars_path"))
+            with open(cars_path) as cars_file:
+                self.cars = json.load(cars_path)
+        produce_mjcf(rangefinders=90, cars=self.cars) # tweak cars_path here once you have multiple configs
         map_metadata_path = os.path.join(self.rendered_dir, "chunks", "metadata.json")
         with open(map_metadata_path) as map_metadata_file:
             self.map_metadata = json.load(map_metadata_file)
@@ -714,6 +888,9 @@ class Mujoco:
             if self.reset_event.is_set():
                 self.reload()
                 self.reset_event.clear()
+            if self.hard_reset_event.is_set():
+                self.stage()
+                self.hard_reset_event.clear()
             if exit_event.is_set():
                 self.persist()
                 print("Persisted!")
@@ -751,36 +928,34 @@ class Mujoco:
                 meta.off_track = meta.distance_from_track > 0.5
                 if meta.off_track:
                     print(f"Car {index} is off track")
-                    continue
-                        
-                completion = (closest - meta.offset) % 100
-                
-                delta = completion - meta.completion
-                meta.delta = (completion - meta.completion + 50) % 100 - 50
-                
-                if abs(delta) > 90:
-                    lap_time = (self.steps - meta.start) * self.model.opt.timestep
-                    if meta.delta < 0:
-                        meta.good_start = False
-                        meta.laps -= 1
-                        if len(meta.times) != 0:
-                            meta.times.pop()
-                    elif meta.delta > 0:
-                        if meta.good_start:
-                            # dont add a new lap OR start counting
-                            # time for the next lap if we went
-                            # backwards, we are still in the current
-                            # lap
-                            meta.times.append(lap_time)
-                            meta.start = self.steps
-                        meta.laps += 1
-                        meta.good_start = True
-                if meta.laps >= self.option("lap_target"):
-                    if meta.id not in self.winners:
-                        self.winners[meta.id] = len (self.winners) + 1
-                    meta.finished = True
-                    self.shadow(meta.id)
-                meta.completion = completion
+                else:
+                    completion = (closest - meta.offset) % 100
+                    delta = completion - meta.completion
+                    meta.delta = (completion - meta.completion + 50) % 100 - 50
+                    
+                    if abs(delta) > 90:
+                        lap_time = (self.steps - meta.start) * self.model.opt.timestep
+                        if meta.delta < 0:
+                            meta.good_start = False
+                            meta.laps -= 1
+                            if len(meta.times) != 0:
+                                meta.times.pop()
+                        elif meta.delta > 0:
+                            if meta.good_start:
+                                # dont add a new lap OR start counting
+                                # time for the next lap if we went
+                                # backwards, we are still in the current
+                                # lap
+                                meta.times.append(lap_time)
+                                meta.start = self.steps
+                            meta.laps += 1
+                            meta.good_start = True
+                    if meta.laps >= self.option("lap_target"):
+                        if meta.id not in self.winners:
+                            self.winners[meta.id] = len (self.winners) + 1
+                        meta.finished = True
+                        self.shadow(meta.id)
+                    meta.completion = completion
 
                 id = self.model.sensor("car #0 accelerometer").id
                 d = self.data.sensordata[id:id+3]
@@ -789,6 +964,8 @@ class Mujoco:
                 d = self.data.sensordata[id:id+3]
                 # print(f"GYRO:  accel: {math.sqrt((d**2).sum())}")
 
+                # TODO: run this in its own thread so that the user can do things like time.sleep() without
+                # blocking the executor
                 speed, steering_angle = meta.driver.process_lidar(self.data.sensordata[meta.sensors])
                 self.data.ctrl[meta.forward] = speed
                 self.data.ctrl[meta.turn] = steering_angle
@@ -849,7 +1026,7 @@ class Mujoco:
         self.render_finished.clear()
         last = time.time()
         width, height = self.mv.simulation_viewport_size()
-        self.renderer = Renderer(self.model, width=width, height=height)
+        self.renderer = Renderer(self.model, width=width, height=height, max_geom=self.option("max_geom"))
         scene = self.renderer.scene
         buf = np.zeros((self.renderer.height, self.renderer.width, 3), dtype=np.uint8)
         scene.flags[mujoco.mjtRndFlag.mjRND_SHADOW] = 0
@@ -873,9 +1050,48 @@ class Mujoco:
                 self.kill_inline_render_event.clear()
                 break
 
+def display_top(snapshot, key_type='lineno', limit=100):
+    snapshot = snapshot.filter_traces((
+        tracemalloc.Filter(False, "<frozen importlib._bootstrap>"),
+        tracemalloc.Filter(False, "<unknown>"),
+    ))
+    top_stats = snapshot.statistics(key_type)
+
+    print("Top %s lines" % limit)
+    for index, stat in enumerate(top_stats[:limit], 1):
+        frame = stat.traceback[0]
+        # replace "/path/to/module/file.py" with "module/file.py"
+        filename = os.sep.join(frame.filename.split(os.sep)[-2:])
+        print("#%s: %s:%s: %.1f KiB"
+              % (index, filename, frame.lineno, stat.size / 1024))
+        line = linecache.getline(frame.filename, frame.lineno).strip()
+        if line:
+            print('    %s' % line)
+
+    other = top_stats[limit:]
+    if other:
+        size = sum(stat.size for stat in other)
+        print("%s other: %.1f KiB" % (len(other), size / 1024))
+    total = sum(stat.size for stat in top_stats)
+    print("Total allocated size: %.1f KiB" % (total / 1024))
+
+
+def profile():
+    print("Profiling thread started")
+    tracemalloc.start()
+    while True:
+        time.sleep(5)
+        snapshot = tracemalloc.take_snapshot()
+        print("\n---\n\n")
+        display_top(snapshot)
+
+# Thread(target=profile).start()
+
 if __name__ == "__main__":
     try:
         ModelAndView(track="track").run()
     except KeyboardInterrupt:
+        exit_event.set()
         pass
-    exit_event.set()
+
+    

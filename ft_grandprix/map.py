@@ -4,22 +4,22 @@ import sys
 import argparse
 import json
 import em
-from .colors import colors
+from .colors import colors, resolve_color
 import random
 
 def produce_mjcf(
           template_path = "template/car.em.xml",
-          cars_path     = "template/cars.json",
+          cars_path     = None,
+          cars          = None,
           metadata_path = "rendered/chunks/metadata.json",
           output_dir    = "rendered/",
           rangefinders  = 100,
-          head          = None,
-          cars          = None
+          head          = None
 ):
-
-    with open(cars_path) as cars_file:
-        cars = json.load(cars_file)
-
+    if cars_path is not None:
+        with open(cars_path) as cars_file:
+            cars = json.load(cars_file)
+            
     if head is not None:
         cars = cars[:head]
 
@@ -33,12 +33,7 @@ def produce_mjcf(
                 rmtree(existing_icons_dir)
             copytree(join(template_dir, "icons"), join(output_dir, "icons"))
         for color in "primary", "secondary":
-            if car[color] == "random":
-                car[color] = random.choices(list(range(256)), k=3)
-            elif car[color].startswith("rgb"):
-                car[color] = [int(x) for x in car[color][4:-1].split(",")]
-            else:
-                car[color] = colors[car[color]]
+            car[color] = resolve_color(car[color])
         car["x"] = 4.5 + 5.5 + 0.1 * (index % 3)
         car["y"] = -8.5 + 0.0 + 0.1 * (index % 3)
         car["z"] = 0.1
