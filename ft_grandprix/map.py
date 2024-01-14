@@ -8,11 +8,11 @@ from .colors import colors, resolve_color
 import random
 
 def produce_mjcf(
-          template_path = "template/car.em.xml",
+          template_path = join("template", "car.em.xml"),
           cars_path     = None,
           cars          = None,
-          metadata_path = "rendered/chunks/metadata.json",
-          output_dir    = "rendered/",
+          metadata_path = join("rendered", "chunks", "metadata.json"),
+          output_dir    = "rendered",
           rangefinders  = 100,
           head          = None
 ):
@@ -88,7 +88,7 @@ if __name__ == "__main__":
          "--output-dir",
          help="the folder where the redered `car.xml` and `car.json` should be stored",
          dest="output_dir",
-         default="rendered/"
+         default="rendered"
      )
      parser.add_argument(
          "--head",

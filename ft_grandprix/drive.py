@@ -66,7 +66,7 @@ class Simulator:
         else:
             print(keycode)
 
-    def drive(self, map_dir="rendered/"):
+    def drive(self, map_dir="rendered"):
         with mujoco.viewer.launch_passive(
                 self.model,
                 self.data,
