@@ -400,9 +400,9 @@ class ModelAndView:
             elif chr(keycode) == "D":
                 self.steering_angle = -1.0
             elif chr(keycode) == "W":
-                self.speed = 1.0
+                self.speed = 2.0
             elif chr(keycode) == "S":
-                self.speed = -1.0
+                self.speed = -2.0
             else:
                 # print(f"Unbound keycode {keycode}")
                 pass
@@ -725,7 +725,6 @@ class ModelAndView:
         items = [".".join(os.path.basename(f).split(".")[:-1])
                  for f in os.listdir(self.mj.template_dir)
                  if "svg" not in f and "png" in f]
-        print("items are: ", items)
         dpg.configure_item("Tracks Combo", items=items)
         
     def select_map_cb(self, sender, track):
@@ -775,7 +774,7 @@ class Mujoco:
         self.watching = None
         self.rendered_dir = "rendered"
         self.template_dir = "template"
-        self.camera = mujoco.MjvCamera()
+        self._camera = mujoco.MjvCamera()
         self.options = {}
         self.cars = []
         self.track = track
@@ -809,6 +808,13 @@ class Mujoco:
         self.kill_inline_render_event = Event()
         self.render_finished = Event()
         self.render_finished.set()
+
+    @property
+    def camera(self):
+        if self.viewer is None or type(self.viewer) is str:
+            return self._camera
+        else:
+            return self.viewer.cam
 
     def perturb_camera(self, dx, dy):
         if not self.option("cinematic_camera"):
@@ -960,7 +966,6 @@ class Mujoco:
                 desired_azimuth = quaternion_to_angle(*quat)
                 camera_azimuth = self.camera.azimuth % 360
                 desired_azimuth = math.degrees(desired_azimuth) % 360
-                sneeded = camera_azimuth - desired_azimuth
                 delta = (desired_azimuth - camera_azimuth + 180) % 360 - 180
                 self.perturb_camera(delta * 0.01, 0)
             if self.option("cinematic_camera"):
