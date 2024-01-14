@@ -422,6 +422,7 @@ class ModelAndView:
                 pass
         
     def run(self):
+        global exit_event
         print("GUI thread spawned")
         dpg.create_context()
         with dpg.item_handler_registry(tag="map_combo_handler_registry"):
@@ -475,9 +476,11 @@ class ModelAndView:
         dpg.setup_dearpygui()
         dpg.show_viewport()
         dpg.set_primary_window("main", True)
-
+        
         last = time.time()
         while dpg.is_dearpygui_running():
+            if exit_event.is_set():
+                break
             now = time.time()
             if (now - last < 1/self.mj.option("max_fps")):
                 time.sleep(1/self.mj.option("max_fps") - (now - last));
@@ -489,14 +492,13 @@ class ModelAndView:
                 self.viewport_resize_cb(None, [*self.window_size, *self.window_size])
                 self.viewport_resize_event.clear()
             dpg.render_dearpygui_frame()
+        exit_event.set()
         dpg.destroy_context()
     
     def succ_keys(self, sender, keycode, command):
         readable = readable_keycode(keycode)
         conflict = self.keybindings.get(keycode) or self.keybindings.get(readable)
         if conflict is None or conflict == command.tag:
-            # with dpg.handler_registry():
-            #     dpg.add_key_release_handler(callback=self.release_key_cb)
             dpg.configure_item("keybindings select", show=False)
             dpg.configure_item("keybindings dashboard", show=True)
             dpg.delete_item("keybindings handler")
@@ -779,21 +781,22 @@ class Mujoco:
             data = {}
             print("Not loading settings from file")
 
-        self.declare("lock_camera", False, label="Lock Camera", persist=False,
+        self.declare("lock_camera", False, label="Lock Camera", data=data,
                      description="If this option is set, the camera angle will be kept in line with the angle of the vehicle being watched")
         self.declare("manual_control", False, label="Manual Control", persist=False,
                      description="Control the car being watched with the W, A, S and D keys")
-        self.declare("manual_control_speed", 3.0, label="Manual Control Speed", persist=False,
+        self.declare("manual_control_speed", 3.0, label="Manual Control Speed", data=data,
                      description="The speed at which the car will drive when being controlled manually")
         self.declare("cars_path", "cars.json", _type=str, label="Cars Path", persist=False)
         self.declare("lap_target", 10, data=data, label="Lap Target")
         self.declare("max_fps", 30, data=data, label="Max FPS")
         self.declare("cinematic_camera", False, data=data, label="Cinematic Camera")
         self.declare("pause_on_reload", True, data=data, label="Pause on Reload")
-        self.declare("save_on_exit", True, data=data, label="Save on Exit", present=False)
+        self.declare("save_on_exit", True, data=data, label="Save on Exit", present=False,
+                     description="Save to `aigp_settings.json` on exit")
         self.declare("max_geom", 1500, data=data, label="Mujoco Geom Limit", persist=False,
                      description="The number of entities that mujoco will render")
-        self.declare("rangefinder_alpha", 0.1, label="Rangefinder Intensity", callback=self.rangefinder, persist=False)
+        self.declare("rangefinder_alpha", 0.1, label="Rangefinder Intensity", data=data, callback=self.rangefinder)
 
         self.meta = []
         self.shadows = {}
