@@ -37,9 +37,6 @@ mujoco.mj_forward = lambda model, data: None
 
 np.set_printoptions(precision=2, formatter={"float": lambda x: f"{x:8.2f}"})
 
-# used for composing tags
-def join(*d): return "::".join(d)
-
 def invert(d): return { v : k for k, v in d.items() }
 
 def readable_keycode(keycode):
