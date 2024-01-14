@@ -133,10 +133,12 @@ class Meta:
     
 class ModelAndView:
     def __init__(self, track, width=1124, height=612):
+        self.viewport_resize_event = Event()
         self.window_size = width, height
         self.pixels = np.zeros((1080, 1920, 3), dtype=np.float32)
         self.last = None
         self.mj = Mujoco(self, track=track)
+        self.mj.run()
 
         self.commands = {
             command.tag : command for command in [
@@ -223,28 +225,29 @@ class ModelAndView:
                         with dpg.group(horizontal=True):
                             dpg.add_spacer(width=20)
                             dpg.add_text(description, wrap=300, color=colors["silver"])
+                            
     def simulation_viewport_size(self):
-        return [max(self.window_size[0] - 400, 0), max(self.window_size[1] - 20, 0)]
+        return [min(self.mj.model.vis.global_.offwidth, max(self.window_size[0] - 400, 0)),
+                min(self.mj.model.vis.global_.offheight, max(self.window_size[1] - 20, 0))]
 
     def set_inline_panel_visibility(self, visibility):
         if visibility:
-            print("Making visible")
             dpg.configure_item("inline_panel", show=True)
             self.mj.kill_viewer_event.set()
         else:
-            print("Making invisible")
             dpg.configure_item("inline_panel", show=False)
             self.mj.launch_viewer_event.set()
     
     def inject_meta(self, meta):
-        positions = { m  : i for i, m in enumerate(reversed(sorted(meta, key=lambda i: self.mj.meta[i].absolute_completion()))) }
+        mj_meta = self.mj.meta
+        positions = { m  : i for i, m in enumerate(reversed(sorted(meta, key=lambda i: mj_meta[i].absolute_completion()))) }
         meta = set(meta) # payload being injected
         for id in dpg.get_item_children("dashboard", 1):
             real = dpg.get_item_configuration(id)['user_data']
-            m = self.mj.meta[real.id]
-            if m.id not in meta:
+            if real.id not in meta:
                 dpg.delete_item(id)
             else:
+                m = mj_meta[real.id]
                 if real.id in meta:
                     meta.remove(real.id)
                 dpg.configure_item(real.pending_id, show=not m.finished)
@@ -264,7 +267,7 @@ class ModelAndView:
                     dpg.set_value(real.finished_text_id, f"Car finished {m.laps} laps in {sum(m.times):.2f} seconds! ({ordinal(self.mj.winners[m.id])} place)")
         for m in meta:
             real = Real(m)
-            m = self.mj.meta[m]
+            m = mj_meta[m]
             with dpg.tree_node(user_data=real, parent="dashboard", label=f"Car #{m.id} - {m.label}", default_open=True):
                 with dpg.group(tag=real.pending_id):
                      with dpg.group(horizontal=True):
@@ -354,10 +357,7 @@ class ModelAndView:
         else:
             self.mj.camera_vel[0] += dx / 100
             self.mj.camera_vel[1] += dy / 100
-        
-    def rangefinder(self, sender, value):
-        self.mj.model.vis.rgba.rangefinder[3] = value
-
+    
     def focus_on_next_car(self):
         """
         Locks the camera to the next car in the sequence. Cycles at the end
@@ -444,14 +444,6 @@ class ModelAndView:
                         dpg.add_button(label="Commands Info", callback=self.show_keybindings_modal, width=-1)
                         dpg.add_separator()
                         pass
-                    
-                    # change when there are more options. there are
-                    # more now, BUT, having an option trigger a
-                    # command is not implemented. Might just add a
-                    # callback to the Option class
-                    
-                    # dpg.add_separator()
-                    # dpg.add_slider_float(label="rangefinder intensity", default_value=0.1, max_value=0.3, callback=self.rangefinder)
         dpg.bind_item_handler_registry("Tracks Combo", "map_combo_handler_registry")
         dpg.create_viewport(title="Formula Trinity AI Grand Prix", width=self.window_size[0], height=self.window_size[1])
         dpg.set_viewport_resize_callback(self.viewport_resize_cb)
@@ -468,6 +460,9 @@ class ModelAndView:
             last = time.time()
             self.inject_meta([meta.id for meta in self.mj.meta])
             self.inject_options(self.mj.options)
+            if self.viewport_resize_event.is_set():
+                self.viewport_resize_cb(None, [*self.window_size, *self.window_size])
+                self.viewport_resize_event.clear()
             dpg.render_dearpygui_frame()
         dpg.destroy_context()
     
@@ -522,12 +517,12 @@ class ModelAndView:
             return cars
 
         def apply_cb(sender, value, user_data):
-            self.mj.option("cars_path", None)
+            self.mj.nuke("cars_path")
             self.mj.cars = aggregate_cars_from_ui()
-            print(self.mj.cars)
             self.hard_reset()
 
         def write_cb(sender, value, user_data):
+            self.mj.nuke("cars_path")
             basename = dpg.get_value("cars output")
             if basename == "":
                 print("Cant write to empty basename")
@@ -536,7 +531,6 @@ class ModelAndView:
             path = os.path.join("template", "cars", basename)
             with open(path, "w") as file:
                 json.dump(cars, file)
-            self.mj.option("cars_path", None)
         
         def load_from_existing_cb(sender, value):
             # FIXME: Exception is raised in python and not handled
@@ -657,8 +651,12 @@ class ModelAndView:
             width=simulation_viewport_size[0],
             height=simulation_viewport_size[1]
         )
+        
         # print("START")
-        self.mj.render()
+        if self.mj.viewer is None:
+            # inline renderer needs to be restarted when the window
+            # resizes
+            self.mj.start_inline_render_thread()
         # print("FINISH")
 
     def tracks_combo_clicked_cb(self):
@@ -673,7 +671,7 @@ class ModelAndView:
 
 # A simple JSON option that can be persisted in the file system
 class Option:
-    def __init__(self, tag, default, _type=None, description=None, data=None, label=None, persist=True, min_value=None, max_value=None, present=True):
+    def __init__(self, tag, default, _type=None, callback=None, description=None, data=None, label=None, persist=True, min_value=None, max_value=None, present=True):
         self.tag = tag
         self.dpg_tag = f"__option__::{tag}"
         self.label = label or tag
@@ -683,8 +681,9 @@ class Option:
         self.max_value = max_value
         self.value = default
         self.present = present
+        self.callback = callback
         self.type = _type or type(default)
-        if self.tag in data:
+        if self.persist and self.tag in data:
             their = type(data[self.tag])
             if data[self.tag] is not None and self.type is not their:
                 print (f"{tag} was saved as {their}, using default instead ({self.type})")
@@ -716,6 +715,7 @@ class Mujoco:
         self.camera = mujoco.MjvCamera()
         self.options = {}
         self.cars = []
+        self.track = track
         
         try:
             with open("aigp_settings.json") as data_file:
@@ -724,7 +724,7 @@ class Mujoco:
             data = {}
             print("Not loading settings from file")
         
-        self.declare("cars_path", "cars.json", _type=str, label="Cars Path", data=data)
+        self.declare("cars_path", "cars.json", _type=str, label="Cars Path", persist=False)
         self.declare("lap_target", 10, data=data, label="Lap Target")
         self.declare("max_fps", 30, data=data, label="Max FPS")
         self.declare("cinematic_camera", False, data=data, label="Cinematic Camera")
@@ -732,6 +732,7 @@ class Mujoco:
         self.declare("save_on_exit", True, data=data, label="Save on Exit", present=False)
         self.declare("max_geom", 1500, data=data, label="Mujoco Geom Limit", persist=False,
                      description="The number of entities that mujoco will render")
+        self.declare("rangefinder_alpha", 0.1, label="Rangefinder Intensity", callback=self.rangefinder, persist=False)
 
         self.meta = []
         self.shadows = {}
@@ -741,8 +742,9 @@ class Mujoco:
         self.kill_inline_render_event = Event()
         self.render_finished = Event()
         self.render_finished.set()
-        
-        self.stage(track)
+
+    def run(self):
+        self.stage()
         self.physics()
         
     def persist(self):
@@ -760,11 +762,17 @@ class Mujoco:
     def declare(self, tag, default, **kwargs):
         self.options[tag] = Option(tag, default, **kwargs)
 
+    def nuke(self, tag):
+        self.options[tag].value = None
+
     def option(self, tag, value=None):
+        option = self.options[tag]
         if value is not None:
             # print(f"`{tag}` = `{value}`")
-            self.options[tag].value = value
-        return self.options[tag].value
+            option.value = value
+            if option.callback is not None:
+                option.callback(value)
+        return option.value
     
     def reload(self):
         if self.option("pause_on_reload"):
@@ -802,6 +810,9 @@ class Mujoco:
         self.winners = {}
         self.camera.lookat[:2] = self.path[0]
         self.position_vehicles(self.path)
+
+    def rangefinder(self, value):
+        self.model.vis.rgba.rangefinder[3] = value
     
     def stage(self, track=None):
         if track is None:
@@ -813,7 +824,7 @@ class Mujoco:
         if self.option("cars_path") is not None:
             cars_path = os.path.join(self.template_dir, "cars", self.option("cars_path"))
             with open(cars_path) as cars_file:
-                self.cars = json.load(cars_path)
+                self.cars = json.load(cars_file)
         produce_mjcf(rangefinders=90, cars=self.cars) # tweak cars_path here once you have multiple configs
         map_metadata_path = os.path.join(self.rendered_dir, "chunks", "metadata.json")
         with open(map_metadata_path) as map_metadata_file:
@@ -831,13 +842,13 @@ class Mujoco:
         self.path = extract_path_from_svg(os.path.join(self.template_dir, f"{self.map_metadata['name']}-path.svg"))
         self.path[:, 0] =   self.path[:, 0] / self.map_metadata['width']  * self.map_metadata['chunk_width']
         self.path[:, 1] = - self.path[:, 1] / self.map_metadata['height'] * self.map_metadata['chunk_height']
-        self.render()
+        self.restart_render_thread()
         self.reload()
 
     def physics(self):
         Thread(target=self.physics_thread).start()
 
-    def render(self):
+    def restart_render_thread(self):
         if self.viewer is None:
             if not self.render_finished.is_set():
                 self.kill_inline_render_event.set()
@@ -845,6 +856,13 @@ class Mujoco:
             Thread(target=self.inline_render_thread).start()
         else:
             self.launch_viewer_event.set()
+
+    def start_inline_render_thread(self):
+        if self.viewer is None:
+            if not self.render_finished.is_set():
+                self.kill_inline_render_event.set()
+                self.render_finished.wait()
+            Thread(target=self.inline_render_thread).start()
 
     def reload_code(self, index):
         self.meta[index].reload_code()
@@ -868,7 +886,6 @@ class Mujoco:
                 self.camera.azimuth += self.camera_vel[0]
                 self.camera.elevation += self.camera_vel[1]
             if self.launch_viewer_event.is_set():
-                self.kill_inline_render_event.set()
                 if self.viewer is not None:
                     self.viewer.close()
                 self.viewer = "John the Baptist"
@@ -878,11 +895,15 @@ class Mujoco:
                     key_callback = lambda keycode: self.mv.release_key(None, keycode)
                 )
                 self.launch_viewer_event.clear()
+                self.kill_inline_render_event.set()
+                self.mv.viewport_resize_event.set()
             if self.kill_viewer_event.is_set():
                 if self.viewer is not None:
                     self.viewer.close()
                     self.viewer = None
                 self.kill_viewer_event.clear()
+                self.start_inline_render_thread()
+                self.mv.viewport_resize_event.set()
             if self.watching is not None:
                 self.camera.lookat[:] = self.data.body(f"car #{self.watching}").xpos[:]
             if self.reset_event.is_set():
