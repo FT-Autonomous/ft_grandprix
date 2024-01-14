@@ -308,6 +308,7 @@ class ModelAndView:
                 dpg.add_button(label="Try Again", callback=self.reload_code_cb, user_data=car_index)
 
     def scroll_cb(self, sender, value):
+        if self.modal_visible(): return
         state = dpg.get_item_state('simulation')
         [x, y] = dpg.get_mouse_pos(local=False)
         bounded = \
@@ -321,6 +322,7 @@ class ModelAndView:
         self.last = None
 
     def drag_cb(self, sender, value):
+        if self.modal_visible(): return
         state = dpg.get_item_state('simulation')
         [x, y] = dpg.get_mouse_pos(local=False)
         bounded = \
@@ -382,11 +384,7 @@ class ModelAndView:
             self.mj.camera_vel[1] = 0
 
     def press_key_cb(self, sender, keycode):
-        try:
-            if dpg.get_item_configuration("cars modal")["show"]:
-                return
-        except:
-            pass
+        if self.modal_visible(): return
         command = self.keybindings.get(keycode) or self.keybindings.get(chr(keycode))
         if command is None:
             if chr(keycode) == "A":
@@ -401,13 +399,17 @@ class ModelAndView:
                 # print(f"Unbound keycode {keycode}")
                 pass
 
-    def release_key_cb(self, sender, keycode):
+    def modal_visible(self):
         for modal in ["cars modal", "keybindings modal"]:
             try:
                 if dpg.get_item_configuration(modal)["show"]:
-                    return
+                    return True
             except:
                 pass
+        return False
+
+    def release_key_cb(self, sender, keycode):
+        if self.modal_visible(): return
         command = self.keybindings.get(keycode) or self.keybindings.get(chr(keycode))
         if command is not None:
             command = self.commands[command]
@@ -881,9 +883,9 @@ class Mujoco:
                 rangefinders = self.mjcf_metadata["rangefinders"]
             )
             metas.append(meta)
+        self.meta = metas
         if self.watching is not None and self.watching >= len(self.meta):
             self.watching = None
-        self.meta = metas
         self.shadows = {}
         self.steps = 0
         self.winners = {}
