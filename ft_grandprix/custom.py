@@ -385,7 +385,7 @@ class ModelAndView:
             self.mj.camera_vel[1] = 0
 
     def press_key_cb(self, sender, keycode):
-        try:f
+        try:
             if dpg.get_item_configuration("cars modal")["show"]:
                 return
         except:
