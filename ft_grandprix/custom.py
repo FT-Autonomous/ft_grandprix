@@ -158,7 +158,8 @@ class ModelAndView:
                 Command("rotate_camera_right", lambda: self.mj.perturb_camera(5, 0)),
                 Command("rotate_camera_up", lambda: self.mj.perturb_camera(0, -5)),
                 Command("rotate_camera_down", lambda: self.mj.perturb_camera(0, 5)),
-                Command("show_cars_modal", self.show_cars_modal)
+                Command("show_cars_modal", self.show_cars_modal),
+                Command("show_keybindings_modal", self.show_keybindings_modal)
             ]
         }
         
@@ -407,11 +408,12 @@ class ModelAndView:
                 pass
 
     def release_key_cb(self, sender, keycode):
-        try:
-            if dpg.get_item_configuration("cars modal")["show"]:
-                return
-        except:
-            pass
+        for modal in ["cars modal", "keybindings modal"]:
+            try:
+                if dpg.get_item_configuration(modal)["show"]:
+                    return
+            except:
+                pass
         command = self.keybindings.get(keycode) or self.keybindings.get(chr(keycode))
         if command is not None:
             command = self.commands[command]
@@ -499,10 +501,11 @@ class ModelAndView:
         readable = readable_keycode(keycode)
         conflict = self.keybindings.get(keycode) or self.keybindings.get(readable)
         if conflict is None or conflict == command.tag:
-            with dpg.handler_registry():
-                dpg.add_key_release_handler(callback=self.release_key_cb)
+            # with dpg.handler_registry():
+            #     dpg.add_key_release_handler(callback=self.release_key_cb)
             dpg.configure_item("keybindings select", show=False)
             dpg.configure_item("keybindings dashboard", show=True)
+            dpg.delete_item("keybindings handler")
             existing_keycode = invert(self.keybindings).get(command.tag)
             if existing_keycode is not None:
                 del self.keybindings[existing_keycode]
@@ -520,7 +523,7 @@ class ModelAndView:
         dpg.configure_item("keybindings dashboard", show=False)
         dpg.configure_item("keybindings select", show=True)
         dpg.set_value("keybindings target", f"Setting keybinding for `{command.tag}`")
-        with dpg.handler_registry():
+        with dpg.handler_registry(tag="keybindings handler"):
             dpg.add_key_release_handler(callback=self.succ_keys, user_data=command)
             
     # FIXME: Define a class similar to "Tag", as shuffling the tag lambda is annoying and error-prone
@@ -661,6 +664,9 @@ class ModelAndView:
                 dpg.add_text(tag="cars error", color=colors["error"], show=False)
 
     def show_keybindings_modal(self):
+        """
+        Presents a window with all the commands and their associated keybindings, if any
+        """
         inverted_keybindings_index = invert(self.keybindings)
         # FIXME: Exiting the keybindings screen early disables all
         # further key presses as the callback isn't restored
@@ -783,7 +789,8 @@ class Mujoco:
 
         self.declare("lock_camera", False, label="Lock Camera", persist=False,
                      description="If this option is set, the camera angle will be kept in line with the angle of the vehicle being watched")
-        self.declare("manual_control", False, label="Manual Control", persist=False)
+        self.declare("manual_control", False, label="Manual Control", persist=False,
+                     description="Control the car being watched with the W, A, S and D keys")
         self.declare("cars_path", "cars.json", _type=str, label="Cars Path", persist=False)
         self.declare("lap_target", 10, data=data, label="Lap Target")
         self.declare("max_fps", 30, data=data, label="Max FPS")
