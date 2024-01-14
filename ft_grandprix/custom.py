@@ -3,9 +3,6 @@
 # TODO: consider not using integer meta-keys and identifying cars
 # using some means that is actually unique.
 
-# FIXME: Certain window sizes (at least those with area=0) kill the
-# renderer and don't allowit to come back to life.
-
 import os
 import re
 from PIL import Image
@@ -388,7 +385,7 @@ class ModelAndView:
             self.mj.camera_vel[1] = 0
 
     def press_key_cb(self, sender, keycode):
-        try:
+        try:f
             if dpg.get_item_configuration("cars modal")["show"]:
                 return
         except:
@@ -400,9 +397,9 @@ class ModelAndView:
             elif chr(keycode) == "D":
                 self.steering_angle = -1.0
             elif chr(keycode) == "W":
-                self.speed = 2.0
+                self.speed = self.mj.option("manual_control_speed")
             elif chr(keycode) == "S":
-                self.speed = -2.0
+                self.speed = -self.mj.option("manual_control_speed")
             else:
                 # print(f"Unbound keycode {keycode}")
                 pass
@@ -512,7 +509,7 @@ class ModelAndView:
             if keycode == 256:
                 dpg.configure_item(f"keybinding for {command.tag}", label=f"N/A")
             else:
-                # FIXME: store in unreadable form
+                # TODO: store in unreadable form  …
                 self.keybindings[keycode] = command.tag
                 dpg.configure_item(f"keybinding for {command.tag}", label=f"`{readable}`")
         else:
@@ -525,8 +522,7 @@ class ModelAndView:
         dpg.set_value("keybindings target", f"Setting keybinding for `{command.tag}`")
         with dpg.handler_registry(tag="keybindings handler"):
             dpg.add_key_release_handler(callback=self.succ_keys, user_data=command)
-            
-    # FIXME: Define a class similar to "Tag", as shuffling the tag lambda is annoying and error-prone
+    
     def show_cars_modal(self):
         """
         Shows the user a dialog they can use to configure the race. The can configure the
@@ -640,7 +636,7 @@ class ModelAndView:
         if dpg.does_item_exist("car icons"):
             dpg.delete_item("car icons")
         dpg.add_texture_registry(tag="car icons")
-        with dpg.window(tag="cars modal", modal=True, width=400, height=400, no_scrollbar=True):
+        with dpg.window(tag="cars modal", width=400, height=400, no_scrollbar=True):
             with dpg.table(header_row=False):
                 dpg.add_table_column()
                 dpg.add_table_column()
@@ -790,6 +786,8 @@ class Mujoco:
                      description="If this option is set, the camera angle will be kept in line with the angle of the vehicle being watched")
         self.declare("manual_control", False, label="Manual Control", persist=False,
                      description="Control the car being watched with the W, A, S and D keys")
+        self.declare("manual_control_speed", 3.0, label="Manual Control Speed", persist=False,
+                     description="The speed at which the car will drive when being controlled manually")
         self.declare("cars_path", "cars.json", _type=str, label="Cars Path", persist=False)
         self.declare("lap_target", 10, data=data, label="Lap Target")
         self.declare("max_fps", 30, data=data, label="Max FPS")
@@ -883,7 +881,7 @@ class Mujoco:
                 rangefinders = self.mjcf_metadata["rangefinders"]
             )
             metas.append(meta)
-        if self.watching is not None and self.watching > len(self.meta):
+        if self.watching is not None and self.watching >= len(self.meta):
             self.watching = None
         self.meta = metas
         self.shadows = {}
@@ -1070,12 +1068,12 @@ class Mujoco:
                 id = self.model.sensor("car #0 gyro").id
                 d = self.data.sensordata[id:id+3]
                 # print(f"GYRO:  accel: {math.sqrt((d**2).sum())}")
-
-                # TODO: run this in its own thread so that the user can do things like time.sleep() without
-                # blocking the executor
+                
                 if self.option("manual_control") and self.watching == meta.id:
                     speed, steering_angle = self.mv.speed, self.mv.steering_angle
                 else:
+                    # TODO: run this in its own thread so that the user can do things like time.sleep() without
+                    # blocking the executor
                     speed, steering_angle = meta.driver.process_lidar(self.data.sensordata[meta.sensors])
                 
                 self.data.ctrl[meta.forward] = speed
