@@ -34,7 +34,7 @@ r2, g2, b2 = [x/255 for x in car['secondary']]
     <!-- <texture type="cube" name="car #@i icon"  file="@car['icon']"/> -->
     <texture type="2d" name="car #@i icon"  file="@car['icon']" />
     <!-- <material name="car #@i icon" texture="car #@i icon" reflectance="1"/> -->
-    <material name="car #@i icon" rgba="0.1 0.1 0.1 1.0" reflectance="1"/>
+    <material name="car #@i icon" rgba="0.8 0.8 0.8 1.0" texture="car #@i icon" reflectance="1"/>
     <material name="car #@i primary"   rgba="@r1 @g1 @b1 1.0"/>
     <material name="car #@i secondary" rgba="@r2 @g2 @b2 1.0"/>
     <material name="car #@i body"      rgba="0.1 0.1 0.1 1.0"/>

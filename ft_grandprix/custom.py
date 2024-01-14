@@ -153,7 +153,9 @@ class ModelAndView:
                 Command("rotate_camera_up", lambda: self.mj.perturb_camera(0, -5)),
                 Command("rotate_camera_down", lambda: self.mj.perturb_camera(0, 5)),
                 Command("show_cars_modal", self.show_cars_modal),
-                Command("show_keybindings_modal", self.show_keybindings_modal)
+                Command("show_keybindings_modal", self.show_keybindings_modal),
+                Command("sync_options", self.mj.sync_options),
+                Command("position_vehicles", self.mj.position_vehicles) # possibly not thread safe
             ]
         }
         
@@ -595,6 +597,7 @@ class ModelAndView:
                 print(e)
                 return
             load(cars)
+            dpg.set_value("cars output", value)
                 
         def icon_cb(sender, icon_basename, user_data):
             texture_tag, image_tag = user_data
@@ -646,11 +649,11 @@ class ModelAndView:
                     dpg.add_button(label="New Car", callback=new_car_cb, width=-1)
                     dpg.add_button(label="Clear", callback=clear, width=-1)
                     dpg.add_button(label="Load from Sim", callback=lambda: load(self.mj.cars), width=-1)
-                    dpg.add_combo(
-                        label="Load from file",
-                        items=os.listdir(os.path.join("template", "cars")),
-                        callback=load_from_existing_cb
-                    )
+            dpg.add_combo(
+                label="Load from file",
+                items=os.listdir(os.path.join("template", "cars")),
+                callback=load_from_existing_cb
+            )
             dpg.add_separator()
             with dpg.child_window(tag="cars", height=-75):
                 pass
@@ -783,6 +786,7 @@ class Mujoco:
             data = {}
             print("Not loading settings from file")
 
+        self.declare("option_intensity", 1.0, label="Icon Intensity", data=data, callback=self.set_icon_intensity)
         self.declare("lock_camera", False, label="Lock Camera", data=data,
                      description="If this option is set, the camera angle will be kept in line with the angle of the vehicle being watched")
         self.declare("manual_control", False, label="Manual Control", persist=False,
@@ -808,6 +812,10 @@ class Mujoco:
         self.kill_inline_render_event = Event()
         self.render_finished = Event()
         self.render_finished.set()
+
+    def set_icon_intensity(self, intensity):
+        for i in range(len(self.meta)):
+            self.model.mat(f"car #{i} icon").rgba[:4] = intensity
 
     @property
     def camera(self):
@@ -929,11 +937,26 @@ class Mujoco:
         self.path[:, 1] = - self.path[:, 1] / self.map_metadata['height'] * self.map_metadata['chunk_height']
         self.restart_render_thread()
         self.reload()
+        self.sync_options()
+
+    def sync_options(self):
+        """
+        Invokes any callbacks associated with options and ensure that the application state
+        is valid this can be considered generally safe as options are ready to be set to
+        any value at any time in a thread-safe manner.
+        """
+        for option in self.options.values():
+            if option.callback is not None:
+                option.callback(option.value)
 
     def physics(self):
         Thread(target=self.physics_thread).start()
 
     def restart_render_thread(self):
+        """
+        Restarts the external viewer thread, or the internal rendering thread, depending
+        on which one is currently visible.
+        """
         if self.viewer is None:
             if not self.render_finished.is_set():
                 self.kill_inline_render_event.set()
@@ -952,7 +975,13 @@ class Mujoco:
     def reload_code(self, index):
         self.meta[index].reload_code()
 
-    def position_vehicles(self, path):
+    def position_vehicles(self, path=None):
+        """
+        Sends all vehicles back to their starting positions without changing race
+        metadata such as number of laps, lap times .etc.
+        """
+        if path is None:
+            path = self.path
         for i, m in enumerate(self.meta):
             i = m.offset
             delta = path[i+1]-path[i]
@@ -1038,7 +1067,7 @@ class Mujoco:
                 distances = ((self.path - xpos)**2).sum(1)
                 closest = distances.argmin()
                 meta.distance_from_track = distances[closest]
-                meta.off_track = meta.distance_from_track > 0.5
+                meta.off_track = meta.distance_from_track > 1
                 if not meta.off_track:
                     completion = (closest - meta.offset) % 100
                     delta = completion - meta.completion
