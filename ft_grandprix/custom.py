@@ -245,7 +245,7 @@ class ModelAndView:
             finished_id      : int = tag()
             finished_text_id : int = tag()
             tag              : int = tag()
-        mj_meta = self.mj.meta
+        mj_meta = self.mj.meta # hack to make sure that this is atomic
         tags = [dpg.get_item_configuration(tag)["user_data"] for tag in dpg.get_item_children("dashboard", 1)]
         delta = len(mj_meta) - len(tags)
         if delta < 0:
@@ -309,6 +309,42 @@ class ModelAndView:
             with dpg.window(tag="reload code modal", modal=True, show=True) as window:
                 dpg.add_text(str(e), color=colors["error"])
                 dpg.add_button(label="Try Again", callback=self.reload_code_cb, user_data=car_index)
+
+    def scroll_cb(self, sender, value):
+        state = dpg.get_item_state('simulation')
+        [x, y] = dpg.get_mouse_pos(local=False)
+        bounded = \
+            state['rect_min'][0] <= x < state['rect_max'][0] \
+            and state['rect_min'][1] <= y < state['rect_max'][1]
+        if not bounded or self.mj.viewer is not None:
+            return
+        self.mj.camera.distance -= value / 20
+        
+    def release_mouse_cb(self):
+        self.last = None
+
+    def drag_cb(self, sender, value):
+        state = dpg.get_item_state('simulation')
+        [x, y] = dpg.get_mouse_pos(local=False)
+        bounded = \
+            state['rect_min'][0] <= x < state['rect_max'][0] \
+            and state['rect_min'][1] <= y < state['rect_max'][1]
+        if not bounded or self.mj.viewer is not None:
+            return
+        delta = [dx, dy] = dpg.get_mouse_drag_delta()
+        if self.last is not None:
+            dx -= self.last[0]
+            dy -= self.last[1]
+        self.last = delta
+        self.perturb_camera(dx, dy)
+
+    def perturb_camera(self, dx, dy):
+        if not self.mj.option("cinematic_camera"):
+            self.mj.camera.azimuth   += dx
+            self.mj.camera.elevation += dy
+        else:
+            self.mj.camera_vel[0] += dx / 100
+            self.mj.camera_vel[1] += dy / 100
     
     def pause(self):
         """
@@ -331,42 +367,6 @@ class ModelAndView:
         attributes such as the driver paths and names.
         """
         self.mj.hard_reset_event.set()
-
-    def scroll(self, sender, value):
-        state = dpg.get_item_state('simulation')
-        [x, y] = dpg.get_mouse_pos(local=False)
-        bounded = \
-            state['rect_min'][0] <= x < state['rect_max'][0] \
-            and state['rect_min'][1] <= y < state['rect_max'][1]
-        if not bounded or self.mj.viewer is not None:
-            return
-        self.mj.camera.distance -= value / 20
-        
-    def release(self):
-        self.last = None
-
-    def drag(self, sender, value):
-        state = dpg.get_item_state('simulation')
-        [x, y] = dpg.get_mouse_pos(local=False)
-        bounded = \
-            state['rect_min'][0] <= x < state['rect_max'][0] \
-            and state['rect_min'][1] <= y < state['rect_max'][1]
-        if not bounded or self.mj.viewer is not None:
-            return
-        delta = [dx, dy] = dpg.get_mouse_drag_delta()
-        if self.last is not None:
-            dx -= self.last[0]
-            dy -= self.last[1]
-        self.last = delta
-        self.perturb_camera(dx, dy)
-
-    def perturb_camera(self, dx, dy):
-        if not self.mj.option("cinematic_camera"):
-            self.mj.camera.azimuth   += dx
-            self.mj.camera.elevation += dy
-        else:
-            self.mj.camera_vel[0] += dx / 100
-            self.mj.camera_vel[1] += dy / 100
     
     def focus_on_next_car(self):
         """
@@ -392,7 +392,7 @@ class ModelAndView:
             self.mj.camera_vel[0] = 0
             self.mj.camera_vel[1] = 0
 
-    def release_key(self, sender, keycode):
+    def release_key_cb(self, sender, keycode):
         try:
             if dpg.get_item_configuration("cars modal")["show"]:
                 return
@@ -413,10 +413,10 @@ class ModelAndView:
         with dpg.item_handler_registry(tag="map_combo_handler_registry"):
             dpg.add_item_clicked_handler(0, callback=self.tracks_combo_clicked_cb)
         with dpg.handler_registry():
-            dpg.add_mouse_wheel_handler(callback=self.scroll)
-            dpg.add_mouse_release_handler(callback=self.release)
-            dpg.add_mouse_drag_handler(callback=self.drag)
-            dpg.add_key_release_handler(callback=self.release_key)
+            dpg.add_mouse_wheel_handler(callback=self.scroll_cb)
+            dpg.add_mouse_release_handler(callback=self.release_mouse_cb)
+            dpg.add_mouse_drag_handler(callback=self.drag_cb)
+            dpg.add_key_release_handler(callback=self.release_key_cb)
         with dpg.texture_registry(show=False):
             dpg.add_raw_texture(1920, 1080, self.pixels, format=dpg.mvFormat_Float_rgb, tag="visualisation")
         with dpg.window(tag="main", min_size=[400,400]):
@@ -444,7 +444,7 @@ class ModelAndView:
                     dpg.add_combo(tag="Tracks Combo",
                                   default_value=self.mj.map_metadata["name"],
                                   label="map",
-                                  callback=self.select_map_callback)
+                                  callback=self.select_map_cb)
                     dpg.add_separator()
                     dpg.add_button(label="Vehicle Info", callback=self.show_cars_modal, width=-1)
                     with dpg.collapsing_header(label="Vehicle Overview", tag="dashboard", default_open=True):
@@ -481,7 +481,7 @@ class ModelAndView:
         conflict = self.keybindings.get(keycode) or self.keybindings.get(readable)
         if conflict is None or conflict == command.tag:
             with dpg.handler_registry():
-                dpg.add_key_release_handler(callback=self.release_key)
+                dpg.add_key_release_handler(callback=self.release_key_cb)
             dpg.configure_item("keybindings select", show=False)
             dpg.configure_item("keybindings dashboard", show=True)
             existing_keycode = invert(self.keybindings).get(command.tag)
@@ -641,7 +641,6 @@ class ModelAndView:
                 dpg.add_button(label="Write", callback=write_cb, width=-1)
                 dpg.add_button(label="Apply", callback=apply_cb, width=-1)
                 dpg.add_text(tag="cars error", color=colors["error"], show=False)
-        load(self.mj.cars)
 
     def show_keybindings_modal(self):
         inverted_keybindings_index = invert(self.keybindings)
@@ -691,7 +690,6 @@ class ModelAndView:
             width=simulation_viewport_size[0],
             height=simulation_viewport_size[1]
         )
-        
         # print("START")
         if self.mj.viewer is None:
             # inline renderer needs to be restarted when the window
@@ -706,8 +704,9 @@ class ModelAndView:
         print("items are: ", items)
         dpg.configure_item("Tracks Combo", items=items)
         
-    def select_map_callback(self, sender, value):
-        self.mj.stage(value)
+    def select_map_cb(self, sender, track):
+        self.mj.track = track
+        self.mj.hard_reset_event.set()
 
 # A simple JSON option that can be persisted in the file system
 class Option:
@@ -932,7 +931,7 @@ class Mujoco:
                 self.viewer = mujoco.viewer.launch_passive(
                     self.model,
                     self.data,
-                    key_callback = lambda keycode: self.mv.release_key(None, keycode)
+                    key_callback = lambda keycode: self.mv.release_key_cb(None, keycode)
                 )
                 self.launch_viewer_event.clear()
                 self.kill_inline_render_event.set()
