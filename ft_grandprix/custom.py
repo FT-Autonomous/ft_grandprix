@@ -65,7 +65,7 @@ def runtime_import(path):
     module =  spec.loader.load_module()
     return module
 
-def quaternion_to_angle(x, y, z, w):
+def quaternion_to_angle(w, x, y, z):
     t0 = +2.0 * (w * x + y * z)
     t1 = +1.0 - 2.0 * (x * x + y * y)
     roll_x = math.atan2(t0, t1)
@@ -133,6 +133,8 @@ class ModelAndView:
         self.window_size = width, height
         self.pixels = np.zeros((1080, 1920, 3), dtype=np.float32)
         self.last = None
+        self.speed = 0.0
+        self.steering_angle = 0.0
         self.mj = Mujoco(self, track=track)
         self.mj.run()
 
@@ -152,10 +154,10 @@ class ModelAndView:
                 Command("reload_code", lambda: self.reload_code_cb(None, None, self.mj.watching),
                         description="Reloads the code for the that is currently being watched"),
                 Command("toggle_shadows", self.toggle_shadows),
-                Command("rotate_camera_left", lambda: self.perturb_camera(-5, 0)),
-                Command("rotate_camera_right", lambda: self.perturb_camera(5, 0)),
-                Command("rotate_camera_up", lambda: self.perturb_camera(0, -5)),
-                Command("rotate_camera_down", lambda: self.perturb_camera(0, 5)),
+                Command("rotate_camera_left", lambda: self.mj.perturb_camera(-5, 0)),
+                Command("rotate_camera_right", lambda: self.mj.perturb_camera(5, 0)),
+                Command("rotate_camera_up", lambda: self.mj.perturb_camera(0, -5)),
+                Command("rotate_camera_down", lambda: self.mj.perturb_camera(0, 5)),
                 Command("show_cars_modal", self.show_cars_modal)
             ]
         }
@@ -168,7 +170,7 @@ class ModelAndView:
             "P" : "focus_on_previous_car",
             "C" : "toggle_cinematic_camera",
             "L" : "liberate_camera",
-            "S" : "toggle_shadows",
+            "H" : "toggle_shadows",
             263 : "rotate_camera_left",
             262 : "rotate_camera_right",
             265 : "rotate_camera_up",
@@ -336,15 +338,7 @@ class ModelAndView:
             dx -= self.last[0]
             dy -= self.last[1]
         self.last = delta
-        self.perturb_camera(dx, dy)
-
-    def perturb_camera(self, dx, dy):
-        if not self.mj.option("cinematic_camera"):
-            self.mj.camera.azimuth   += dx
-            self.mj.camera.elevation += dy
-        else:
-            self.mj.camera_vel[0] += dx / 100
-            self.mj.camera_vel[1] += dy / 100
+        self.mj.perturb_camera(dx, dy)
     
     def pause(self):
         """
@@ -392,6 +386,26 @@ class ModelAndView:
             self.mj.camera_vel[0] = 0
             self.mj.camera_vel[1] = 0
 
+    def press_key_cb(self, sender, keycode):
+        try:
+            if dpg.get_item_configuration("cars modal")["show"]:
+                return
+        except:
+            pass
+        command = self.keybindings.get(keycode) or self.keybindings.get(chr(keycode))
+        if command is None:
+            if chr(keycode) == "A":
+                self.steering_angle = 1.0
+            elif chr(keycode) == "D":
+                self.steering_angle = -1.0
+            elif chr(keycode) == "W":
+                self.speed = 1.0
+            elif chr(keycode) == "S":
+                self.speed = -1.0
+            else:
+                # print(f"Unbound keycode {keycode}")
+                pass
+
     def release_key_cb(self, sender, keycode):
         try:
             if dpg.get_item_configuration("cars modal")["show"]:
@@ -404,8 +418,12 @@ class ModelAndView:
             print(command.tag)
             command.callback()
         else:
-            # print(f"Unbound keycode {keycode}")
-            pass
+            if chr(keycode) in ["A", "D"]:
+                self.steering_angle = 0.0
+            elif chr(keycode) in ["W", "S"]:
+                self.speed = 0.0
+            else:
+                pass
         
     def run(self):
         print("GUI thread spawned")
@@ -417,6 +435,7 @@ class ModelAndView:
             dpg.add_mouse_release_handler(callback=self.release_mouse_cb)
             dpg.add_mouse_drag_handler(callback=self.drag_cb)
             dpg.add_key_release_handler(callback=self.release_key_cb)
+            dpg.add_key_press_handler(callback=self.press_key_cb)
         with dpg.texture_registry(show=False):
             dpg.add_raw_texture(1920, 1080, self.pixels, format=dpg.mvFormat_Float_rgb, tag="visualisation")
         with dpg.window(tag="main", min_size=[400,400]):
@@ -501,7 +520,6 @@ class ModelAndView:
         dpg.configure_item("keybindings dashboard", show=False)
         dpg.configure_item("keybindings select", show=True)
         dpg.set_value("keybindings target", f"Setting keybinding for `{command.tag}`")
-        
         with dpg.handler_registry():
             dpg.add_key_release_handler(callback=self.succ_keys, user_data=command)
             
@@ -762,7 +780,10 @@ class Mujoco:
         except FileNotFoundError as e:
             data = {}
             print("Not loading settings from file")
-        
+
+        self.declare("lock_camera", False, label="Lock Camera", persist=False,
+                     description="If this option is set, the camera angle will be kept in line with the angle of the vehicle being watched")
+        self.declare("manual_control", False, label="Manual Control", persist=False)
         self.declare("cars_path", "cars.json", _type=str, label="Cars Path", persist=False)
         self.declare("lap_target", 10, data=data, label="Lap Target")
         self.declare("max_fps", 30, data=data, label="Max FPS")
@@ -781,6 +802,14 @@ class Mujoco:
         self.kill_inline_render_event = Event()
         self.render_finished = Event()
         self.render_finished.set()
+
+    def perturb_camera(self, dx, dy):
+        if not self.option("cinematic_camera"):
+            self.camera.azimuth   += dx
+            self.camera.elevation += dy
+        else:
+            self.camera_vel[0] += dx / 100
+            self.camera_vel[1] += dy / 100
 
     def run(self):
         self.stage()
@@ -919,6 +948,14 @@ class Mujoco:
         global exit_event
         last = time.time()
         while True:
+            if self.option("lock_camera") and self.watching is not None:
+                quat = self.meta[self.watching].joint.qpos[3:]
+                desired_azimuth = quaternion_to_angle(*quat)
+                camera_azimuth = self.camera.azimuth % 360
+                desired_azimuth = math.degrees(desired_azimuth) % 360
+                sneeded = camera_azimuth - desired_azimuth
+                delta = (desired_azimuth - camera_azimuth + 180) % 360 - 180
+                self.perturb_camera(delta * 0.01, 0)
             if self.option("cinematic_camera"):
                 self.camera_vel[0] *= (1 - self.camera_friction[0])
                 self.camera_vel[1] *= (1 - self.camera_friction[1])
@@ -986,9 +1023,7 @@ class Mujoco:
                 closest = distances.argmin()
                 meta.distance_from_track = distances[closest]
                 meta.off_track = meta.distance_from_track > 0.5
-                if meta.off_track:
-                    print(f"Car {index} is off track")
-                else:
+                if not meta.off_track:
                     completion = (closest - meta.offset) % 100
                     delta = completion - meta.completion
                     meta.delta = (completion - meta.completion + 50) % 100 - 50
@@ -1026,9 +1061,14 @@ class Mujoco:
 
                 # TODO: run this in its own thread so that the user can do things like time.sleep() without
                 # blocking the executor
-                speed, steering_angle = meta.driver.process_lidar(self.data.sensordata[meta.sensors])
+                if self.option("manual_control") and self.watching == meta.id:
+                    speed, steering_angle = self.mv.speed, self.mv.steering_angle
+                else:
+                    speed, steering_angle = meta.driver.process_lidar(self.data.sensordata[meta.sensors])
+                
                 self.data.ctrl[meta.forward] = speed
                 self.data.ctrl[meta.turn] = steering_angle
+                    
                 # print (speed, steering_angle / 3.14)
                 
             mujoco.mj_step(self.model, self.data)
@@ -1086,6 +1126,11 @@ class Mujoco:
         self.render_finished.clear()
         last = time.time()
         width, height = self.mv.simulation_viewport_size()
+        if width * height == 0:
+            print("Window area is zero, not going to render anything")
+            self.render_finished.set()
+            self.kill_inline_render_event.clear()
+            return
         self.renderer = Renderer(self.model, width=width, height=height, max_geom=self.option("max_geom"))
         scene = self.renderer.scene
         buf = np.zeros((self.renderer.height, self.renderer.width, 3), dtype=np.uint8)
