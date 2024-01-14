@@ -15,6 +15,7 @@ import math
 import importlib
 import queue
 import json
+from dataclasses import dataclass, field
 import mujoco
 import mujoco.viewer
 import numpy as np
@@ -30,11 +31,17 @@ from .vendor import Renderer
 import tracemalloc
 import linecache
 
+def tag():
+    return field(default_factory=dpg.generate_uuid)
+
 # monkey patch so that the viewer doesn't do its own forwarding
 mujoco._mj_forward = mujoco.mj_forward
 mujoco.mj_forward = lambda model, data: None
 
 np.set_printoptions(precision=2, formatter={"float": lambda x: f"{x:8.2f}"})
+
+# used for composing tags
+def join(*d): return "::".join(d)
 
 def invert(d): return { v : k for k, v in d.items() }
 
@@ -83,17 +90,6 @@ def euler_to_quaternion(r):
     return [qw, qx, qy, qz]
 
 exit_event = Event()
-
-class Real:
-    def __init__(self, /, id):
-        self.id = id
-        self.completion_id = dpg.generate_uuid()
-        self.laps_id = dpg.generate_uuid()
-        self.position_id = dpg.generate_uuid()
-        self.times_id = dpg.generate_uuid()
-        self.pending_id = dpg.generate_uuid()
-        self.finished_id = dpg.generate_uuid()
-        self.finished_text_id = dpg.generate_uuid()
 
 class Meta:
     def __init__(self, /, id, offset, driver, label, driver_path, data, rangefinders):
@@ -239,54 +235,68 @@ class ModelAndView:
             self.mj.launch_viewer_event.set()
     
     def inject_meta(self, meta):
+        @dataclass
+        class Tags:
+            completion_id    : int = tag()
+            laps_id          : int = tag()
+            position_id      : int = tag()
+            times_id         : int = tag()
+            pending_id       : int = tag()
+            finished_id      : int = tag()
+            finished_text_id : int = tag()
+            tag              : int = tag()
         mj_meta = self.mj.meta
+        tags = [dpg.get_item_configuration(tag)["user_data"] for tag in dpg.get_item_children("dashboard", 1)]
+        delta = len(mj_meta) - len(tags)
+        if delta < 0:
+            # delete the first few that we dont need
+            for i in range(-delta): dpg.delete_item(tags.pop().tag)
+        elif delta > 0:
+            # add the ones that we do not have
+            for i in range(delta):
+                tags.append(Tags())
+                tag = tags[-1]
+                with dpg.tree_node(tag=tag.tag, user_data=tag, parent="dashboard", default_open=True):
+                    with dpg.group(tag=tag.pending_id):
+                         with dpg.group(horizontal=True):
+                             dpg.add_text(f"Completion:")
+                             dpg.add_text("0%", tag=tag.completion_id)
+                         with dpg.group(horizontal=True):
+                             dpg.add_text(f"Laps:")
+                             dpg.add_text("0", tag=tag.laps_id)
+                    with dpg.group(tag=tag.finished_id):
+                        dpg.add_text("", tag=tag.finished_text_id)
+                    with dpg.group(horizontal=True):
+                        dpg.add_text("Position:")
+                        dpg.add_text("", tag=tag.position_id)
+                    with dpg.group(horizontal=True):
+                        dpg.add_text("Lap Times:")
+                        dpg.add_text("0", tag=tag.times_id, wrap=300)
+                    with dpg.group(horizontal=True):
+                        dpg.add_button(label="Reload Code", user_data=i, callback=self.reload_code_cb)
         positions = { m  : i for i, m in enumerate(reversed(sorted(meta, key=lambda i: mj_meta[i].absolute_completion()))) }
-        meta = set(meta) # payload being injected
-        for id in dpg.get_item_children("dashboard", 1):
-            real = dpg.get_item_configuration(id)['user_data']
-            if real.id not in meta:
-                dpg.delete_item(id)
+        for tag, m_id in zip(tags, meta):
+            m = mj_meta[m_id]
+            dpg.configure_item(tag.tag, label=f"Car #{m.id} - {m.label}")
+            dpg.configure_item(tag.pending_id, show=not m.finished)
+            dpg.configure_item(tag.finished_id, show=m.finished)
+            dpg.set_value(tag.times_id, "[" + ", ".join([f"{t:.2f}" for t in m.times]) + "]")
+            position = positions[m.id]
+            if position == 0:
+                color = colors["gold"]
+            elif position == 1:
+                color = colors["silver"]
+            elif position == 2:
+                color = colors["brown"]
             else:
-                m = mj_meta[real.id]
-                if real.id in meta:
-                    meta.remove(real.id)
-                dpg.configure_item(real.pending_id, show=not m.finished)
-                dpg.configure_item(real.finished_id, show=m.finished)
-                dpg.set_value(real.times_id, "[" + ", ".join([f"{t:.2f}" for t in m.times]) + "]")
-                position = positions[real.id]
-                if position == 0:   color = colors["gold"]
-                elif position == 1: color = colors["silver"]
-                elif position == 2: color = colors["brown"]
-                else:               color = None
-                dpg.set_value(real.position_id, ordinal(position + 1))
-                dpg.configure_item(real.position_id, color=color)
-                if not m.finished:
-                    dpg.set_value(real.completion_id, str(m.lap_completion()) + "%")
-                    dpg.set_value(real.laps_id, str(m.laps))
-                else:
-                    dpg.set_value(real.finished_text_id, f"Car finished {m.laps} laps in {sum(m.times):.2f} seconds! ({ordinal(self.mj.winners[m.id])} place)")
-        for m in meta:
-            real = Real(m)
-            m = mj_meta[m]
-            with dpg.tree_node(user_data=real, parent="dashboard", label=f"Car #{m.id} - {m.label}", default_open=True):
-                with dpg.group(tag=real.pending_id):
-                     with dpg.group(horizontal=True):
-                         dpg.add_text(f"Completion:")
-                         dpg.add_text("0%", tag=real.completion_id)
-                     with dpg.group(horizontal=True):
-                         dpg.add_text(f"Laps:")
-                         dpg.add_text("0", tag=real.laps_id)
-                with dpg.group(tag=real.finished_id):
-                    dpg.add_text("", tag=real.finished_text_id)
-                with dpg.group(horizontal=True):
-                    dpg.add_text("Position:")
-                    dpg.add_text("", tag=real.position_id)
-                with dpg.group(horizontal=True):
-                    dpg.add_text("Lap Times:")
-                    dpg.add_text("0", tag=real.times_id, wrap=300)
-                with dpg.group(horizontal=True):
-                    dpg.add_button(label="Reload Code", user_data=real.id, callback=self.reload_code_cb)
-                    dpg.add_button(label="Info", user_data=real.id)
+                color = None
+            dpg.set_value(tag.position_id, ordinal(position + 1))
+            dpg.configure_item(tag.position_id, color=color)
+            if not m.finished:
+                dpg.set_value(tag.completion_id, str(m.lap_completion()) + "%")
+                dpg.set_value(tag.laps_id, str(m.laps))
+            else:
+                dpg.set_value(tag.finished_text_id, f"Car finished {m.laps} laps in {sum(m.times):.2f} seconds! ({ordinal(self.mj.winners[m.id])} place)")
 
     def reload_code_cb(self, sender, value, car_index):
         if car_index is None:
@@ -495,23 +505,34 @@ class ModelAndView:
         with dpg.handler_registry():
             dpg.add_key_release_handler(callback=self.succ_keys, user_data=command)
             
-    # FIXME: Define a class similar to "Real", as shuffling the tag lambda is annoying and error-prone
+    # FIXME: Define a class similar to "Tag", as shuffling the tag lambda is annoying and error-prone
     def show_cars_modal(self):
         """
         Shows the user a dialog they can use to configure the race. The can configure the
         number of cars involved and the attributes of each car.
         """
+        @dataclass
+        class Tags:
+            path_id : int = tag()
+            name_id  : int = tag()
+            icon_id : int = tag()
+            primary_id : int = tag()
+            secondary_id : int = tag()
+            texture_id : int = tag()
+            image_id : int = tag()
+            icon_group_id : int = tag()
+            
         def aggregate_cars_from_ui():
             cars = []
             for child in dpg.get_item_children("cars", 1):
-                tag = lambda tag: f"cars :: {child} :: {tag}"
+                tags = dpg.get_item_configuration(child)["user_data"]
                 car = {
-                    "driver" : dpg.get_value(tag("path")),
-                    "name" : dpg.get_value(tag("name")),
-                    "icon" : dpg.get_value(tag("icon")),
+                    "driver" : dpg.get_value(tags.path_id),
+                    "name" : dpg.get_value(tags.name_id),
+                    "icon" : dpg.get_value(tags.icon_id),
                     # FIXME: support transparency in car colors
-                    "primary" : dpg.get_value(tag("primary"))[:3],
-                    "secondary" : dpg.get_value(tag("secondary"))[:3]
+                    "primary" : dpg.get_value(tags.primary_id)[:3],
+                    "secondary" : dpg.get_value(tags.secondary_id)[:3]
                 }
                 cars.append(car)
             return cars
@@ -531,6 +552,20 @@ class ModelAndView:
             path = os.path.join("template", "cars", basename)
             with open(path, "w") as file:
                 json.dump(cars, file)
+
+        def clear():
+            dpg.delete_item("cars", children_only=True)
+
+        def load(cars):
+            clear()
+            for car in cars:
+                tags = new_car_cb(None, None)
+                dpg.set_value(tags.name_id, car["name"])
+                dpg.set_value(tags.path_id, car["driver"])
+                dpg.set_value(tags.icon_id, car["icon"])
+                icon_cb(None, car["icon"], [tags.texture_id, tags.icon_id])
+                dpg.set_value(tags.primary_id, resolve_color(car["primary"]))
+                dpg.set_value(tags.secondary_id, resolve_color(car["secondary"]))
         
         def load_from_existing_cb(sender, value):
             # FIXME: Exception is raised in python and not handled
@@ -541,15 +576,7 @@ class ModelAndView:
             except Exception as e:
                 print(e)
                 return
-            dpg.delete_item("cars", children_only=True)
-            for car in cars:
-                group, tag = new_car_cb(None, None)
-                dpg.set_value(tag("name"), car["name"])
-                dpg.set_value(tag("path"), car["driver"])
-                dpg.set_value(tag("icon"), car["icon"])
-                icon_cb(None, car["icon"], [tag("icon texture"), tag("icon image")])
-                dpg.set_value(tag("primary"), resolve_color(car["primary"]))
-                dpg.set_value(tag("secondary"), resolve_color(car["secondary"]))
+            load(cars)
                 
         def icon_cb(sender, icon_basename, user_data):
             texture_tag, image_tag = user_data
@@ -566,42 +593,55 @@ class ModelAndView:
             dpg.delete_item(group)
             
         def new_car_cb(sender, value):
-            with dpg.group(parent="cars") as group:
-                tag = lambda tag: f"cars :: {group} :: {tag}"
+            tags = Tags()
+            with dpg.group(parent="cars", user_data=tags) as group:
                 with dpg.group(horizontal=True):
                     with dpg.group():
-                        dpg.add_input_text(tag=tag("name"), label="Driver Name")
-                        dpg.add_input_text(tag=tag("path"), label="Driver Path")
-                        dpg.add_input_text(tag=tag("icon"), label="Icon", callback=icon_cb, user_data=[tag("icon texture"), tag("icon image")])
-                        dpg.add_color_edit(tag=tag("primary"), label="Primary")
-                        dpg.add_color_edit(tag=tag("secondary"), label="Secondary")
-                    with dpg.group(tag=tag("icon group")):
+                        dpg.add_input_text(tag=tags.name_id, label="Driver Name")
+                        dpg.add_input_text(tag=tags.path_id, label="Driver Path")
+                        dpg.add_input_text(tag=tags.icon_id, label="Icon", callback=icon_cb,
+                                           user_data=[tags.texture_id, tags.image_id])
+                        dpg.add_color_edit(tag=tags.primary_id, label="Primary")
+                        dpg.add_color_edit(tag=tags.secondary_id, label="Secondary")
+                    with dpg.group(tag=tags.icon_group_id):
                         pass
                 dpg.add_button(label="Delete", callback=delete_car_cb, user_data=group, width=-1)
                 dpg.add_separator()
-            dpg.add_raw_texture(100, 100, np.zeros((100, 100, 3), dtype=np.float32), tag=tag("icon texture"), parent="car icons", format=dpg.mvFormat_Float_rgb)
-            dpg.add_image(tag("icon texture"), width=40, height=40, show=True, tag=tag("icon image"), parent=tag("icon group"))
-            return group, tag
+            dpg.add_raw_texture(100, 100, np.zeros((100, 100, 3), dtype=np.float32),
+                                format=dpg.mvFormat_Float_rgb,
+                                tag=tags.texture_id, parent="car icons")
+            dpg.add_image(tags.texture_id, width=40, height=40, show=True,
+                          tag=tags.image_id,
+                          parent=tags.icon_group_id)
+            return tags
         if dpg.does_item_exist("cars modal"):
             dpg.delete_item("cars modal")
         if dpg.does_item_exist("car icons"):
             dpg.delete_item("car icons")
         dpg.add_texture_registry(tag="car icons")
-        with dpg.window(tag="cars modal", modal=True, width=400, height=400):
-            with dpg.group(tag="cars"):
-                pass
-            dpg.add_button(label="New Car", callback=new_car_cb, width=-1)
+        with dpg.window(tag="cars modal", modal=True, width=400, height=400, no_scrollbar=True):
+            with dpg.table(header_row=False):
+                dpg.add_table_column()
+                dpg.add_table_column()
+                dpg.add_table_column()
+                with dpg.table_row():
+                    dpg.add_button(label="New Car", callback=new_car_cb, width=-1)
+                    dpg.add_button(label="Clear", callback=clear, width=-1)
+                    dpg.add_button(label="Load from Sim", callback=lambda: load(self.mj.cars), width=-1)
+                    dpg.add_combo(
+                        label="Load from file",
+                        items=os.listdir(os.path.join("template", "cars")),
+                        callback=load_from_existing_cb
+                    )
             dpg.add_separator()
-            dpg.add_combo(
-                label="Load from file",
-                items=os.listdir(os.path.join("template", "cars")),
-                callback=load_from_existing_cb
-            )
+            with dpg.child_window(tag="cars", height=-75):
+                pass
             with dpg.group():
                 dpg.add_input_text(tag="cars output", label="Output Name")
                 dpg.add_button(label="Write", callback=write_cb, width=-1)
                 dpg.add_button(label="Apply", callback=apply_cb, width=-1)
-                dpg.add_text(tag="cars error", color=colors["error"])
+                dpg.add_text(tag="cars error", color=colors["error"], show=False)
+        load(self.mj.cars)
 
     def show_keybindings_modal(self):
         inverted_keybindings_index = invert(self.keybindings)
