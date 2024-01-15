@@ -1120,7 +1120,7 @@ class Mujoco:
             self.steps += 1
             
             now = time.time()
-            fps = 1 / (now - last)
+            # fps = 1 / (now - last) if now - last > 0 else self.option("max_fps")
             last = time.time()
             # print(f"{fps} fps")
 
