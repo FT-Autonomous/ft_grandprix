@@ -1,3 +1,5 @@
 class Driver:
     def process_lidar(self, ranges):
-        return 0, 0
+        speed = 0
+        steering_angle = 0
+        return speed, steering_angle
