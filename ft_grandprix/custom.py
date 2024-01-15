@@ -93,6 +93,7 @@ class Meta:
         self.offset = offset
         self.completion = 0 # current completion percentage
         self.good_start = True # if we enter into a lap backwards, set this to False
+        # TODO: Fix this shit bro
         self.start = 0 # physics time step we are currently at
         self.laps = 0 # number of laps completed
         self.times = [] # lap times
@@ -771,7 +772,7 @@ class Mujoco:
         self.mv = mv
         self.camera_vel = [0, 0]
         self.camera_friction = [0.01, 0.01]
-        self.watching = None
+        self.watching = 0
         self.rendered_dir = "rendered"
         self.template_dir = "template"
         self._camera = mujoco.MjvCamera()
@@ -1076,8 +1077,8 @@ class Mujoco:
                     if abs(delta) > 90:
                         lap_time = (self.steps - meta.start) * self.model.opt.timestep
                         if meta.delta < 0:
-                            meta.good_start = False
                             meta.laps -= 1
+                            meta.good_start = False
                             if len(meta.times) != 0:
                                 meta.times.pop()
                         elif meta.delta > 0:
