@@ -785,9 +785,9 @@ class Mujoco:
         try:
             with open("aigp_settings.json") as data_file:
                 data = json.load(data_file)
-        except FileNotFoundError as e:
+        except Exception as e:
             data = {}
-            print("Not loading settings from file")
+            print("Not loading settings from file: ", e)
 
         self.declare("option_intensity", 1.0, label="Icon Intensity", data=data, callback=self.set_icon_intensity)
         self.declare("lock_camera", False, label="Lock Camera", data=data,
