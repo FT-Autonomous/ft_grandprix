@@ -702,7 +702,9 @@ class ModelAndView:
                                 dpg.add_text(description, wrap=350, color=colors["silver"])
 
     def viewport_resize_cb(self, value, app):
-        self.window_size = app[:2]
+        if self.window_size == app[2:]:
+            return
+        self.window_size = app[2:]
         simulation_viewport_size = self.simulation_viewport_size()
         dpg.configure_item("settings", height=simulation_viewport_size[1])
         if self.mj.viewer is None:
