@@ -91,6 +91,12 @@ if __name__ == "__main__":
          default="rendered"
      )
      parser.add_argument(
+         "--cars-path",
+         help="the file from which to load vehicle information",
+         dest="cars_path",
+         required=False
+     )
+     parser.add_argument(
          "--head",
          help="limit the number of cars used from cars.json",
          dest="head",

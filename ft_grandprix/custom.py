@@ -183,10 +183,17 @@ class ModelAndView:
 
     def inject_options(self, options):
         for option in options.values():
-            if not option.present:
-                continue
             if dpg.does_item_exist(option.dpg_tag):
-                dpg.set_value(option.dpg_tag, option.value if option.value is not None else option.type())
+                if not self.mj.option("debug_mode") and not option.present:
+                    for tag in [option.dpg_tag, option.dpg_description_tag]:
+                        try:
+                            dpg.delete_item(tag)
+                        except:
+                            pass
+                else:
+                    dpg.set_value(option.dpg_tag, option.value if option.value is not None else option.type())
+            elif not self.mj.option("debug_mode") and not option.present:
+                continue
             else:
                 default_attributes = dict(
                     tag=option.dpg_tag,
@@ -203,22 +210,22 @@ class ModelAndView:
                     elif option.type is int:
                         dpg.add_input_int(**default_attributes)
                         if option.min_value:
-                            dpg.configure_item(option.tag, min_value=option.min_value)
+                            dpg.configure_item(option.dpg_tag, min_value=option.min_value)
                         if option.max_value:
-                            dpg.configure_item(option.tag, max_value=option.max_value)
+                            dpg.configure_item(option.dpg_tag, max_value=option.max_value)
                     elif option.type is float:
                         dpg.add_input_float(**default_attributes)
                         if option.min_value:
-                            dpg.configure_item(option.tag, min_value=option.min_value)
+                            dpg.configure_item(option.dpg_tag, min_value=option.min_value)
                         if option.max_value:
-                            dpg.configure_item(option.ntag, max_value=option.max_value)
+                            dpg.configure_item(option.dpg_tag, max_value=option.max_value)
                     elif option.type is str:
                         if default_attributes["default_value"] is None:
                             default_attributes["default_value"] = ""
                         dpg.add_input_text(**default_attributes)
                     if option.description is not None:
                         description = re.sub(r"\s+", " ", option.description.strip())
-                        with dpg.group(horizontal=True):
+                        with dpg.group(tag=option.dpg_description_tag, horizontal=True):
                             dpg.add_spacer(width=20)
                             dpg.add_text(description, wrap=300, color=colors["silver"])
                             
@@ -739,6 +746,7 @@ class Option:
     def __init__(self, tag, default, _type=None, callback=None, description=None, data=None, label=None, persist=True, min_value=None, max_value=None, present=True):
         self.tag = tag
         self.dpg_tag = f"__option__::{tag}"
+        self.dpg_description_tag = f"__option__::{tag}::__description__"
         self.label = label or tag
         self.persist = persist
         self.description = description
@@ -806,6 +814,10 @@ class Mujoco:
         self.declare("max_geom", 1500, data=data, label="Mujoco Geom Limit", persist=False,
                      description="The number of entities that mujoco will render")
         self.declare("rangefinder_alpha", 0.1, label="Rangefinder Intensity", data=data, callback=self.rangefinder)
+        self.declare("speed_p_component", 0.5, label="Speed Factor", data=data, min_value=0.1, max_value=0.99, present=False, persist=False)
+        self.declare("steering_angle_p_component", 0.5, label="Steering Factor", data=data, min_value=0.1, max_value=0.99, present=False, persist=False)
+        self.declare("debug_mode", False, label="Debug Mode", data=data,
+                     description="Shows hidden debugging settings")
 
         self.meta = []
         self.shadows = {}
@@ -1113,9 +1125,9 @@ class Mujoco:
                     # TODO: run this in its own thread so that the user can do things like time.sleep() without
                     # blocking the executor
                     speed, steering_angle = meta.driver.process_lidar(self.data.sensordata[meta.sensors])
-                
-                self.data.ctrl[meta.forward] = speed
-                self.data.ctrl[meta.turn] = steering_angle
+                mix = lambda m, a, b: m * a + (1 - m) * b
+                self.data.ctrl[meta.forward] = mix(self.option("speed_p_component"), self.data.ctrl[meta.forward], speed)
+                self.data.ctrl[meta.turn] = mix(self.option("steering_angle_p_component"), self.data.ctrl[meta.turn], steering_angle)
                     
                 # print (speed, steering_angle / 3.14)
                 
