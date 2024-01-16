@@ -13,6 +13,7 @@ def chunk(
         chunk_width=20,
         chunk_height=20,
         verbose=True,
+        scale=1,
         force=False
 ):
     if not os.path.isdir("rendered"):
@@ -71,7 +72,8 @@ def chunk(
             "chunks": chunks,
             "width": image.width,
             "height": image.height,
-            "name": ".".join(os.path.basename(image_path).split(".")[:-1])
+            "name": ".".join(os.path.basename(image_path).split(".")[:-1]),
+            "scale": scale
         }
         json.dump(metadata, metadata_file)
 

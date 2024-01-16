@@ -1,0 +1,200 @@
+<!--
+Copyright (c) 2019, MuSHR/PRL/Whatever we choose
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+@{
+from math import radians
+border_height = 0.3
+mujoco_map_width = mujoco_map_height = 40
+from math import sin, cos, radians
+size_x = mujoco_map_width / metadata["horizontal_chunks"]
+size_y = mujoco_map_height / metadata["vertical_chunks"]
+inter_ray_angle = 360 / rangefinders
+affordance = 0.1
+}@
+
+<mujoco>
+  <compiler angle="radian" />
+  <option timestep="0.004"/>
+  <visual>
+    <headlight ambient="0.5 0.5 0.5"/>
+    <quality shadowsize="4096"/>
+  </visual>
+  <asset>
+    <texture name="texplane" type="2d" builtin="checker" rgb1="0.26 0.12 0.36" rgb2="0.23 0.09 0.33" width="512" height="512" mark="cross" markrgb=".8 .8 .8"/>
+    <texture name="texgeom" type="cube" builtin="flat" mark="cross" width="127" height="1278" rgb1="0.8 0.6 0.4" rgb2="0.8 0.6 0.4" markrgb="1 1 1" random="0.01"/>
+    <material name="matplane" reflectance="0.3" texture="texplane" texrepeat="1 1" texuniform="true"/>
+    <material name="matgeom" texture="texgeom" texuniform="true" rgba="0.8 0.6 .4 1"/>
+    
+    <mesh name="buddy_mushr_base_nano" file="meshes/mushr_base_nano.stl"/>
+    <mesh name="buddy_mushr_wheel" file="meshes/mushr_wheel.stl"/>
+
+@[for i, car in enumerate(cars) ]@
+@{
+r1, g1, b1 = [x/255 for x in car['primary']]
+r2, g2, b2 = [x/255 for x in car['secondary']]
+}@
+<!-- <texture type="cube" name="car #@i icon"  file="@car['icon']"/> -->
+    <texture type="2d" name="car #@i icon"  file="icons/@car['icon']" />
+    <!-- <material name="car #@i icon" texture="car #@i icon" reflectance="1"/> -->
+    <material name="car #@i icon" rgba="0.8 0.8 0.8 1.0" texture="car #@i icon" reflectance="1"/>
+    <material name="car #@i primary"   rgba="@r1 @g1 @b1 1.0"/>
+    <material name="car #@i secondary" rgba="@r2 @g2 @b2 0.5"/>
+    <material name="car #@i body"      rgba="0.1 0.1 0.1 1.0"/>
+    <material name="car #@i wheel"     rgba="0.1 0.1 0.1 1.0"/>
+@[end for]@
+@[for (x,y) in metadata["chunks"] ]@
+    <hfield name="map-@(f'{x:03}x{y:03}')" file="chunks/@(f'{x:03}x{y:03}.png')" size="@(size_x/2) @(size_y/2) @(border_height + affordance) 0.0001"/>
+@[end for]@
+    <texture type="2d" name="grid" builtin="checker" rgb1="1 0 0" rgb2="1 1 1" width="512" height="512"/>
+    <material name="plane" reflectance="0.1"/>
+    <material name="grid" texture="grid" texuniform="true" reflectance="0"/>
+  </asset>
+  <default>
+    <default class="buddy_softener">
+      <geom mesh="buddy_mushr_wheel" mass="0.00001" rgba="1 1 1 0" fitscale="2.0" contype="0" conaffinity="4"/>
+    </default>
+    <default class="buddy_wheel">
+      <geom fitscale="1.2" type="ellipsoid" friction="2 0.005 0.0001" contype="1" conaffinity="0" mesh="buddy_mushr_wheel" mass="0.498952"/>
+    </default>
+    <default class="buddy_steering">
+      <!-- <joint type="hinge" axis="0 0 1" limited="true" frictionloss="0.01" damping="0.001" armature="0.0002" range="-1 1"/> -->
+      <joint type="hinge" axis="0 0 1" limited="true" frictionloss="0.01" damping="0.1" armature="0.0002" range="-1 1"/>
+    </default>
+    <default class="buddy_throttle">
+      <joint type="hinge" axis="0 1 0" frictionloss="0.001" damping="0.01" armature="0.01" limited="false"/>
+    </default>
+    <default class="wheel">
+      <geom size="0.03 0.01 0" type="cylinder"/>
+    </default>
+    <default class="decor">
+      <site type="box"/>
+    </default>
+  </default>
+  <worldbody>
+@[for (x,y) in metadata["chunks"] ]@
+    <geom conaffinity="1" contype="4" material="grid" type="hfield" hfield="map-@(f'{x:03}x{y:03}')" pos="@(size_x * x) @(-size_y * y) @(-affordance)"/>
+@[end for]@
+<geom friction=".5 0.005 0.0001"
+    conaffinity="3" contype="3" name="plane" size="300 300 0.1" pos="0 0 0.01" type="plane" rgba="0.3 0 0 1"/>
+    @[for i, car in enumerate(cars) ]@
+    <body name="car #@i" pos="0.0 2.0 0.0" euler="0 0 0.0">
+      @{
+# rangefinder origin
+# rx, ry, rz = -0.0525, 0.000, 0.030 # values used for differential drive
+rx, ry, rz = -0.0525, 0.000, 0.19
+# lidar model radius and height
+lr = 0.030
+lh = 0.015
+}@
+       <light pos="@rx @ry @(rz + 0.1)" dir="0 0 -1" diffuse="0.5 0.5 0.5" mode="trackcom"/>
+      <light name="front light #@i" pos="@rx @ry @(rz + 0.1)" dir="0.894427 0 -0.447214" diffuse="1 1 1"/>
+       <geom name="car #@i lidar" type="cylinder" size="@lr @lh 0.01" pos="@rx @ry @(rz - lh/2)" material="car #@i body"/>
+       <site material="car #@i icon" type="ellipsoid" euler="0 0 @(radians(-90))" size="@(lr*0.9) @(lr*0.9) 0.0075" pos="@rx @ry @(rz + lh/2 - 0.0005)"/>
+       <site material="car #@i secondary" type="ellipsoid" euler="0 0 @(radians(-90))" size="@(lr*1.1) @(lr*1.1) 0.0100" pos="@rx @ry @rz"/>
+@[for j in range(rangefinders) ]@ 
+@{
+theta = -radians(inter_ray_angle*j - 90)
+}@
+      <site name="rangefinder #@i.#@j" pos="@(rx + lr*sin(theta)) @(lr * cos(theta)) @rz" euler="@(radians(90)) @(radians(inter_ray_angle*j - 90)) 0" rgba="0 0 0 0"/>
+@[end for]@
+      <camera name="buddy_third_person #@i" mode="fixed" pos="-1 0 1" xyaxes="0 -1 0 0.707 0 0.707"/>
+      <joint name="car #@i" type="free"/>
+      <site name="buddy_imu #@i" pos="-0.005 0 .165"/>
+      <geom pos="0 0 0.094655" type="mesh" mass="3.542137" mesh="buddy_mushr_base_nano" material="car #@i primary"/>
+      <body name="buddy_steering_wheel #@i" pos="0.1385 0 0.0488">
+        <joint class="buddy_steering" name="buddy_steering_wheel #@i"/>
+        <geom class="buddy_wheel" contype="0" conaffinity="0" mass="0.01" rgba="0 0 0 0.01"/>
+      </body>
+      <body name="buddy_wheel_fl #@i" pos="0.1385 0.115 0.0488">
+        <body>
+          <joint type="ball" frictionloss="0.5"/>
+          <geom name="fl softener #@i" class="buddy_softener"/>
+        </body>
+        <joint class="buddy_steering" name="buddy_wheel_fl_steering #@i"/>
+        <joint class="buddy_throttle" name="buddy_wheel_fl_throttle #@i"/>
+        <geom class="buddy_wheel" material="car #@i secondary" />
+        <geom class="buddy_wheel" material="car #@i wheel" type="mesh" contype="0" conaffinity="0" group="1"/>
+      </body>
+      <body name="buddy_wheel_fr #@i" pos="0.1385 -0.115 0.0488">
+        <body>
+          <joint type="ball" frictionloss="0.5"/>
+          <geom name="fr softener #@i" class="buddy_softener"/>
+        </body>
+        <joint class="buddy_steering" name="buddy_wheel_fr_steering #@i"/>
+        <joint class="buddy_throttle" name="buddy_wheel_fr_throttle #@i"/>
+        <geom class="buddy_wheel" material="car #@i secondary" />
+        <geom class="buddy_wheel" material="car #@i wheel"  type="mesh" contype="0" conaffinity="0" group="1"/>
+      </body>
+      <body name="buddy_wheel_bl #@i" pos="-0.158 0.115 0.0488">
+        <body>
+          <joint type="ball" frictionloss="0.5"/>
+          <geom name="bl softener #@i" class="buddy_softener"/>
+        </body>
+        <joint class="buddy_throttle" name="buddy_wheel_bl_throttle #@i"/>
+        <geom class="buddy_wheel" material="car #@i secondary"/>
+        <geom class="buddy_wheel" material="car #@i wheel" type="mesh" contype="0" conaffinity="0" group="1"/>
+      </body>
+      <body name="buddy_wheel_br #@i" pos="-0.158 -0.115 0.0488">
+        <body>
+          <joint type="ball" frictionloss="0.5"/>
+          <geom name="br softener #@i" class="buddy_softener"/>
+        </body>
+        <joint class="buddy_throttle" name="buddy_wheel_br_throttle #@i"/>
+        <geom class="buddy_wheel" material="car #@i secondary"/>
+        <geom class="buddy_wheel" material="car #@i wheel" type="mesh" contype="0" conaffinity="0" group="1"/>
+      </body>
+    </body>
+    @[end for]@
+  </worldbody>
+  <actuator>
+   @[for i, car in enumerate(cars) ]@
+    <position class="buddy_steering" kp="20.0" name="turn #@i" joint="buddy_steering_wheel #@i"/>
+    <velocity kv="100" gear="0.04" forcelimited="true" forcerange="-500 500" name="forward #@i" tendon="buddy_throttle #@i"/>
+    @[end for]@
+  </actuator>
+  <equality>
+    @[for i, car in enumerate(cars) ]@
+    <joint joint1="buddy_wheel_fl_steering #@i" joint2="buddy_steering_wheel #@i" polycoef="0 1 0.375 0.140625 -0.0722656"/>
+    <joint joint1="buddy_wheel_fr_steering #@i" joint2="buddy_steering_wheel #@i" polycoef="0 1 -0.375 0.140625 0.0722656"/>
+    @[end for]@
+  </equality>
+  <tendon>
+    @[for i, car in enumerate(cars) ]@
+    <fixed name="buddy_throttle #@i">
+      <joint joint="buddy_wheel_fl_throttle #@i" coef="0.25"/>
+      <joint joint="buddy_wheel_fr_throttle #@i" coef="0.25"/>
+      <joint joint="buddy_wheel_bl_throttle #@i" coef="0.25"/>
+      <joint joint="buddy_wheel_br_throttle #@i" coef="0.25"/>
+    </fixed>
+    @[end for]@
+  </tendon>
+  <sensor>
+    @[for i, car in enumerate(cars) ]@
+    <!--
+    <jointactuatorfrc joint="right #@i" name="right #@i"/>
+    <jointactuatorfrc joint="left #@i" name="left #@i"/> -->
+@[for j in range(rangefinders) ]@
+    <rangefinder name="rangefinder #@i.#@j" site="rangefinder #@i.#@j"/>
+@[end for]@
+@[end for]@
+@[for i, car in enumerate(cars) ]@
+    <gyro name="car #@i gyro" site="buddy_imu #@i"/>
+    <accelerometer name="car #@i accelerometer" site="buddy_imu #@i"/> 
+@[end for]@
+    @[for i, car in enumerate(cars) ]@
+    <accelerometer name="buddy_accelerometer #@i" site="buddy_imu #@i" />
+    <gyro name="buddy_gyro #@i" site="buddy_imu #@i" />
+    <velocimeter name="buddy_velocimeter #@i" site="buddy_imu #@i" />
+    @[end for]@
+  </sensor>
+</mujoco>

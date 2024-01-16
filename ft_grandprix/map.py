@@ -23,8 +23,13 @@ def produce_mjcf(
     if head is not None:
         cars = cars[:head]
 
-    # Update this to load valid positions from the map
     template_dir = dirname(template_path)
+    existing_meshes_dir = join(output_dir, "meshes")
+    if isdir(existing_meshes_dir):
+        rmtree(existing_meshes_dir)
+    copytree(join(template_dir, "meshes"), join(output_dir, "meshes"))
+
+    # Update this to load valid positions from the map
     for index, car in enumerate(cars):
         r = lambda: random.choices(list(range(256)), k=3)
         if car["icon"]:

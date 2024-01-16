@@ -1,7 +1,7 @@
 @{
 from math import sin, cos, radians
-size_x = 20 / metadata["horizontal_chunks"]
-size_y = 20 / metadata["vertical_chunks"]
+size_x = metadata["scale"] * 20 / metadata["horizontal_chunks"]
+size_y = metadata["scale"] * 20 / metadata["vertical_chunks"]
 inter_ray_angle = 360 / rangefinders
 }@
 <mujoco model="MuJoCo Model">
@@ -48,11 +48,6 @@ r2, g2, b2 = [x/255 for x in car['secondary']]
     <hfield name="map-@(f'{x:03}x{y:03}')" file="chunks/@(f'{x:03}x{y:03}.png')" size="@(size_x/2) @(size_y/2) 0.15 0.0001"/>
 @[end for]@
   </asset>
-  <!--
-  <contact>
-    <exclude body1="car #0" body2="car #1"/>
-    </contact>
-    -->
   <worldbody>
 @[for (x,y) in metadata["chunks"] ]@
     <geom conaffinity="1" contype="1" material="grid" type="hfield" hfield="map-@(f'{x:03}x{y:03}')" pos="@(size_x * x) @(-size_y * y) 0"/>
@@ -68,6 +63,8 @@ r2, g2, b2 = [x/255 for x in car['secondary']]
       <light name="top light #@i" pos="0 0 2" dir="0 0 -1" diffuse="0.4 0.4 0.4" mode="trackcom"/>
       <light name="front light #@i" pos="0.1 0 0.02" dir="0.894427 0 -0.447214" diffuse="1 1 1"/>
       <geom name="chasis #@i" type="mesh" mesh="chasis" material="car #@i primary"/>
+      <site name="car #@i accelerometer" euler="0 0 -90" rgba="0 0 0 0"/>
+      <site name="car #@i gyroscope" euler="0 0 -90" rgba="0 0 0 0"/>
 @{
 # rangefinder origin
 rx, ry, rz = -0.0525, 0.000, 0.030
@@ -75,8 +72,6 @@ rx, ry, rz = -0.0525, 0.000, 0.030
 lr = 0.030
 lh = 0.015
 }@
-       <site name="car #@i accelerometer" euler="0 0 -90" rgba="0 0 0 0"/>
-       <site name="car #@i gyroscope" euler="0 0 -90" rgba="0 0 0 0"/>
        <geom name="car #@i lidar" type="cylinder" size="@lr @lh 0.01" pos="@rx @ry @(rz - lh/2)" material="car #@i body"/>
        <site material="car #@i icon" type="ellipsoid" euler="0 0 -90" size="@(lr*0.9) @(lr*0.9) 0.0075" pos="@rx @ry @(rz + lh/2 - 0.0005)"/>
        <site material="car #@i secondary" type="ellipsoid" euler="0 0 -90" size="@(lr*1.1) @(lr*1.1) 0.0100" pos="@rx @ry @rz"/>

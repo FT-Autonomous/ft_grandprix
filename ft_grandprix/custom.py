@@ -800,6 +800,8 @@ class Mujoco:
         self.declare("option_intensity", 1.0, label="Icon Intensity", data=data, callback=self.set_icon_intensity)
         self.declare("lock_camera", False, label="Lock Camera", data=data,
                      description="If this option is set, the camera angle will be kept in line with the angle of the vehicle being watched")
+        self.declare("detach_control", False, label="Detached Control", persist=False, present=False,
+                     description="Do not attempt to deliver controls to the car being watched")
         self.declare("manual_control", False, label="Manual Control", persist=False,
                      description="Control the car being watched with the W, A, S and D keys")
         self.declare("manual_control_speed", 3.0, label="Manual Control Speed", data=data,
@@ -816,6 +818,9 @@ class Mujoco:
         self.declare("rangefinder_alpha", 0.1, label="Rangefinder Intensity", data=data, callback=self.rangefinder)
         self.declare("speed_p_component", 0.5, label="Speed Factor", data=data, min_value=0.1, max_value=0.99, present=False, persist=False)
         self.declare("steering_angle_p_component", 0.5, label="Steering Factor", data=data, min_value=0.1, max_value=0.99, present=False, persist=False)
+        self.declare("mushr_mode", False, label="Mushr Mode", data=data, present=False, persist=True,
+                     description="Use the experimental Mushr robot model (requires hard reset)",
+                     callback=lambda x: self.hard_reset_event.set())
         self.declare("debug_mode", False, label="Debug Mode", data=data,
                      description="Shows hidden debugging settings")
 
@@ -924,7 +929,6 @@ class Mujoco:
                 raise RuntimeError("stage must be called with a track first")
         else:
             self.track = track
-        chunk(os.path.join(self.template_dir, f"{self.track}.png"), verbose=False, force=True)
         if self.option("cars_path") is not None:
             cars_path = os.path.join(self.template_dir, "cars", self.option("cars_path"))
             try:
@@ -933,7 +937,22 @@ class Mujoco:
             except Exception:
                 print(f"ERROR: Could not read from `{cars_path}`")
                 self.cars = []
-        produce_mjcf(rangefinders=90, cars=self.cars) # tweak cars_path here once you have multiple configs
+        if self.option("mushr_mode"):
+            chunk(os.path.join(self.template_dir, f"{self.track}.png"), verbose=False, force=True, scale=2)
+            produce_mjcf(
+                template_path=os.path.join(self.template_dir, "mushr.em.xml"),
+                rangefinders=90,
+                cars=self.cars
+            )
+            self.mushr = True
+        else:
+            chunk(os.path.join(self.template_dir, f"{self.track}.png"), verbose=False, force=True, scale=1)
+            produce_mjcf(
+                template_path=os.path.join(self.template_dir, "car.em.xml"),
+                rangefinders=90,
+                cars=self.cars
+            )
+            self.mushr = False
         map_metadata_path = os.path.join(self.rendered_dir, "chunks", "metadata.json")
         with open(map_metadata_path) as map_metadata_file:
             self.map_metadata = json.load(map_metadata_file)
@@ -948,8 +967,8 @@ class Mujoco:
         self.data = mujoco.MjData(self.model)
         mujoco.mj_kinematics(self.model, self.data)
         self.path = extract_path_from_svg(os.path.join(self.template_dir, f"{self.map_metadata['name']}-path.svg"))
-        self.path[:, 0] =   self.path[:, 0] / self.map_metadata['width']  * self.map_metadata['chunk_width']
-        self.path[:, 1] = - self.path[:, 1] / self.map_metadata['height'] * self.map_metadata['chunk_height']
+        self.path[:, 0] =   self.path[:, 0] / self.map_metadata['width']  * self.map_metadata['chunk_width'] * self.map_metadata['scale']
+        self.path[:, 1] = - self.path[:, 1] / self.map_metadata['height'] * self.map_metadata['chunk_height']  * self.map_metadata['scale']
         self.restart_render_thread()
         self.reload()
         self.sync_options()
@@ -1122,12 +1141,19 @@ class Mujoco:
                 if self.option("manual_control") and self.watching == meta.id:
                     speed, steering_angle = self.mv.speed, self.mv.steering_angle
                 else:
+                    ranges = self.data.sensordata[meta.sensors]
                     # TODO: run this in its own thread so that the user can do things like time.sleep() without
                     # blocking the executor
-                    speed, steering_angle = meta.driver.process_lidar(self.data.sensordata[meta.sensors])
+                    speed, steering_angle = meta.driver.process_lidar(ranges)
                 mix = lambda m, a, b: m * a + (1 - m) * b
-                self.data.ctrl[meta.forward] = mix(self.option("speed_p_component"), self.data.ctrl[meta.forward], speed)
-                self.data.ctrl[meta.turn] = mix(self.option("steering_angle_p_component"), self.data.ctrl[meta.turn], steering_angle)
+                forward = mix(self.option("speed_p_component"), self.data.ctrl[meta.forward], speed)
+                turn = mix(self.option("steering_angle_p_component"), self.data.ctrl[meta.turn], steering_angle)
+                if meta.id == 0:
+                    # print(turn)
+                    pass
+                if not self.option("detach_control"):
+                    self.data.ctrl[meta.forward] = forward
+                    self.data.ctrl[meta.turn] = turn
                     
                 # print (speed, steering_angle / 3.14)
                 
