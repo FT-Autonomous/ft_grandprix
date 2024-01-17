@@ -3,6 +3,7 @@ from math import sin, cos, radians
 size_x = metadata["scale"] * 20 / metadata["horizontal_chunks"]
 size_y = metadata["scale"] * 20 / metadata["vertical_chunks"]
 inter_ray_angle = 360 / rangefinders
+affordance = 0.1
 }@
 <mujoco model="MuJoCo Model">
   <compiler autolimits="true" texturedir="icons/"/>
@@ -14,9 +15,12 @@ inter_ray_angle = 360 / rangefinders
   </visual>
   <statistic meansize="0.509902" extent="1.6099" center="0 0 0.704951"/>
   <default class="main">
+    <default class="suspension">
+      <joint type="slide" stiffness="10" damping="0.5" armature="0.01" range="-0.01 -0.001"/>
+    </default>
     <joint  damping="0.03"/>
     <default class="wheel">
-      <geom size="0.03 0.01 0" type="cylinder"/>
+      <geom solimp="0 0.95 0.001 0.5 2" size="0.03 0.01 0" type="cylinder"/>
     </default>
     <default class="decor">
       <site type="box"/>
@@ -45,12 +49,12 @@ r2, g2, b2 = [x/255 for x in car['secondary']]
     <material name="grid" texture="grid" texuniform="true" reflectance="0"/>
     <mesh name="chasis" vertex="9 2 0 -10 10 10 9 -2 0 10 3 -10 10 -3 -10 -8 10 -10 -10 -10 10 -8 -10 -10 -5 0 20" scale="0.01 0.006 0.0015"/>
 @[for (x,y) in metadata["chunks"] ]@
-    <hfield name="map-@(f'{x:03}x{y:03}')" file="chunks/@(f'{x:03}x{y:03}.png')" size="@(size_x/2) @(size_y/2) 0.15 0.0001"/>
+    <hfield name="map-@(f'{x:03}x{y:03}')" file="chunks/@(f'{x:03}x{y:03}.png')" size="@(size_x/2) @(size_y/2) @(0.15 + affordance) 0.0001"/>
 @[end for]@
   </asset>
   <worldbody>
 @[for (x,y) in metadata["chunks"] ]@
-    <geom conaffinity="1" contype="1" material="grid" type="hfield" hfield="map-@(f'{x:03}x{y:03}')" pos="@(size_x * x) @(-size_y * y) 0"/>
+    <geom conaffinity="5" contype="4" material="grid" type="hfield" hfield="map-@(f'{x:03}x{y:03}')" pos="@(size_x * x) @(-size_y * y) @(-affordance)"/>
 @[end for]@
     <geom  conaffinity="3" contype="1" name="plane" material="plane" size="300 300 0.1" pos="0 0 0.01" type="plane" rgba="0.3 0 0 1"/>
     <light pos="4.5 -3.0 3" dir="0 0 -1" diffuse="0.5 0.5 0.5"/>
@@ -72,7 +76,7 @@ rx, ry, rz = -0.0525, 0.000, 0.030
 lr = 0.030
 lh = 0.015
 }@
-       <geom name="car #@i lidar" type="cylinder" size="@lr @lh 0.01" pos="@rx @ry @(rz - lh/2)" material="car #@i body"/>
+       <geom density="2000" name="car #@i lidar" type="cylinder" size="@lr @lh 0.01" pos="@rx @ry @(rz - lh/2)" material="car #@i body"/>
        <site material="car #@i icon" type="ellipsoid" euler="0 0 -90" size="@(lr*0.9) @(lr*0.9) 0.0075" pos="@rx @ry @(rz + lh/2 - 0.0005)"/>
        <site material="car #@i secondary" type="ellipsoid" euler="0 0 -90" size="@(lr*1.1) @(lr*1.1) 0.0100" pos="@rx @ry @rz"/>
 @[for j in range(rangefinders) ]@ 
@@ -84,14 +88,32 @@ theta = -radians(inter_ray_angle*j - 90)
 @{
 mw = 0.5
 }@
+      <body pos="0.090 0 -0.01">
+        <joint class="suspension"/>
+        <joint type="ball"/>
+        <!-- <site size="0.035" rgba="0.7 0.7 0.7 0.2"/> -->
+        <geom size="0.035" rgba="0.7 0.7 0.7 0.0" contype="0" conaffinity="4" mass="0.00000001" name="front softener #@i"/>
+      </body>
       <geom name="front wheel #@i" mass="@(mw / 3)" material="car #@i wheel" size="0.015" pos="0.08 0 -0.015" condim="1" priority="1"/>
       <body name="left wheel #@i" pos="-0.07 0.06 0" quat="0.707107 -0.707107 0 0">
+        <joint class="suspension" axis="0 -1 0"/>
+        <body>
+          <joint type="ball"/>
+          <!-- <site size="0.035" rgba="0.7 0.7 0.7 0.2"/> -->
+          <geom size="0.035" rgba="0.7 0.7 0.7 0.0" contype="0" conaffinity="4" mass="0.00000001" name="left softener #@i"/>
+        </body>
         <joint name="left #@i" pos="0 0 0" axis="0 0 1"/>
         <geom name="left wheel #@i" material="car #@i wheel" mass="@(mw / 3)" class="wheel"/>
         <site class="decor" material="car #@i secondary" pos="0 0 0" size="0.006 0.025 0.012"/>
         <site class="decor" material="car #@i secondary" pos="0 0 0" size="0.025 0.006 0.012"/>
       </body>
       <body pos="-0.07 -0.06 0" quat="0.707107 -0.707107 0 0">
+        <joint class="suspension"  axis="0 -1 0"/>
+        <body>
+          <joint type="ball"/>
+          <!-- <site size="0.035" rgba="0.7 0.7 0.7 0.2"/> -->
+          <geom size="0.035" rgba="0.7 0.7 0.7 0.0" contype="0" conaffinity="4" mass="0.00000001" name="right softener #@i"/>
+        </body>
         <joint name="right #@i" pos="0 0 0" axis="0 0 1"/>
         <geom name="right wheel #@i" material="car #@i wheel" mass="@(mw / 3)" class="wheel"/>
         <site class="decor" material="car #@i secondary" pos="0 0 0" size="0.006 0.025 0.012"/>
@@ -114,8 +136,8 @@ mw = 0.5
   </tendon>
   <actuator>
 @[for i, car in enumerate(cars)]@
-    <general name="forward #@i" tendon="forward #@i" ctrlrange="-4 4"/>
-    <general name="turn #@i" tendon="turn #@i" ctrlrange="-1 1"/>
+    <motor name="forward #@i" tendon="forward #@i" ctrlrange="-4 4"/>
+    <motor name="turn #@i" tendon="turn #@i" ctrlrange="-1 1"/>
 @[end for]@
   </actuator>
   <sensor>

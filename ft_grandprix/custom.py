@@ -813,6 +813,9 @@ class Mujoco:
         self.declare("pause_on_reload", True, data=data, label="Pause on Reload")
         self.declare("save_on_exit", True, data=data, label="Save on Exit", present=False,
                      description="Save to `aigp_settings.json` on exit")
+        self.declare("bubble_wrap", False, label="Soften Collisions", data=data, persist=True,
+                     description="Soften collisions with the map border so that vehicles don't get stuck",
+                     callback=self.soften)
         self.declare("max_geom", 1500, data=data, label="Mujoco Geom Limit", persist=False,
                      description="The number of entities that mujoco will render")
         self.declare("rangefinder_alpha", 0.1, label="Rangefinder Intensity", data=data, callback=self.rangefinder)
@@ -851,6 +854,22 @@ class Mujoco:
         else:
             self.camera_vel[0] += dx / 100
             self.camera_vel[1] += dy / 100
+
+    def soften(self, soften=True):
+        try:
+            if self.mushr:
+                for meta in self.meta:
+                    self.model.geom(f"bl softener #{meta.id}").conaffinity = int(soften) << 2
+                    self.model.geom(f"br softener #{meta.id}").conaffinity = int(soften) << 2
+                    self.model.geom(f"fr softener #{meta.id}").conaffinity = int(soften) << 2
+                    self.model.geom(f"fl softener #{meta.id}").conaffinity = int(soften) << 2
+            else:
+                for meta in self.meta:
+                    self.model.geom(f"left softener #{meta.id}").conaffinity = int(soften) << 2
+                    self.model.geom(f"right softener #{meta.id}").conaffinity = int(soften) << 2
+                    self.model.geom(f"front softener #{meta.id}").conaffinity = int(soften) << 2
+        except Exception as e:
+            print("Error configuring collision softening geoms.", e)
 
     def run(self):
         self.stage()
@@ -1140,14 +1159,16 @@ class Mujoco:
                 
                 if self.option("manual_control") and self.watching == meta.id:
                     speed, steering_angle = self.mv.speed, self.mv.steering_angle
+                    if speed == 0.0 and self.data.ctrl[meta.forward] > 0.0:
+                        speed = self.data.ctrl[meta.forward] * 0.99
                 else:
                     ranges = self.data.sensordata[meta.sensors]
                     # TODO: run this in its own thread so that the user can do things like time.sleep() without
                     # blocking the executor
                     speed, steering_angle = meta.driver.process_lidar(ranges)
                 mix = lambda m, a, b: m * a + (1 - m) * b
-                forward = mix(self.option("speed_p_component"), self.data.ctrl[meta.forward], speed)
-                turn = mix(self.option("steering_angle_p_component"), self.data.ctrl[meta.turn], steering_angle)
+                forward = speed
+                turn = steering_angle
                 if meta.id == 0:
                     # print(turn)
                     pass
@@ -1218,11 +1239,13 @@ class Mujoco:
             self.kill_inline_render_event.clear()
             return
         self.renderer = Renderer(self.model, width=width, height=height, max_geom=self.option("max_geom"))
+        vopt = mujoco.MjvOption()
         scene = self.renderer.scene
         buf = np.zeros((self.renderer.height, self.renderer.width, 3), dtype=np.uint8)
         scene.flags[mujoco.mjtRndFlag.mjRND_SHADOW] = 0
+        vopt.flags[mujoco.mjtVisFlag.mjVIS_CONVEXHULL] = 1
         while True:
-            self.renderer.update_scene(self.data, self.camera)
+            self.renderer.update_scene(self.data, self.camera, vopt)
             for shadows in self.shadows.values():
                 for shadow in shadows:
                     mujoco.mjv_initGeom(scene.geoms[scene.ngeom], **shadow)
