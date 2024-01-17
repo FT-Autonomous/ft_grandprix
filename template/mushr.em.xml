@@ -13,13 +13,14 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 -->
 @{
 from math import radians
-border_height = 0.3
-mujoco_map_width = mujoco_map_height = 40
+border_height = 0.2
+mujoco_map_width = mujoco_map_height = 20 * scale
 from math import sin, cos, radians
 size_x = mujoco_map_width / metadata["horizontal_chunks"]
 size_y = mujoco_map_height / metadata["vertical_chunks"]
 inter_ray_angle = 360 / rangefinders
 affordance = 0.1
+mushr_scale = 0.5
 }@
 
 <mujoco>
@@ -35,8 +36,8 @@ affordance = 0.1
     <material name="matplane" reflectance="0.3" texture="texplane" texrepeat="1 1" texuniform="true"/>
     <material name="matgeom" texture="texgeom" texuniform="true" rgba="0.8 0.6 .4 1"/>
     
-    <mesh name="buddy_mushr_base_nano" file="meshes/mushr_base_nano.stl"/>
-    <mesh name="buddy_mushr_wheel" file="meshes/mushr_wheel.stl"/>
+    <mesh scale="@mushr_scale @mushr_scale @mushr_scale" name="buddy_mushr_base_nano" file="meshes/simple_base_nano.stl"/>
+    <mesh scale="@(mushr_scale * 1.3) @(mushr_scale * 1.3) @(mushr_scale * 1.3)" name="buddy_mushr_wheel" file="meshes/mushr_wheel.stl"/>
 
 @[for i, car in enumerate(cars) ]@
 @{
@@ -60,6 +61,9 @@ r2, g2, b2 = [x/255 for x in car['secondary']]
     <material name="grid" texture="grid" texuniform="true" reflectance="0"/>
   </asset>
   <default>
+    <default class="buddy_suspension">
+      <joint type="slide" axis="0 0 1" frictionloss="0.001" stiffness="500.0" springref="-0.015" damping="12.5" armature="0.01" range="-0.03 0"/>
+    </default>
     <default class="buddy_softener">
       <geom mesh="buddy_mushr_wheel" mass="0.00001" rgba="1 1 1 0" fitscale="2.0" contype="0" conaffinity="4"/>
     </default>
@@ -84,21 +88,22 @@ r2, g2, b2 = [x/255 for x in car['secondary']]
 @[for (x,y) in metadata["chunks"] ]@
     <geom conaffinity="1" contype="4" material="grid" type="hfield" hfield="map-@(f'{x:03}x{y:03}')" pos="@(size_x * x) @(-size_y * y) @(-affordance)"/>
 @[end for]@
-<geom friction=".5 0.005 0.0001"
-    conaffinity="3" contype="3" name="plane" size="300 300 0.1" pos="0 0 0.01" type="plane" rgba="0.3 0 0 1"/>
+    <geom friction=".5 0.005 0.0001" conaffinity="3" contype="3" name="plane" size="300 300 0.1" pos="0 0 0.01" type="plane" material="plane" rgba="0.3 0 0 1"/>
     @[for i, car in enumerate(cars) ]@
     <body name="car #@i" pos="0.0 2.0 0.0" euler="0 0 0.0">
+      <freejoint name="car #@i"/>
       @{
 # rangefinder origin
 # rx, ry, rz = -0.0525, 0.000, 0.030 # values used for differential drive
-rx, ry, rz = -0.0525, 0.000, 0.19
+rx, ry, rz = -0.0525, 0.000, 0.065
 # lidar model radius and height
 lr = 0.030
 lh = 0.015
 }@
        <light pos="@rx @ry @(rz + 0.1)" dir="0 0 -1" diffuse="0.5 0.5 0.5" mode="trackcom"/>
-      <light name="front light #@i" pos="@rx @ry @(rz + 0.1)" dir="0.894427 0 -0.447214" diffuse="1 1 1"/>
+       <light name="front light #@i" pos="@rx @ry @(rz + 0.1)" dir="0.894427 0 -0.447214" diffuse="1 1 1"/>
        <geom name="car #@i lidar" type="cylinder" size="@lr @lh 0.01" pos="@rx @ry @(rz - lh/2)" material="car #@i body"/>
+       <site name="buddy_imu #@i" pos="@rx @ry @(rz - lh/2)" rgba="0 0 0 0"/>
        <site material="car #@i icon" type="ellipsoid" euler="0 0 @(radians(-90))" size="@(lr*0.9) @(lr*0.9) 0.0075" pos="@rx @ry @(rz + lh/2 - 0.0005)"/>
        <site material="car #@i secondary" type="ellipsoid" euler="0 0 @(radians(-90))" size="@(lr*1.1) @(lr*1.1) 0.0100" pos="@rx @ry @rz"/>
 @[for j in range(rangefinders) ]@ 
@@ -108,26 +113,26 @@ theta = -radians(inter_ray_angle*j - 90)
       <site name="rangefinder #@i.#@j" pos="@(rx + lr*sin(theta)) @(lr * cos(theta)) @rz" euler="@(radians(90)) @(radians(inter_ray_angle*j - 90)) 0" rgba="0 0 0 0"/>
 @[end for]@
       <camera name="buddy_third_person #@i" mode="fixed" pos="-1 0 1" xyaxes="0 -1 0 0.707 0 0.707"/>
-      <joint name="car #@i" type="free"/>
-      <site name="buddy_imu #@i" pos="-0.005 0 .165"/>
-      <geom pos="0 0 0.094655" type="mesh" mass="3.542137" mesh="buddy_mushr_base_nano" material="car #@i primary"/>
+      <geom pos="0 0 @(mushr_scale * 0.094655)" type="mesh" mass="3.542137" mesh="buddy_mushr_base_nano" material="car #@i primary"/>
       <body name="buddy_steering_wheel #@i" pos="0.1385 0 0.0488">
         <joint class="buddy_steering" name="buddy_steering_wheel #@i"/>
-        <geom class="buddy_wheel" contype="0" conaffinity="0" mass="0.01" rgba="0 0 0 0.01"/>
+        <geom class="buddy_wheel" contype="0" conaffinity="0" mass="0.01" rgba="0 0 0 0"/>
       </body>
-      <body name="buddy_wheel_fl #@i" pos="0.1385 0.115 0.0488">
+      <body name="buddy_wheel_fl #@i" pos="@(mushr_scale * 0.1385) @(mushr_scale * 0.115) @(mushr_scale * 0.0488)">
+        <joint class="buddy_suspension" name="buddy_wheel_fl_suspension #@i"/>
         <body>
-          <joint type="ball" frictionloss="0.5"/>
+          <joint type="ball" frictionloss="0.25"/>
           <geom name="fl softener #@i" class="buddy_softener"/>
         </body>
         <joint class="buddy_steering" name="buddy_wheel_fl_steering #@i"/>
         <joint class="buddy_throttle" name="buddy_wheel_fl_throttle #@i"/>
-        <geom class="buddy_wheel" material="car #@i secondary" />
+        <geom class="buddy_wheel" material="car #@i secondary"/>
         <geom class="buddy_wheel" material="car #@i wheel" type="mesh" contype="0" conaffinity="0" group="1"/>
       </body>
-      <body name="buddy_wheel_fr #@i" pos="0.1385 -0.115 0.0488">
+      <body name="buddy_wheel_fr #@i" pos="@(mushr_scale * 0.1385) @(mushr_scale * -0.115) @(mushr_scale * 0.0488)">
+        <joint class="buddy_suspension" name="buddy_wheel_fr_suspension #@i"/>
         <body>
-          <joint type="ball" frictionloss="0.5"/>
+          <joint type="ball" frictionloss="0.25"/>
           <geom name="fr softener #@i" class="buddy_softener"/>
         </body>
         <joint class="buddy_steering" name="buddy_wheel_fr_steering #@i"/>
@@ -135,18 +140,20 @@ theta = -radians(inter_ray_angle*j - 90)
         <geom class="buddy_wheel" material="car #@i secondary" />
         <geom class="buddy_wheel" material="car #@i wheel"  type="mesh" contype="0" conaffinity="0" group="1"/>
       </body>
-      <body name="buddy_wheel_bl #@i" pos="-0.158 0.115 0.0488">
+      <body name="buddy_wheel_bl #@i" pos="@(mushr_scale * -0.158) @(mushr_scale * 0.115) @(mushr_scale * 0.0488)">
+        <joint class="buddy_suspension" name="buddy_wheel_bl_suspension #@i"/>
         <body>
-          <joint type="ball" frictionloss="0.5"/>
+          <joint type="ball" frictionloss="0.25"/>
           <geom name="bl softener #@i" class="buddy_softener"/>
         </body>
         <joint class="buddy_throttle" name="buddy_wheel_bl_throttle #@i"/>
         <geom class="buddy_wheel" material="car #@i secondary"/>
         <geom class="buddy_wheel" material="car #@i wheel" type="mesh" contype="0" conaffinity="0" group="1"/>
       </body>
-      <body name="buddy_wheel_br #@i" pos="-0.158 -0.115 0.0488">
+      <body name="buddy_wheel_br #@i" pos="@(mushr_scale * -0.158) @(mushr_scale * -0.115) @(mushr_scale * 0.0488)">
+        <joint class="buddy_suspension" name="buddy_wheel_br_suspension #@i"/>
         <body>
-          <joint type="ball" frictionloss="0.5"/>
+          <joint type="ball" frictionloss="0.25"/>
           <geom name="br softener #@i" class="buddy_softener"/>
         </body>
         <joint class="buddy_throttle" name="buddy_wheel_br_throttle #@i"/>
