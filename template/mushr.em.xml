@@ -21,6 +21,7 @@ size_y = mujoco_map_height / metadata["vertical_chunks"]
 inter_ray_angle = 360 / rangefinders
 affordance = 0.1
 mushr_scale = 0.5
+wr = 0.03
 }@
 
 <mujoco>
@@ -31,14 +32,13 @@ mushr_scale = 0.5
     <quality shadowsize="4096"/>
   </visual>
   <asset>
+    <material name="transparent" rgba="0 0 0 0"/>
     <texture name="texplane" type="2d" builtin="checker" rgb1="0.26 0.12 0.36" rgb2="0.23 0.09 0.33" width="512" height="512" mark="cross" markrgb=".8 .8 .8"/>
     <texture name="texgeom" type="cube" builtin="flat" mark="cross" width="127" height="1278" rgb1="0.8 0.6 0.4" rgb2="0.8 0.6 0.4" markrgb="1 1 1" random="0.01"/>
     <material name="matplane" reflectance="0.3" texture="texplane" texrepeat="1 1" texuniform="true"/>
     <material name="matgeom" texture="texgeom" texuniform="true" rgba="0.8 0.6 .4 1"/>
-    
     <mesh scale="@mushr_scale @mushr_scale @mushr_scale" name="buddy_mushr_base_nano" file="meshes/simple_base_nano.stl"/>
     <mesh scale="@(mushr_scale * 1.3) @(mushr_scale * 1.3) @(mushr_scale * 1.3)" name="buddy_mushr_wheel" file="meshes/mushr_wheel.stl"/>
-
 @[for i, car in enumerate(cars) ]@
 @{
 r1, g1, b1 = [x/255 for x in car['primary']]
@@ -68,7 +68,12 @@ r2, g2, b2 = [x/255 for x in car['secondary']]
       <geom mesh="buddy_mushr_wheel" mass="0.00001" rgba="1 1 1 0" fitscale="2.0" contype="0" conaffinity="4"/>
     </default>
     <default class="buddy_wheel">
-      <geom fitscale="1.2" type="ellipsoid" friction="2 0.005 0.0001" contype="1" conaffinity="0" mesh="buddy_mushr_wheel" mass="0.498952"/>
+      <geom type="ellipsoid"  size="@wr 0.01 0.03"  friction="0.3 0.005 0.0001" condim="3" contype="1" conaffinity="0" mass="0.498952" solimp="0 0.95 0.001 0.5 2" solref="0.02 1" margin="0"/>
+      <!-- <geom fitscale="1.2" type="ellipsoid" friction="2 0.005 0.0001" contype="1" conaffinity="0" mesh="buddy_mushr_wheel" mass="0.498952"/> -->
+    </default>
+    <default class="buddy_wheel_site">
+      <site type="cylinder"  size="@wr 0.01" euler="@(-radians(90)) 0 0"/>
+      <!-- <geom fitscale="1.2" type="ellipsoid" friction="2 0.005 0.0001" contype="1" conaffinity="0" mesh="buddy_mushr_wheel" mass="0.498952"/> -->
     </default>
     <default class="buddy_steering">
       <!-- <joint type="hinge" axis="0 0 1" limited="true" frictionloss="0.01" damping="0.001" armature="0.0002" range="-1 1"/> -->
@@ -113,7 +118,7 @@ theta = -radians(inter_ray_angle*j - 90)
       <site name="rangefinder #@i.#@j" pos="@(rx + lr*sin(theta)) @(lr * cos(theta)) @rz" euler="@(radians(90)) @(radians(inter_ray_angle*j - 90)) 0" rgba="0 0 0 0"/>
 @[end for]@
       <camera name="buddy_third_person #@i" mode="fixed" pos="-1 0 1" xyaxes="0 -1 0 0.707 0 0.707"/>
-      <geom pos="0 0 @(mushr_scale * 0.094655)" type="mesh" mass="3.542137" mesh="buddy_mushr_base_nano" material="car #@i primary"/>
+      <geom name="chasis #@i" pos="0 0 @(mushr_scale * 0.094655)" type="mesh" mass="3.542137" mesh="buddy_mushr_base_nano" material="car #@i primary"/>
       <body name="buddy_steering_wheel #@i" pos="0.1385 0 0.0488">
         <joint class="buddy_steering" name="buddy_steering_wheel #@i"/>
         <geom class="buddy_wheel" contype="0" conaffinity="0" mass="0.01" rgba="0 0 0 0"/>
@@ -126,8 +131,10 @@ theta = -radians(inter_ray_angle*j - 90)
         </body>
         <joint class="buddy_steering" name="buddy_wheel_fl_steering #@i"/>
         <joint class="buddy_throttle" name="buddy_wheel_fl_throttle #@i"/>
-        <geom class="buddy_wheel" material="car #@i secondary"/>
-        <geom class="buddy_wheel" material="car #@i wheel" type="mesh" contype="0" conaffinity="0" group="1"/>
+        <geom class="buddy_wheel" material="car #@i secondary" name="buddy_wheel_fl_throttle #@i"/>
+        <site class="buddy_wheel_site" material="car #@i wheel"/>
+        <site type="box" material="car #@i secondary" size="@(wr * 0.9) 0.011 0.007"/>
+        <site type="box" material="car #@i secondary" size="0.007 0.011 @(wr * 0.9)"/>
       </body>
       <body name="buddy_wheel_fr #@i" pos="@(mushr_scale * 0.1385) @(mushr_scale * -0.115) @(mushr_scale * 0.0488)">
         <joint class="buddy_suspension" name="buddy_wheel_fr_suspension #@i"/>
@@ -137,8 +144,10 @@ theta = -radians(inter_ray_angle*j - 90)
         </body>
         <joint class="buddy_steering" name="buddy_wheel_fr_steering #@i"/>
         <joint class="buddy_throttle" name="buddy_wheel_fr_throttle #@i"/>
-        <geom class="buddy_wheel" material="car #@i secondary" />
-        <geom class="buddy_wheel" material="car #@i wheel"  type="mesh" contype="0" conaffinity="0" group="1"/>
+        <geom class="buddy_wheel" material="car #@i secondary" name="buddy_wheel_fr_throttle #@i"/>
+        <site class="buddy_wheel_site" material="car #@i wheel"/>
+        <site type="box" material="car #@i secondary" size="@(wr * 0.9) 0.011 0.007"/>
+        <site type="box" material="car #@i secondary" size="0.007 0.011 @(wr * 0.9)"/>
       </body>
       <body name="buddy_wheel_bl #@i" pos="@(mushr_scale * -0.158) @(mushr_scale * 0.115) @(mushr_scale * 0.0488)">
         <joint class="buddy_suspension" name="buddy_wheel_bl_suspension #@i"/>
@@ -147,8 +156,10 @@ theta = -radians(inter_ray_angle*j - 90)
           <geom name="bl softener #@i" class="buddy_softener"/>
         </body>
         <joint class="buddy_throttle" name="buddy_wheel_bl_throttle #@i"/>
-        <geom class="buddy_wheel" material="car #@i secondary"/>
-        <geom class="buddy_wheel" material="car #@i wheel" type="mesh" contype="0" conaffinity="0" group="1"/>
+        <geom class="buddy_wheel" material="car #@i secondary" name="buddy_wheel_bl_throttle #@i"/>
+        <site class="buddy_wheel_site" material="car #@i wheel"/>
+        <site type="box" material="car #@i secondary" size="@(wr * 0.9) 0.011 0.007"/>
+        <site type="box" material="car #@i secondary" size="0.007 0.011 @(wr * 0.9)"/>
       </body>
       <body name="buddy_wheel_br #@i" pos="@(mushr_scale * -0.158) @(mushr_scale * -0.115) @(mushr_scale * 0.0488)">
         <joint class="buddy_suspension" name="buddy_wheel_br_suspension #@i"/>
@@ -157,8 +168,10 @@ theta = -radians(inter_ray_angle*j - 90)
           <geom name="br softener #@i" class="buddy_softener"/>
         </body>
         <joint class="buddy_throttle" name="buddy_wheel_br_throttle #@i"/>
-        <geom class="buddy_wheel" material="car #@i secondary"/>
-        <geom class="buddy_wheel" material="car #@i wheel" type="mesh" contype="0" conaffinity="0" group="1"/>
+        <geom class="buddy_wheel" material="car #@i secondary" name="buddy_wheel_br_throttle #@i"/>
+        <site class="buddy_wheel_site" material="car #@i wheel"/>
+        <site type="box" material="car #@i secondary" size="@(wr * 0.9) 0.011 0.007"/>
+        <site type="box" material="car #@i secondary" size="0.007 0.011 @(wr * 0.9)"/>
       </body>
     </body>
     @[end for]@
