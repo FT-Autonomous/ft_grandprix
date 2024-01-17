@@ -58,6 +58,7 @@ def produce_mjcf(
                      "cars" : cars,
                      "metadata" : metadata,
                      "rangefinders" : rangefinders,
+                     "scale" : metadata["scale"]
                  })
              interpreter.shutdown()
     
