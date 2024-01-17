@@ -860,15 +860,11 @@ class Mujoco:
         self.declare("max_geom", 1500, data=data, label="Mujoco Geom Limit", persist=False,
                      description="The number of entities that mujoco will render")
         self.declare("rangefinder_alpha", 0.1, label="Rangefinder Intensity", data=data, callback=self.rangefinder)
-        self.declare("speed_p_component", 0.5, label="Speed Factor", data=data, min_value=0.1, max_value=0.99, present=False, persist=False)
-        self.declare("steering_angle_p_component", 0.5, label="Steering Factor", data=data, min_value=0.1, max_value=0.99, present=False, persist=False)
         self.declare("tricycle_mode", False, label="Use a Tricycle 🤡", data=data, present=False, persist=True,
                      description="Use the old differential drive vehicle model (requires hard reset)",
                      callback=lambda x: self.hard_reset_event.set())
-        self.declare("flatten", False, label="Flatten", data=data, present=False, persist=True,
-                     description="Prevent vehicles from rotating")
         self.declare("naive_flatten", False, label="Naive Flatten", data=data, present=False, persist=True,
-                     description="Prevent vehicles from rotating in a naive manner")
+                     description="Prevent vehicles from rotating in a naive manner. Violates some constraints of the physics engine and may lead to cars flying away.")
         self.declare("debug_mode", False, label="Debug Mode", data=data,
                      description="Shows hidden debugging settings")
 
