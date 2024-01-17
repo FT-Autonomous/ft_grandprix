@@ -1,5 +1,6 @@
 import os
 import re
+import inspect
 from PIL import Image
 import tempfile
 import shutil
@@ -8,6 +9,7 @@ import importlib
 import queue
 import json
 from dataclasses import dataclass, field
+from .vehicle import VehicleStateSnapshot
 import mujoco
 import mujoco.viewer
 import numpy as np
@@ -54,7 +56,7 @@ def runtime_import(path):
     module =  spec.loader.load_module()
     return module
 
-def quaternion_to_angle(w, x, y, z):
+def quaternion_to_euler(w, x, y, z):
     t0 = +2.0 * (w * x + y * z)
     t1 = +1.0 - 2.0 * (x * x + y * y)
     roll_x = math.atan2(t0, t1)
@@ -67,8 +69,11 @@ def quaternion_to_angle(w, x, y, z):
     t3 = +2.0 * (w * z + x * y)
     t4 = +1.0 - 2.0 * (y * y + z * z)
     yaw_z = math.atan2(t3, t4)
+    
+    return [yaw_z, pitch_y, roll_x]
 
-    return yaw_z
+def quaternion_to_angle(w, x, y, z):
+    return quaternion_to_euler(w, x, y, z)[0]
 
 def euler_to_quaternion(r):
     (yaw, pitch, roll) = (r[0], r[1], r[2])
@@ -88,17 +93,27 @@ class VehicleState:
         self.offset = offset
         self.completion = 0 # current completion percentage
         self.good_start = True # if we enter into a lap backwards, set this to False
-        # TODO: Fix this shit bro
-        self.start = 0 # physics time step we are currently at
-        self.laps = 0 # number of laps completed
-        self.times = [] # lap times
         self.driver = driver
         self.driver_path = driver_path
-        self.label = label
         self.finished = False
         self.delta = 0
+        self.v2 = len(inspect.signature(self.driver.process_lidar).parameters) >= 2
+
         self.distance_from_track = 0.0
+        """distance from the centerline"""
+
+        self.label = label
+        """the name of this driver"""
         
+        self.start = 0
+        """physics time step we are currently at"""
+
+        self.laps = 0
+        """number of laps completed"""
+
+        self.times = []
+        """lap times so far"""
+
         # lifetime of mujoco
         self.forward     = data.actuator(f"forward #{self.id}").id
         self.turn        = data.actuator(f"turn #{self.id}").id
@@ -106,6 +121,10 @@ class VehicleState:
         self.sensors     = [data.sensor(f"rangefinder #{self.id}.#{j}").id for j in range(rangefinders)]
 
     def lap_completion(self):
+        """
+        Gets our completion around the track. Returns a negative number if
+        we are going backwards.
+        """
         if self.good_start:
             return self.completion
         else:
@@ -115,7 +134,16 @@ class VehicleState:
         return self.laps * 100 + self.lap_completion()
 
     def reload_code(self):
+        self.v2 = len(inspect.signature(self.driver.process_lidar).parameters) >= 2
         self.driver = runtime_import(self.driver_path).Driver()
+
+    def snapshot(self):
+        return VehicleStateSnapshot(
+            laps = self.laps,
+            velocity=self.joint.qvel[:3],
+            lap_completion=self.lap_completion(),
+            absolute_completion=self.absolute_completion()
+        )
     
 class ModelAndView:
     def __init__(self, track, width=1124, height=612):
@@ -247,7 +275,7 @@ class ModelAndView:
             finished_id      : int = tag()
             finished_text_id : int = tag()
             tag              : int = tag()
-        mj_vehicle_state = self.mj.vehicle_state # hack to make sure that this is atomic
+        mj_vehicle_state = self.mj.vehicle_states # hack to make sure that this is atomic
         tags = [dpg.get_item_configuration(tag)["user_data"] for tag in dpg.get_item_children("dashboard", 1)]
         delta = len(mj_vehicle_state) - len(tags)
         if delta < 0:
@@ -368,15 +396,15 @@ class ModelAndView:
         """
         Locks the camera to the next car in the sequence. Cycles at the end
         """
-        if len(self.mj.vehicle_state) > 0:
-            self.mj.watching = ((self.mj.watching or 0) + 1) % len(self.mj.vehicle_state)
+        if len(self.mj.vehicle_states) > 0:
+            self.mj.watching = ((self.mj.watching or 0) + 1) % len(self.mj.vehicle_states)
 
     def focus_on_previous_car(self):
         """
         Locks the camera to the previous car in the sequence. Cycles at the end
         """
-        if len(self.mj.vehicle_state) > 0:
-            self.mj.watching = ((self.mj.watching or 0) - 1) % len(self.mj.vehicle_state) 
+        if len(self.mj.vehicle_states) > 0:
+            self.mj.watching = ((self.mj.watching or 0) - 1) % len(self.mj.vehicle_states) 
 
     def toggle_cinematic_camera(self):
         """
@@ -493,7 +521,7 @@ class ModelAndView:
                 time.sleep(1/self.mj.option("max_fps") - (now - last));
             # print (f"{1/(time.time()-last)} fps")
             last = time.time()
-            self.inject_vehicle_state([vehicle_state.id for vehicle_state in self.mj.vehicle_state])
+            self.inject_vehicle_state([vehicle_state.id for vehicle_state in self.mj.vehicle_states])
             self.inject_options(self.mj.options)
             if self.viewport_resize_event.is_set():
                 self.viewport_resize_cb(None, [*self.window_size, *self.window_size])
@@ -726,12 +754,8 @@ class ModelAndView:
             width=simulation_viewport_size[0],
             height=simulation_viewport_size[1]
         )
-        # print("START")
         if self.mj.viewer is None:
-            # inline renderer needs to be restarted when the window
-            # resizesme
             self.mj.start_inline_render_thread()
-        # print("FINISH")
 
     def icon_clicked_cb(self, sender, value, tags):
         dpg.configure_item(tags.icon_id, items=os.listdir(os.path.join(self.mj.template_dir, "icons")))
@@ -838,8 +862,8 @@ class Mujoco:
         self.declare("rangefinder_alpha", 0.1, label="Rangefinder Intensity", data=data, callback=self.rangefinder)
         self.declare("speed_p_component", 0.5, label="Speed Factor", data=data, min_value=0.1, max_value=0.99, present=False, persist=False)
         self.declare("steering_angle_p_component", 0.5, label="Steering Factor", data=data, min_value=0.1, max_value=0.99, present=False, persist=False)
-        self.declare("mushr_mode", False, label="Mushr Mode", data=data, present=False, persist=True,
-                     description="Use the experimental Mushr robot model (requires hard reset)",
+        self.declare("tricycle_mode", False, label="Use a Tricycle 🤡", data=data, present=False, persist=True,
+                     description="Use the old differential drive vehicle model (requires hard reset)",
                      callback=lambda x: self.hard_reset_event.set())
         self.declare("flatten", False, label="Flatten", data=data, present=False, persist=True,
                      description="Prevent vehicles from rotating")
@@ -848,7 +872,7 @@ class Mujoco:
         self.declare("debug_mode", False, label="Debug Mode", data=data,
                      description="Shows hidden debugging settings")
 
-        self.vehicle_state = []
+        self.vehicle_states = []
         self.shadows = {}
         self.steps = 0
 
@@ -858,7 +882,7 @@ class Mujoco:
         self.render_finished.set()
 
     def set_icon_intensity(self, intensity):
-        for i in range(len(self.vehicle_state)):
+        for i in range(len(self.vehicle_states)):
             self.model.mat(f"car #{i} icon").rgba[:4] = intensity
 
     @property
@@ -879,13 +903,13 @@ class Mujoco:
     def soften(self, soften=True):
         try:
             if self.mushr:
-                for vehicle_state in self.vehicle_state:
+                for vehicle_state in self.vehicle_states:
                     self.model.geom(f"bl softener #{vehicle_state.id}").conaffinity = int(soften) << 2
                     self.model.geom(f"br softener #{vehicle_state.id}").conaffinity = int(soften) << 2
                     self.model.geom(f"fr softener #{vehicle_state.id}").conaffinity = int(soften) << 2
                     self.model.geom(f"fl softener #{vehicle_state.id}").conaffinity = int(soften) << 2
             else:
-                for vehicle_state in self.vehicle_state:
+                for vehicle_state in self.vehicle_states:
                     self.model.geom(f"left softener #{vehicle_state.id}").conaffinity = int(soften) << 2
                     self.model.geom(f"right softener #{vehicle_state.id}").conaffinity = int(soften) << 2
                     self.model.geom(f"front softener #{vehicle_state.id}").conaffinity = int(soften) << 2
@@ -927,7 +951,7 @@ class Mujoco:
         if self.option("pause_on_reload"):
             self.running_event.clear()
         mujoco.mj_resetData(self.model, self.data)
-        for m in self.vehicle_state:
+        for m in self.vehicle_states:
             self.unshadow(m.id)
         vehicle_states = []
         for i, car in enumerate(self.mjcf_metadata["cars"]):
@@ -951,8 +975,8 @@ class Mujoco:
                 rangefinders = self.mjcf_metadata["rangefinders"]
             )
             vehicle_states.append(vehicle_state)
-        self.vehicle_state = vehicle_states
-        if self.watching is not None and self.watching >= len(self.vehicle_state):
+        self.vehicle_states = vehicle_states
+        if self.watching is not None and self.watching >= len(self.vehicle_states):
             self.watching = None
         self.shadows = {}
         self.steps = 0
@@ -977,7 +1001,7 @@ class Mujoco:
             except Exception:
                 print(f"ERROR: Could not read from `{cars_path}`")
                 self.cars = []
-        if self.option("mushr_mode"):
+        if not self.option("tricycle_mode"):
             chunk(os.path.join(self.template_dir, f"{self.track}.png"), verbose=False, force=True, scale=3.0)
             produce_mjcf(
                 template_path=os.path.join(self.template_dir, "mushr.em.xml"),
@@ -1047,7 +1071,7 @@ class Mujoco:
             Thread(target=self.inline_render_thread).start()
 
     def reload_code(self, index):
-        self.vehicle_state[index].reload_code()
+        self.vehicle_states[index].reload_code()
 
     def position_vehicles(self, path=None):
         """
@@ -1056,7 +1080,7 @@ class Mujoco:
         """
         if path is None:
             path = self.path
-        for i, m in enumerate(self.vehicle_state):
+        for i, m in enumerate(self.vehicle_states):
             i = m.offset
             delta = path[i+1]-path[i]
             angle = math.atan2(delta[1], delta[0])
@@ -1069,7 +1093,7 @@ class Mujoco:
         last = time.time()
         while True:
             if self.option("lock_camera") and self.watching is not None:
-                quat = self.vehicle_state[self.watching].joint.qpos[3:]
+                quat = self.vehicle_states[self.watching].joint.qpos[3:]
                 desired_azimuth = quaternion_to_angle(*quat)
                 camera_azimuth = self.camera.azimuth % 360
                 desired_azimuth = math.degrees(desired_azimuth) % 360
@@ -1130,7 +1154,7 @@ class Mujoco:
             if not self.running_event.is_set():
                 mujoco._mj_forward(self.model, self.data)
                 continue
-            for index, vehicle_state in enumerate(self.vehicle_state):
+            for vehicle_state in self.vehicle_states:
                 if self.option("naive_flatten"):
                     vehicle_state.joint.qpos[3:] = euler_to_quaternion([quaternion_to_angle(*vehicle_state.joint.qpos[3:]), 0, 0])
                 xpos = vehicle_state.joint.qpos[0:2]
@@ -1182,7 +1206,14 @@ class Mujoco:
                     ranges = self.data.sensordata[vehicle_state.sensors]
                     # TODO: run this in its own thread so that the user can do things like time.sleep() without
                     # blocking the executor
-                    speed, steering_angle = vehicle_state.driver.process_lidar(ranges)
+                    snapshot = vehicle_state.snapshot()
+                    try:
+                        if vehicle_state.v2:
+                            speed, steering_angle = vehicle_state.driver.process_lidar(ranges, snapshot)
+                        else:
+                            speed, steering_angle = vehicle_state.driver.process_lidar(ranges)
+                    except Exception as e:
+                        print(f"Error in vehicle `{vehicle_state.label}`: `{e}`")
                 mix = lambda m, a, b: m * a + (1 - m) * b
                 forward = speed
                 turn = steering_angle
@@ -1207,9 +1238,10 @@ class Mujoco:
     def shadow(self, i):
         if i in self.shadows:
             return self.shadows[i]
-        vehicle_state = self.vehicle_state[i]
+        vehicle_state = self.vehicle_states[i]
         # lobotomise car first
         vehicle_state.driver = LobotomyDriver()
+        vehicle_state.v2 = False
         vehicle_state.driver_path = "ft_grandprix.lobotomy"
         shadows = []
         for j in range(self.mjcf_metadata
