@@ -30,6 +30,7 @@ wr = 0.03
   <visual>
     <headlight ambient="0.5 0.5 0.5"/>
     <quality shadowsize="4096"/>
+    <map znear="0.001"/>
   </visual>
   <asset>
     <material name="transparent" rgba="0 0 0 0"/>

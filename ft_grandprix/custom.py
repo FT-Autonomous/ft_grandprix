@@ -138,9 +138,13 @@ class VehicleState:
         self.driver = runtime_import(self.driver_path).Driver()
 
     def snapshot(self):
+        yaw, pitch, roll = quaternion_to_euler(*self.joint.qpos[3:])
         return VehicleStateSnapshot(
             laps = self.laps,
             velocity=self.joint.qvel[:3],
+            yaw=yaw,
+            pitch=pitch,
+            roll=roll,
             lap_completion=self.lap_completion(),
             absolute_completion=self.absolute_completion()
         )
