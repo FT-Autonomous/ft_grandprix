@@ -1002,7 +1002,7 @@ class Mujoco:
                 print(f"ERROR: Could not read from `{cars_path}`")
                 self.cars = []
         if not self.option("tricycle_mode"):
-            chunk(os.path.join(self.template_dir, f"{self.track}.png"), verbose=False, force=True, scale=3.0)
+            chunk(os.path.join(self.template_dir, f"{self.track}.png"), verbose=False, force=True, scale=2.0)
             produce_mjcf(
                 template_path=os.path.join(self.template_dir, "mushr.em.xml"),
                 rangefinders=90,

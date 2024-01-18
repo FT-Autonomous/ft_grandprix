@@ -3,7 +3,7 @@ from dataclasses import dataclass
 @dataclass
 class VehicleStateSnapshot:
     laps : int
-    velocity : list[float]
+    velocity : list
     yaw : float
     pitch : float
     roll : float
