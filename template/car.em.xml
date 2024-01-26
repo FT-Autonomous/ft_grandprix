@@ -7,7 +7,7 @@ affordance = 0.1
 }@
 <mujoco model="MuJoCo Model">
   <compiler autolimits="true" texturedir="icons/"/>
-  <option timestep="0.005"/>
+  <option timestep="0.0075"/>
   <visual>
     <rgba rangefinder="1.0 1.0 0.0 0.075"/>
     <headlight ambient="0.5 0.5 0.5"/>

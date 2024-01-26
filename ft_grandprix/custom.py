@@ -1,3 +1,4 @@
+from sys import platform
 import os
 import re
 import inspect
@@ -22,6 +23,7 @@ from .curve import extract_path_from_svg
 from .chunk import chunk
 from .map import produce_mjcf
 from .vendor import Renderer
+from .raycast import fakelidar
 import tracemalloc
 import linecache
 
@@ -151,9 +153,14 @@ class VehicleState:
     
 class ModelAndView:
     def __init__(self, track, width=1124, height=612):
+        print("Running on", platform)
         self.viewport_resize_event = Event()
         self.window_size = width, height
-        self.pixels = np.zeros((1080, 1920, 3), dtype=np.float32)
+        if platform == "darwin":
+            self.pixels = np.zeros((1080, 1920, 4), dtype=np.float32)
+            self.pixels[..., 3] = 1.0
+        else:
+            self.pixels = np.zeros((1080, 1920, 3), dtype=np.float32)
         self.last = None
         self.speed = 0.0
         self.steering_angle = 0.0
@@ -473,7 +480,8 @@ class ModelAndView:
             dpg.add_key_release_handler(callback=self.release_key_cb)
             dpg.add_key_press_handler(callback=self.press_key_cb)
         with dpg.texture_registry(show=False):
-            dpg.add_raw_texture(1920, 1080, self.pixels, format=dpg.mvFormat_Float_rgb, tag="visualisation")
+            format = dpg.mvFormat_Float_rgba if platform == "darwin" else dpg.mvFormat_Float_rgb
+            dpg.add_raw_texture(1920, 1080, self.pixels, format=format, tag="visualisation")
         with dpg.window(tag="main", min_size=[400,400]):
             with dpg.group(tag="Main Group", horizontal=True):
                 with dpg.group(tag="inline_panel", show=True):
@@ -842,6 +850,9 @@ class Mujoco:
             data = {}
             print("Not loading settings from file: ", e)
 
+        self.declare("rangefinder_tilt", 0.0, label="Rangefinder Tilt", data=data, present=False, min_value=0, max_value=np.pi)
+        self.declare("reset_camera", True, label="Reset Camera", data=data,
+                     description="Resetting sets sets the camera position ot the first path point")
         self.declare("option_intensity", 1.0, label="Icon Intensity", data=data, callback=self.set_icon_intensity)
         self.declare("lock_camera", False, label="Lock Camera", data=data,
                      description="If this option is set, the camera angle will be kept in line with the angle of the vehicle being watched")
@@ -871,6 +882,9 @@ class Mujoco:
                      description="Prevent vehicles from rotating in a naive manner. Violates some constraints of the physics engine and may lead to cars flying away.")
         self.declare("debug_mode", False, label="Debug Mode", data=data,
                      description="Shows hidden debugging settings")
+        self.declare("use_simulated_simulation_lidar", False, label="Simulate Lidar", data=data, present=False,
+                     description="If this is used, mujoco's slow raycasting will be avoided and raycasting will instead be performed using the 2D image and vehicle size and position metadata (fater)",
+                                  callback=self.set_use_simulated_simulation_lidar_flag)
 
         self.vehicle_states = []
         self.shadows = {}
@@ -880,6 +894,16 @@ class Mujoco:
         self.kill_inline_render_event = Event()
         self.render_finished = Event()
         self.render_finished.set()
+
+    def set_use_simulated_simulation_lidar_flag(self, flag):
+        if flag:
+            for vehicle_state in self.vehicle_states:
+                self.shadow_rangefinders(vehicle_state.id)
+        else:
+            for vehicle_state in self.vehicle_states:
+                if vehicle_state.id not in self.shadows:
+                    self.unshadow_rangefinders(vehicle_state.id)
+            
 
     def set_icon_intensity(self, intensity):
         for i in range(len(self.vehicle_states)):
@@ -931,6 +955,7 @@ class Mujoco:
             with open(path, "w") as file:
                 json.dump(options, file)
             shutil.copy(path, "aigp_settings.json")
+            os.remove(path)
 
     def declare(self, tag, default, **kwargs):
         self.options[tag] = Option(tag, default, **kwargs)
@@ -981,7 +1006,8 @@ class Mujoco:
         self.shadows = {}
         self.steps = 0
         self.winners = {}
-        self.camera.lookat[:2] = self.path[0]
+        if self.option("reset_camera"):
+            self.camera.lookat[:2] = self.path[0]
         self.position_vehicles(self.path)
 
     def rangefinder(self, value):
@@ -1001,8 +1027,15 @@ class Mujoco:
             except Exception:
                 print(f"ERROR: Could not read from `{cars_path}`")
                 self.cars = []
+        
+        image_path = os.path.join(self.template_dir, f"{self.track}.png")
+        balls = np.array(Image.open(image_path))
+        balls[balls != 255] = 0
+        balls = 255 - balls
+        # from scipy.ndimage import distance_transform_edt
+        # self.dt = distance_transform_edt(balls)
         if not self.option("tricycle_mode"):
-            chunk(os.path.join(self.template_dir, f"{self.track}.png"), verbose=False, force=True, scale=2.0)
+            chunk(image_path, verbose=False, force=True, scale=2.0)
             produce_mjcf(
                 template_path=os.path.join(self.template_dir, "mushr.em.xml"),
                 rangefinders=90,
@@ -1010,7 +1043,7 @@ class Mujoco:
             )
             self.mushr = True
         else:
-            chunk(os.path.join(self.template_dir, f"{self.track}.png"), verbose=False, force=True, scale=1)
+            chunk(image_path, verbose=False, force=True, scale=2.0)
             produce_mjcf(
                 template_path=os.path.join(self.template_dir, "car.em.xml"),
                 rangefinders=90,
@@ -1035,6 +1068,11 @@ class Mujoco:
         self.path[:, 1] = - self.path[:, 1] / self.map_metadata['height'] * self.map_metadata['chunk_height']  * self.map_metadata['scale']
         self.restart_render_thread()
         self.reload()
+        if platform == "darwin":
+            for vehicle_state in self.vehicle_states:
+                id = vehicle_state.id
+                self.model.light(f"top light #{id}").active = 0
+                self.model.light(f"front light #{id}").active = 0
         self.sync_options()
 
     def sync_options(self):
@@ -1203,10 +1241,25 @@ class Mujoco:
                     if speed == 0.0 and self.data.ctrl[vehicle_state.forward] > 0.0:
                         speed = self.data.ctrl[vehicle_state.forward] * 0.99
                 else:
-                    ranges = self.data.sensordata[vehicle_state.sensors]
+                    snapshot = vehicle_state.snapshot()
+                    if self.option("use_simulated_simulation_lidar"):
+                        s = (20 * self.map_metadata["scale"])
+                        i_x = (xpos[0] / s) * self.map_metadata["original_width"]
+                        i_y = -(xpos[1] / s) * self.map_metadata["original_height"]
+                        print(i_x, i_y)
+                        r = 90
+                        angles = np.linspace(self.option("rangefinder_tilt") + snapshot.yaw+np.pi, snapshot.yaw-np.pi, r, endpoint=False)
+                        s = time.time()
+                        ranges, points = fakelidar(i_x, i_y, self.dt, r, np.cos(angles), np.sin(angles))
+                        e = time.time()
+                        print("TIME: ", e - s)
+                        ranges /= self.map_metadata["original_width"]
+                        ranges *= s
+                    else:
+                        ranges = self.data.sensordata[vehicle_state.sensors]
+                        
                     # TODO: run this in its own thread so that the user can do things like time.sleep() without
                     # blocking the executor
-                    snapshot = vehicle_state.snapshot()
                     try:
                         if vehicle_state.v2:
                             speed, steering_angle = vehicle_state.driver.process_lidar(ranges, snapshot)
@@ -1214,6 +1267,7 @@ class Mujoco:
                             speed, steering_angle = vehicle_state.driver.process_lidar(ranges)
                     except Exception as e:
                         print(f"Error in vehicle `{vehicle_state.label}`: `{e}`")
+                        continue
                 mix = lambda m, a, b: m * a + (1 - m) * b
                 forward = speed
                 turn = steering_angle
@@ -1228,11 +1282,19 @@ class Mujoco:
                 
             mujoco.mj_step(self.model, self.data)
             self.steps += 1
+
+            p_fps = 500
             
             now = time.time()
-            # fps = 1 / (now - last) if now - last > 0 else self.option("max_fps")
+            fps = 1 / (now - last) if now - last > 0 else p_fps
+            if (now - last < 1/p_fps):
+                time.sleep(1/p_fps - (now - last));
             last = time.time()
             # print(f"{fps} fps")
+
+    def shadow_rangefinders(self, i):
+        for j in range(self.mjcf_metadata["rangefinders"]):
+            self.model.sensor(f"rangefinder #{i}.#{j}").type = mujoco.mjtSensor.mjSENS_USER
 
     # send car to the shadow realm
     def shadow(self, i):
@@ -1244,9 +1306,7 @@ class Mujoco:
         vehicle_state.v2 = False
         vehicle_state.driver_path = "ft_grandprix.lobotomy"
         shadows = []
-        for j in range(self.mjcf_metadata
-                       ["rangefinders"]):
-            self.model.sensor(f"rangefinder #{i}.#{j}").type = mujoco.mjtSensor.mjSENS_USER
+        self.shadow_rangefinders(i)
         transparent_material_id  = self.model.mat("transparent").id
         shadow_alpha = 0.1
         for mat in [f"car #{i} primary", f"car #{i} secondary", f"car #{i} body", f"car #{i} wheel", f"car #{i} icon"]:
@@ -1279,11 +1339,14 @@ class Mujoco:
                     f"left wheel #{i}",
                     f"right wheel #{i}"]
 
+    def unshadow_rangefinders(self, i):
+        for j in range(90):
+            self.model.sensor(f"rangefinder #{i}.#{j}").type = mujoco.mjtSensor.mjSENS_RANGEFINDER
+
     def unshadow(self, i):
         if i not in self.shadows:
             return
-        for j in range(90):
-            self.model.sensor(f"rangefinder #{i}.#{j}").type = mujoco.mjtSensor.mjSENS_RANGEFINDER
+        self.unshadow_rangefinders(i)
         for mat in [f"car #{i} primary", f"car #{i} secondary", f"car #{i} body", f"car #{i} wheel", f"car #{i} icon"]:
             self.model.mat(mat).rgba[3] = 1.0
         for geom in self.subgeoms(i):
@@ -1317,7 +1380,7 @@ class Mujoco:
                     self.renderer.scene.geoms[scene.ngeom].dataid = 0
                     scene.ngeom += 1
             self.renderer.render(out=buf)
-            self.mv.pixels[0:height, 0:width, :] = buf / 255.0
+            self.mv.pixels[0:height, 0:width, :3] = buf / 255.0
             now = time.time()
             if (now - last < 1/self.option("max_fps")):
                 time.sleep(1/self.option("max_fps") - (now - last));
