@@ -14,7 +14,8 @@ def chunk(
         chunk_height=20,
         verbose=True,
         scale=1,
-        force=False
+        force=False,
+        image=None
 ):
     if not os.path.isdir("rendered"):
         os.mkdir("rendered")
@@ -35,7 +36,8 @@ def chunk(
  
     os.mkdir(output_dir)
 
-    array = np.array(Image.open(image_path).convert("RGB"))
+    i = Image.open(image_path).convert("RGB") if image is None else image
+    array = np.array(i)
     winter = array.sum(2) != 255 * 3
     array[winter] = 0
     image = Image.fromarray(array)
