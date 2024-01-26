@@ -106,7 +106,7 @@ rx, ry, rz = -0.0525, 0.000, 0.065
 lr = 0.030
 lh = 0.015
 }@
-       <light pos="@rx @ry @(rz + 0.1)" dir="0 0 -1" diffuse="0.5 0.5 0.5" mode="trackcom"/>
+       <light name="top light #@i" pos="@rx @ry @(rz + 0.1)" dir="0 0 -1" diffuse="0.5 0.5 0.5" mode="trackcom"/>
        <light name="front light #@i" pos="@rx @ry @(rz + 0.1)" dir="0.894427 0 -0.447214" diffuse="1 1 1"/>
        <geom name="car #@i lidar" type="cylinder" size="@lr @lh 0.01" pos="@rx @ry @(rz - lh/2)" material="car #@i body"/>
        <site name="buddy_imu #@i" pos="@rx @ry @(rz - lh/2)" rgba="0 0 0 0"/>
