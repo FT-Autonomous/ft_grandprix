@@ -1,9 +1,6 @@
 import numpy as np
 # from numba import njit
 
-def rectify_shit(ranges, positions, yaws):
-    pass
-
 # @njit(cache=True)
 def fakelidar(orig_x, orig_y, dt, rangefinders, cosines, sines, eps=2):
     scan = np.empty(cosines.shape)
