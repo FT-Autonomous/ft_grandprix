@@ -856,7 +856,7 @@ class Mujoco:
         self.declare("option_intensity", 1.0, label="Icon Intensity", data=data, callback=self.set_icon_intensity)
         self.declare("lock_camera", False, label="Lock Camera", data=data,
                      description="If this option is set, the camera angle will be kept in line with the angle of the vehicle being watched")
-        self.declare("detach_control", False, label="Detached Control", persist=False, present=False,
+        self.declare("detach_control", False, label="Detached Control", data=data,
                      description="Do not attempt to deliver controls to the car being watched")
         self.declare("manual_control", False, label="Manual Control", persist=False,
                      description="Control the car being watched with the W, A, S and D keys")
