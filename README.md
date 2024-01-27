@@ -7,6 +7,7 @@ git clone https://github.com/FT-Autonomous/ft_grandprix
 git pull
 python3 -m venv env
 . env/bin/activate
+cd ft_grandprix
 pip3 install -r requirements.txt
 python3 -m ft_grandprix.custom
 ```
