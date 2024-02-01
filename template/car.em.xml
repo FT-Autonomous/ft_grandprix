@@ -4,6 +4,7 @@ size_x = metadata["scale"] * 20 / metadata["horizontal_chunks"]
 size_y = metadata["scale"] * 20 / metadata["vertical_chunks"]
 inter_ray_angle = 360 / rangefinders
 affordance = 0.1
+pr, pg, pb = map_color
 }@
 <mujoco model="MuJoCo Model">
   <compiler autolimits="true" texturedir="icons/"/>
@@ -44,8 +45,8 @@ r2, g2, b2 = [x/255 for x in car['secondary']]
     <material name="car #@i body"      rgba="0.1 0.1 0.1 1.0"/>
     <material name="car #@i wheel"     rgba="0.1 0.1 0.1 1.0"/>
 @[end for]@
-    <texture type="2d" name="grid" builtin="checker" rgb1="1 0 0" rgb2="1 1 1" width="512" height="512"/>
-    <material name="plane" reflectance="0.1"/>
+    <texture type="2d" name="grid" builtin="checker" rgb1="@pr @pg @pb" rgb2="1 1 1" width="512" height="512"/>
+    <material name="plane" reflectance="0.1" rgba="@(pr/3) @(pg/3) @(pb/3) 1"/>
     <material name="grid" texture="grid" texuniform="true" reflectance="0"/>
     <mesh name="chasis" vertex="9 2 0 -10 10 10 9 -2 0 10 3 -10 10 -3 -10 -8 10 -10 -10 -10 10 -8 -10 -10 -5 0 20" scale="0.01 0.006 0.0015"/>
 @[for (x,y) in metadata["chunks"] ]@

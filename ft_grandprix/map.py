@@ -14,7 +14,8 @@ def produce_mjcf(
           metadata_path = join("rendered", "chunks", "metadata.json"),
           output_dir    = "rendered",
           rangefinders  = 100,
-          head          = None
+          head          = None,
+          map_color     = [1, 0, 0]
 ):
     if cars_path is not None:
         with open(cars_path) as cars_file:
@@ -55,6 +56,7 @@ def produce_mjcf(
              interpreter.file(
                  template_file,
                  locals={
+                     "map_color" : map_color,
                      "cars" : cars,
                      "metadata" : metadata,
                      "rangefinders" : rangefinders,
