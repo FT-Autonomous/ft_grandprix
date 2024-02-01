@@ -142,8 +142,8 @@ class VehicleState:
         return self.laps * 100 + self.lap_completion()
 
     def reload_code(self):
-        self.v2 = len(inspect.signature(self.driver.process_lidar).parameters) >= 2
         self.driver = runtime_import(self.driver_path).Driver()
+        self.v2 = len(inspect.signature(self.driver.process_lidar).parameters) >= 2
 
     def snapshot(self, time=0):
         yaw, pitch, roll = quaternion_to_euler(*self.joint.qpos[3:])
@@ -688,6 +688,19 @@ class ModelAndView:
             
         def delete_car_cb(sender, value, group):
             dpg.delete_item(group)
+
+        def import_car_cb(sender, value):
+            dpg.configure_item("import cars button", show=False)
+            dpg.configure_item("import cars combo", show=True)
+
+        def finish_import_car_cb(sender, value):
+            dpg.configure_item("import cars button", show=True)
+            dpg.configure_item("import cars combo", show=False)
+            value = ".".join(value.split(".")[1:])
+            with open(os.path.join("drivers", f"{value}.json")) as f:
+                driver = json.load(f)
+            cars = [*aggregate_cars_from_ui(), driver]
+            load(cars)
             
         def new_car_cb(sender, value):
             tags = Tags()
@@ -722,6 +735,8 @@ class ModelAndView:
             dpg.delete_item("cars modal")
         if dpg.does_item_exist("car icons"):
             dpg.delete_item("car icons")
+        if dpg.does_item_exist("import_cars_combo_handler_registry"):
+            dpg.delete_item("import_cars_combo_handler_registry")
         dpg.add_texture_registry(tag="car icons")
         with dpg.window(tag="cars modal", width=400, height=400, no_scrollbar=True):
             with dpg.table(header_row=False):
@@ -730,8 +745,14 @@ class ModelAndView:
                 dpg.add_table_column()
                 with dpg.table_row():
                     dpg.add_button(label="New Car", callback=new_car_cb, width=-1)
-                    dpg.add_button(label="Clear", callback=clear, width=-1)
+                    with dpg.group():
+                        dpg.add_button(tag="import cars button", label="Import Car", callback=import_car_cb, width=-1)
+                        dpg.add_combo(tag="import cars combo", width=-1, callback=finish_import_car_cb, show=False)
+                        with dpg.item_handler_registry(tag="import_cars_combo_handler_registry"):
+                            dpg.add_item_clicked_handler(0, callback=self.import_cars_combo_clicked_cb)
+                        dpg.bind_item_handler_registry("import cars combo", "import_cars_combo_handler_registry")
                     dpg.add_button(label="Load from Sim", callback=lambda: load(self.mj.cars), width=-1)
+            dpg.add_button(label="Clear", callback=clear, width=-1)
             dpg.add_combo(
                 label="Load from file",
                 items=os.listdir(os.path.join("template", "cars")),
@@ -816,6 +837,14 @@ class ModelAndView:
                 continue
             items.append(f"drivers.{file[:-3]}")
         dpg.configure_item(tags.path_id, items=items)
+        
+    def import_cars_combo_clicked_cb(self):
+        items = []
+        for file in os.listdir("drivers"):
+            if ".json" not in file or "__" in file:
+                continue
+            items.append(f"drivers.{file[:-5]}")
+        dpg.configure_item("import cars combo", items=items)
 
     def tracks_combo_clicked_cb(self):
         items = [".".join(os.path.basename(f).split(".")[:-1])
@@ -1044,7 +1073,10 @@ class Mujoco:
             else:
                 print("Unsupported schema: supported (file://)")
             print(f"Loading driver from python module path '{path}'")
-            driver = runtime_import(path).Driver()
+            try:
+                driver = runtime_import(path).Driver()
+            except:
+                driver = LobotomyDriver()
             vehicle_state = VehicleState(
                 id           = i,
                 offset       = (i+5) * 2,
