@@ -101,6 +101,12 @@ class VehicleState:
         self.delta = 0
         self.v2 = len(inspect.signature(self.driver.process_lidar).parameters) >= 2
 
+        self.speed = 0.0
+        """the last speed command"""
+
+        self.steering_angle = 0.0
+        """the last steering angle command"""
+
         self.distance_from_track = 0.0
         """distance from the centerline"""
 
@@ -139,7 +145,7 @@ class VehicleState:
         self.v2 = len(inspect.signature(self.driver.process_lidar).parameters) >= 2
         self.driver = runtime_import(self.driver_path).Driver()
 
-    def snapshot(self):
+    def snapshot(self, time=0):
         yaw, pitch, roll = quaternion_to_euler(*self.joint.qpos[3:])
         return VehicleStateSnapshot(
             laps = self.laps,
@@ -148,7 +154,8 @@ class VehicleState:
             pitch=pitch,
             roll=roll,
             lap_completion=self.lap_completion(),
-            absolute_completion=self.absolute_completion()
+            absolute_completion=self.absolute_completion(),
+            time=time
         )
     
 class ModelAndView:
@@ -172,6 +179,8 @@ class ModelAndView:
                 Command("pause", self.pause),
                 Command("reset", self.reset),
                 Command("hard_reset", self.hard_reset),
+                Command("zoom_in", lambda: self.scroll_cb(None, 10)),
+                Command("zoom_out", lambda: self.scroll_cb(None, -10)),
                 Command("focus_on_next_car", self.focus_on_next_car),
                 Command("focus_on_previous_car", self.focus_on_previous_car),
                 Command("reload_code",
@@ -198,6 +207,8 @@ class ModelAndView:
             " " : "pause",
             "E" : "reset",
             "R" : "reload_code",
+            "-" : "zoom_out",
+            "+" : "zoom_in",
             "N" : "focus_on_next_car",
             "P" : "focus_on_previous_car",
             "C" : "toggle_cinematic_camera",
@@ -224,7 +235,7 @@ class ModelAndView:
                             dpg.delete_item(tag)
                         except:
                             pass
-                else:
+                elif option.type is not list:
                     dpg.set_value(option.dpg_tag, option.value if option.value is not None else option.type())
             elif not self.mj.option("debug_mode") and not option.present:
                 continue
@@ -257,6 +268,8 @@ class ModelAndView:
                         if default_attributes["default_value"] is None:
                             default_attributes["default_value"] = ""
                         dpg.add_input_text(**default_attributes)
+                    elif option.type is list: # dirty hack
+                        dpg.add_color_edit(**default_attributes)
                     if option.description is not None:
                         description = re.sub(r"\s+", " ", option.description.strip())
                         with dpg.group(tag=option.dpg_description_tag, horizontal=True):
@@ -285,6 +298,8 @@ class ModelAndView:
             pending_id       : int = tag()
             finished_id      : int = tag()
             finished_text_id : int = tag()
+            reload_id        : int = tag()
+            watch_id         : int = tag()
             tag              : int = tag()
         mj_vehicle_state = self.mj.vehicle_states # hack to make sure that this is atomic
         tags = [dpg.get_item_configuration(tag)["user_data"] for tag in dpg.get_item_children("dashboard", 1)]
@@ -314,13 +329,18 @@ class ModelAndView:
                         dpg.add_text("Lap Times:")
                         dpg.add_text("0", tag=tag.times_id, wrap=300)
                     with dpg.group(horizontal=True):
-                        dpg.add_button(label="Reload Code", user_data=i, callback=self.reload_code_cb)
+                        dpg.add_button(tag=tag.reload_id, label="Reload Code", user_data=i, callback=self.reload_code_cb)
+                        dpg.add_button(tag=tag.watch_id, label="Watch", user_data=i, callback=self.watch_cb)
         positions = { m  : i for i, m in enumerate(reversed(sorted(vehicle_state, key=lambda i: mj_vehicle_state[i].absolute_completion()))) }
+        if self.mj.option("sort_vehicle_list"):
+            vehicle_state = sorted(vehicle_state, key=lambda v: positions[v])
         for tag, m_id in zip(tags, vehicle_state):
             m = mj_vehicle_state[m_id]
             dpg.configure_item(tag.tag, label=f"Car #{m.id} - {m.label}")
             dpg.configure_item(tag.pending_id, show=not m.finished)
             dpg.configure_item(tag.finished_id, show=m.finished)
+            dpg.configure_item(tag.reload_id, user_data=m_id)
+            dpg.configure_item(tag.watch_id, user_data=m_id)
             dpg.set_value(tag.times_id, "[" + ", ".join([f"{t:.2f}" for t in m.times]) + "]")
             position = positions[m.id]
             if position == 0:
@@ -338,6 +358,9 @@ class ModelAndView:
                 dpg.set_value(tag.laps_id, str(m.laps))
             else:
                 dpg.set_value(tag.finished_text_id, f"Car finished {m.laps} laps in {sum(m.times):.2f} seconds!")
+
+    def watch_cb(self, sender, value, car_index):
+        self.mj.watching = car_index
 
     def reload_code_cb(self, sender, value, car_index):
         if car_index is None:
@@ -408,14 +431,24 @@ class ModelAndView:
         Locks the camera to the next car in the sequence. Cycles at the end
         """
         if len(self.mj.vehicle_states) > 0:
-            self.mj.watching = ((self.mj.watching or 0) + 1) % len(self.mj.vehicle_states)
+            if self.mj.option("sort_vehicle_list"):
+                positions = { m.id : i for i, m in enumerate(reversed(sorted(self.mj.vehicle_states, key=lambda v: v.absolute_completion()))) }
+                rpositions = { i : m.id for i, m in enumerate(reversed(sorted(self.mj.vehicle_states, key=lambda v: v.absolute_completion()))) }
+                self.mj.watching = rpositions[(positions[self.mj.watching or 0] - 1) % len(self.mj.vehicle_states)]
+            else:
+                self.mj.watching = ((self.mj.watching or 0) + 1) % len(self.mj.vehicle_states)
 
     def focus_on_previous_car(self):
         """
         Locks the camera to the previous car in the sequence. Cycles at the end
         """
         if len(self.mj.vehicle_states) > 0:
-            self.mj.watching = ((self.mj.watching or 0) - 1) % len(self.mj.vehicle_states) 
+            if self.mj.option("sort_vehicle_list"):
+                positions = { m.id : i for i, m in enumerate(reversed(sorted(self.mj.vehicle_states, key=lambda v: v.absolute_completion()))) }
+                rpositions = { i : m.id for i, m in enumerate(reversed(sorted(self.mj.vehicle_states, key=lambda v: v.absolute_completion()))) }
+                self.mj.watching = rpositions[(positions[self.mj.watching or 0] + 1) % len(self.mj.vehicle_states)]
+            else:
+                self.mj.watching = ((self.mj.watching or 0) - 1) % len(self.mj.vehicle_states) 
 
     def toggle_cinematic_camera(self):
         """
@@ -834,6 +867,7 @@ class Mujoco:
         self.kill_viewer_event = Event()
         self.mv = mv
         self.camera_vel = [0, 0]
+        self.camera_pos_vel = [0, 0, 0]
         self.camera_friction = [0.01, 0.01]
         self.watching = 0
         self.rendered_dir = "rendered"
@@ -849,8 +883,8 @@ class Mujoco:
         except Exception as e:
             data = {}
             print("Not loading settings from file: ", e)
-
-        self.declare("rangefinder_tilt", 0.0, label="Rangefinder Tilt", data=data, present=False, min_value=0, max_value=np.pi)
+        
+        self.declare("sort_vehicle_list", False, label="Sort Vehicles", description="Keeps the vehicle list sorted by position", data=data)
         self.declare("reset_camera", True, label="Reset Camera", data=data,
                      description="Resetting sets sets the camera position ot the first path point")
         self.declare("option_intensity", 1.0, label="Icon Intensity", data=data, callback=self.set_icon_intensity)
@@ -860,19 +894,26 @@ class Mujoco:
                      description="Do not attempt to deliver controls to the car being watched")
         self.declare("manual_control", False, label="Manual Control", persist=False,
                      description="Control the car being watched with the W, A, S and D keys")
+        self.declare("always_invoke_driver", False, data=data, label="Invoke with Manual", present=False,
+                     description="Will keep on invoking the process LiDAR function even if manual control is set")
         self.declare("manual_control_speed", 3.0, label="Manual Control Speed", data=data,
                      description="The speed at which the car will drive when being controlled manually")
         self.declare("cars_path", "cars.json", _type=str, label="Cars Path", persist=False)
         self.declare("lap_target", 10, data=data, label="Lap Target")
         self.declare("max_fps", 30, data=data, label="Max FPS")
         self.declare("cinematic_camera", False, data=data, label="Cinematic Camera")
+        self.declare("center_camera", False, data=data, label="Center Camera")
+        self.declare("center_camera_inside", True, data=data, label="Center Camera Inside", present=False,
+                     description="If this option is set to true, the 'center_camera' option will view the vehicle being watched from the inside of the track")
         self.declare("pause_on_reload", True, data=data, label="Pause on Reload")
         self.declare("save_on_exit", True, data=data, label="Save on Exit", present=False,
                      description="Save to `aigp_settings.json` on exit")
         self.declare("bubble_wrap", False, label="Soften Collisions", data=data, persist=True,
                      description="Soften collisions with the map border so that vehicles don't get stuck as easilly",
                      callback=self.soften)
-        self.declare("max_geom", 1500, data=data, label="Mujoco Geom Limit", persist=False,
+        self.declare("physics_fps", 500, data=data, label="Max Physics FPS", present=False,
+                     description="The reciprocal of the physics timestep passed into mujoco")
+        self.declare("max_geom", 1500, data=data, label="Mujoco Geom Limit", persist=False, present=False,
                      description="The number of entities that mujoco will render")
         self.declare("rangefinder_alpha", 0.1, label="Rangefinder Intensity", data=data, callback=self.rangefinder)
         self.declare("tricycle_mode", False, label="Use a Tricycle 🤡", data=data, present=False, persist=True,
@@ -882,6 +923,8 @@ class Mujoco:
                      description="Prevent vehicles from rotating in a naive manner. Violates some constraints of the physics engine and may lead to cars flying away.")
         self.declare("debug_mode", False, label="Debug Mode", data=data,
                      description="Shows hidden debugging settings")
+        self.declare("map_color", [1, 0, 0, 1], label="Map Color", data=data, present=False)
+        self.declare("rangefinder_tilt", 0.0, label="Rangefinder Tilt", data=data, present=False, min_value=0, max_value=np.pi)
         self.declare("use_simulated_simulation_lidar", False, label="Simulate Lidar", data=data, present=False,
                      description="If this is used, mujoco's slow raycasting will be avoided and raycasting will instead be performed using the 2D image and vehicle size and position metadata (fater)",
                                   callback=self.set_use_simulated_simulation_lidar_flag)
@@ -915,6 +958,18 @@ class Mujoco:
             return self._camera
         else:
             return self.viewer.cam
+
+    def perturb_camera_pos(self, dx, dy, dz):
+        if self.option("cinematic_camera"):
+            if self.watching is not None:
+                target = self.data.body(f"car #{self.watching}").xpos[:]
+                delta = target - self.camera.lookat
+                delta_magnitude = np.linalg.norm(delta)
+                next_lookat = target - (self.camera.lookat + self.camera_pos_vel)
+                next_lookat_magnitude = np.linalg.norm(next_lookat)
+                P = 0.1 * delta
+                D = 0.05 * (next_lookat_magnitude - delta_magnitude) * delta
+                self.camera_pos_vel = P + D
 
     def perturb_camera(self, dx, dy):
         if not self.option("cinematic_camera"):
@@ -1039,7 +1094,8 @@ class Mujoco:
             produce_mjcf(
                 template_path=os.path.join(self.template_dir, "mushr.em.xml"),
                 rangefinders=90,
-                cars=self.cars
+                cars=self.cars,
+                map_color=self.option("map_color")[:3]
             )
             self.mushr = True
         else:
@@ -1138,10 +1194,15 @@ class Mujoco:
                 delta = (desired_azimuth - camera_azimuth + 180) % 360 - 180
                 self.perturb_camera(delta * 0.01, 0)
             if self.option("cinematic_camera"):
-                self.camera_vel[0] *= (1 - self.camera_friction[0])
-                self.camera_vel[1] *= (1 - self.camera_friction[1])
                 self.camera.azimuth += self.camera_vel[0]
                 self.camera.elevation += self.camera_vel[1]
+                self.camera_vel[0] *= (1 - self.camera_friction[0])
+                self.camera_vel[1] *= (1 - self.camera_friction[1])
+                self.camera.lookat += self.camera_pos_vel
+                self.camera_pos_vel[0] *= (1 - self.camera_friction[0])
+                self.camera_pos_vel[1] *= (1 - self.camera_friction[0])
+                self.camera_pos_vel[2] *= (1 - self.camera_friction[0])
+                
             if self.launch_viewer_event.is_set():
                 if self.viewer is not None:
                     self.viewer.close()
@@ -1162,7 +1223,19 @@ class Mujoco:
                 self.start_inline_render_thread()
                 self.mv.viewport_resize_event.set()
             if self.watching is not None:
-                self.camera.lookat[:] = self.data.body(f"car #{self.watching}").xpos[:]
+                target = self.data.body(f"car #{self.watching}").xpos[:]
+                # self.camera.lookat[:] = target
+                self.perturb_camera_pos(*(target - self.camera.lookat))
+                if self.option("center_camera"):
+                    center = np.array([0.5 * self.map_metadata['chunk_width'] * self.map_metadata['scale'],
+                                       -0.5 * self.map_metadata['chunk_height'] * self.map_metadata['scale']])
+                    angle = np.arctan2(center[1] - target[1],
+                                       center[0] - target[0])
+                    # print(target, center, angle)
+                    if self.option("center_camera_inside"):
+                        self.camera.azimuth = math.degrees(angle) - 180
+                    else:
+                        self.camera.azimuth = math.degrees(angle)
             if self.reset_event.is_set():
                 self.reload()
                 self.reset_event.clear()
@@ -1235,56 +1308,55 @@ class Mujoco:
                 id = self.model.sensor("car #0 gyro").id
                 d = self.data.sensordata[id:id+3]
                 # print(f"GYRO:  accel: {math.sqrt((d**2).sum())}")
-                
+
+                if self.option("use_simulated_simulation_lidar"):
+                    s = (20 * self.map_metadata["scale"])
+                    i_x = (xpos[0] / s) * self.map_metadata["original_width"]
+                    i_y = -(xpos[1] / s) * self.map_metadata["original_height"]
+                    print(i_x, i_y)
+                    r = 90
+                    angles = np.linspace(self.option("rangefinder_tilt") + snapshot.yaw+np.pi, snapshot.yaw-np.pi, r, endpoint=False)
+                    s = time.time()
+                    ranges, points = fakelidar(i_x, i_y, self.dt, r, np.cos(angles), np.sin(angles))
+                    e = time.time()
+                    print("TIME: ", e - s)
+                    ranges /= self.map_metadata["original_width"]
+                    ranges *= s
+                else:
+                    ranges = self.data.sensordata[vehicle_state.sensors]
+
+                snapshot = vehicle_state.snapshot(time = self.steps / self.model.opt.timestep)
+                if vehicle_state.v2: driver_args = [ranges, snapshot]
+                else:                driver_args = [ranges]
+
+                speed, steering_angle = 0.0, 0.0
+
+                if self.option("always_invoke_driver") or not self.option("manual_control"):
+                    # TODO: run this in its own thread so that the
+                    # user can do things like time.sleep() without
+                    # blocking the executor
+                    try:
+                        speed, steering_angle = vehicle_state.driver.process_lidar(*driver_args)
+                    except Exception as e:
+                        print(f"Error in vehicle `{vehicle_state.label}`: `{e}`")
+                        continue
+                    
                 if self.option("manual_control") and self.watching == vehicle_state.id:
                     speed, steering_angle = self.mv.speed, self.mv.steering_angle
                     if speed == 0.0 and self.data.ctrl[vehicle_state.forward] > 0.0:
                         speed = self.data.ctrl[vehicle_state.forward] * 0.99
-                else:
-                    snapshot = vehicle_state.snapshot()
-                    if self.option("use_simulated_simulation_lidar"):
-                        s = (20 * self.map_metadata["scale"])
-                        i_x = (xpos[0] / s) * self.map_metadata["original_width"]
-                        i_y = -(xpos[1] / s) * self.map_metadata["original_height"]
-                        print(i_x, i_y)
-                        r = 90
-                        angles = np.linspace(self.option("rangefinder_tilt") + snapshot.yaw+np.pi, snapshot.yaw-np.pi, r, endpoint=False)
-                        s = time.time()
-                        ranges, points = fakelidar(i_x, i_y, self.dt, r, np.cos(angles), np.sin(angles))
-                        e = time.time()
-                        print("TIME: ", e - s)
-                        ranges /= self.map_metadata["original_width"]
-                        ranges *= s
-                    else:
-                        ranges = self.data.sensordata[vehicle_state.sensors]
-                        
-                    # TODO: run this in its own thread so that the user can do things like time.sleep() without
-                    # blocking the executor
-                    try:
-                        if vehicle_state.v2:
-                            speed, steering_angle = vehicle_state.driver.process_lidar(ranges, snapshot)
-                        else:
-                            speed, steering_angle = vehicle_state.driver.process_lidar(ranges)
-                    except Exception as e:
-                        print(f"Error in vehicle `{vehicle_state.label}`: `{e}`")
-                        continue
-                mix = lambda m, a, b: m * a + (1 - m) * b
-                forward = speed
-                turn = steering_angle
-                if vehicle_state.id == 0:
-                    # print(turn)
-                    pass
+                
+                vehicle_state.speed = speed
+                vehicle_state.steering_angle = steering_angle
+                
                 if not self.option("detach_control"):
-                    self.data.ctrl[vehicle_state.forward] = forward
-                    self.data.ctrl[vehicle_state.turn] = turn
-                    
-                # print (speed, steering_angle / 3.14)
+                    self.data.ctrl[vehicle_state.forward] = vehicle_state.speed
+                    self.data.ctrl[vehicle_state.turn] = vehicle_state.steering_angle
                 
             mujoco.mj_step(self.model, self.data)
             self.steps += 1
 
-            p_fps = 500
-            
+            p_fps = self.option("physics_fps")
             now = time.time()
             fps = 1 / (now - last) if now - last > 0 else p_fps
             if (now - last < 1/p_fps):

@@ -9,3 +9,4 @@ class VehicleStateSnapshot:
     roll : float
     lap_completion : int
     absolute_completion : int
+    time : float
