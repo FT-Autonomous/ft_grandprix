@@ -1183,8 +1183,8 @@ class Mujoco:
         """
         if self.viewer is None:
             if not self.render_finished.is_set():
-                self.kill_inline_render_event.set()
-                self.render_finished.wait()
+               self.kill_inline_render_event.set()
+               self.render_finished.wait()
             Thread(target=self.inline_render_thread).start()
         else:
             self.launch_viewer_event.set()
@@ -1237,16 +1237,21 @@ class Mujoco:
                 
             if self.launch_viewer_event.is_set():
                 if self.viewer is not None:
-                    self.viewer.close()
-                self.viewer = "John the Baptist"
-                self.viewer = mujoco.viewer.launch_passive(
-                    self.model,
-                    self.data,
-                    key_callback = lambda keycode: self.mv.release_key_cb(None, keycode)
-                )
+                    viewer = self.viewer
+                    viewer._get_sim().load(self.model, self.data, '')
+                    # self.viewer.close()
+                else:
+                    self.viewer = "John the Baptist"
+                    self.viewer = mujoco.viewer.launch_passive(
+                        self.model,
+                        self.data,
+                        key_callback = lambda keycode: self.mv.release_key_cb(None, keycode),
+                        show_left_ui = False,
+                        show_right_ui = False
+                    )
+                    self.kill_inline_render_event.set()
+                    self.mv.viewport_resize_event.set()
                 self.launch_viewer_event.clear()
-                self.kill_inline_render_event.set()
-                self.mv.viewport_resize_event.set()
             if self.kill_viewer_event.is_set():
                 if self.viewer is not None:
                     self.viewer.close()
