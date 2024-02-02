@@ -1256,8 +1256,10 @@ class Mujoco:
                 self.mv.viewport_resize_event.set()
             if self.watching is not None:
                 target = self.data.body(f"car #{self.watching}").xpos[:]
-                # self.camera.lookat[:] = target
-                self.perturb_camera_pos(*(target - self.camera.lookat))
+                if self.option("cinematic_camera"):
+                    self.perturb_camera_pos(*(target - self.camera.lookat))
+                else:
+                    self.camera.lookat[:] = target
                 if self.option("center_camera"):
                     center = np.array([0.5 * self.map_metadata['chunk_width'] * self.map_metadata['scale'],
                                        -0.5 * self.map_metadata['chunk_height'] * self.map_metadata['scale']])
