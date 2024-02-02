@@ -923,7 +923,7 @@ class Mujoco:
                      description="Do not attempt to deliver controls to the car being watched")
         self.declare("manual_control", False, label="Manual Control", persist=False,
                      description="Control the car being watched with the W, A, S and D keys")
-        self.declare("always_invoke_driver", False, data=data, label="Invoke with Manual", present=False,
+        self.declare("always_invoke_driver", True, data=data, label="Invoke with Manual", present=False,
                      description="Will keep on invoking the process LiDAR function even if manual control is set")
         self.declare("manual_control_speed", 3.0, label="Manual Control Speed", data=data,
                      description="The speed at which the car will drive when being controlled manually")
