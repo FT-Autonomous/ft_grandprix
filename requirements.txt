@@ -1,7 +1,7 @@
-wheel
-empy
-numpy
-mujoco
-svg.path
-pillow
-dearpygui
+wheel==0.44.0
+empy==4.2
+numpy<2.0
+mujoco==3.2.2
+svg.path==6.3
+pillow==10.4.0
+dearpygui==1.11.1
