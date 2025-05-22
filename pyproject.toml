@@ -1,0 +1,13 @@
+[project]
+name = "ft-grandprix"
+version = "0.1.0"
+description = "racing simulator"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "dearpygui>=2.0.0",
+    "empy>=4.2",
+    "mujoco>=3.3.2",
+    "pillow>=11.2.1",
+    "svg-path>=6.3",
+]
