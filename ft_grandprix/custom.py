@@ -690,6 +690,24 @@ class ModelAndView:
         def delete_car_cb(sender, value, group):
             dpg.delete_item(group)
 
+        def move_car_up_cb(sender, value, group):
+            children = dpg.get_item_children("cars", 1)
+            index = children.index(group)
+            try:
+                children[index-1], children[index] = children[index], children[index-1]
+                dpg.reorder_items("cars", 1, children)
+            except IndexError:
+                pass
+
+        def move_car_down_cb(sender, value, group):
+            children = dpg.get_item_children("cars", 1)
+            index = children.index(group)
+            try:
+                children[index], children[index+1] = children[index+1], children[index]
+                dpg.reorder_items("cars", 1, children)
+            except IndexError:
+                pass
+
         def import_car_cb(sender, value):
             dpg.configure_item("import cars button", show=False)
             dpg.configure_item("import cars combo", show=True)
@@ -714,8 +732,12 @@ class ModelAndView:
                                            user_data=[tags.texture_id, tags.image_id])
                         dpg.add_color_edit(tag=tags.primary_id, label="Primary")
                         dpg.add_color_edit(tag=tags.secondary_id, label="Secondary")
-                    with dpg.group(tag=tags.icon_group_id):
-                        pass
+                    with dpg.group():
+                        with dpg.group():
+                            dpg.add_button(label="Up", callback=move_car_up_cb, user_data=group, width=40)
+                            dpg.add_button(label="Dn", callback=move_car_down_cb, user_data=group, width=40)
+                        with dpg.group(tag=tags.icon_group_id):
+                            pass
                 dpg.add_button(label="Delete", callback=delete_car_cb, user_data=group, width=-1)
                 dpg.add_separator()
                 # memory leak here
