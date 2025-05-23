@@ -5,7 +5,7 @@
 
 ## Automatic Install
 
-Download and double click the installer from [here](https://github.com/FT-Autonomous/ft_grandprix/releases/download/v0.0.0-alpha/run_ft_grandprix.bat).
+Download and double click the installer / runner from [here](https://github.com/FT-Autonomous/ft_grandprix/releases/download/v0.0.0-alpha/run_ft_grandprix.bat). Once you have the file you can click on it at any time to launch the simulator. The simulator will install to the folder "%USERPROFILE%\Documents\FT Grand Prix\ft_grandprix-main\". You can edit your driver file in the "%USERPROFILE%\Documents\FT Grand Prix\ft_grandprix-main\drivers\template.py" folder.
 
 ## Manual
 
