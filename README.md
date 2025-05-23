@@ -1,18 +1,15 @@
 ![an image of the simulator](images/ft_grandprix_volume_2.png)
 
-# Linux Setup
-
-```
-git clone https://github.com/FT-Autonomous/ft_grandprix
-git pull
-python3 -m venv env
-. env/bin/activate
-cd ft_grandprix
-pip3 install -r requirements.txt
-python3 -m ft_grandprix.custom
-```
 
 # Windows Setup
+
+## Automatic Install
+
+Download and double click the installer from [here](https://github.com/FT-Autonomous/ft_grandprix/releases/download/v0.0.0-alpha/run_ft_grandprix.bat).
+
+## Manual
+
+[![Windows 10 / Windows 11](http://img.youtube.com/vi/-0va_8FHMhQ/0.jpg)](http://www.youtube.com/watch?v=-0va_8FHMhQ)
 
 Make sure python3 is installed. You can get it from the windows store.
 
@@ -44,6 +41,21 @@ then select "open powershell". Enter the following:
 ```
 python3 -m venv env
 .\env\Scripts\activate.ps1
+pip3 install -r requirements.txt
+python3 -m ft_grandprix.custom
+```
+
+# MacOS / Linux Setup
+
+[![MacOS](http://img.youtube.com/vi/jvQxtafER_U/0.jpg)](http://www.youtube.com/watch?v=jvQxtafER_U)
+[![Linux / WSL](http://img.youtube.com/vi/RV46Vvxnug8/0.jpg)](http://www.youtube.com/watch?v=RV46Vvxnug8)
+
+```
+git clone https://github.com/FT-Autonomous/ft_grandprix
+git pull
+python3 -m venv env
+. env/bin/activate
+cd ft_grandprix
 pip3 install -r requirements.txt
 python3 -m ft_grandprix.custom
 ```
