@@ -24,6 +24,7 @@ from .chunk import chunk
 from .map import produce_mjcf
 from .vendor import Renderer
 from .raycast import fakelidar
+from .bracket import compute_driver_files
 import tracemalloc
 import linecache
 
@@ -224,7 +225,7 @@ class ModelAndView:
         """
         Toggles shadows. Not sure what to tell you
         """
-        self.mj.renderer.scene.flags[mujoco.mjtRndFlag.mjRND_SHADOW] ^= 1,
+        self.mj.renderer.scene.flags[mujoco.mjtRndFlag.mjRND_SHADOW] ^= 1
 
     def inject_options(self, options):
         for option in options.values():
@@ -840,7 +841,11 @@ class ModelAndView:
         
     def import_cars_combo_clicked_cb(self):
         items = []
-        for file in os.listdir("drivers"):
+        # the drivers path should just be the location where you
+        # extract stuff from google drive
+        drivers_path = "drivers"
+        compute_driver_files(drivers_path, silent=True)
+        for file in os.listdir(drivers_path):
             if ".json" not in file or "__" in file:
                 continue
             items.append(f"drivers.{file[:-5]}")
