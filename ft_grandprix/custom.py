@@ -866,7 +866,10 @@ class ModelAndView:
         # the drivers path should just be the location where you
         # extract stuff from google drive
         drivers_path = "drivers"
-        compute_driver_files(drivers_path, silent=True)
+        try:
+            compute_driver_files(drivers_path, silent=True)
+        except Exception as e:
+            print("error computing driver files:", e)
         for file in os.listdir(drivers_path):
             if ".json" not in file or "__" in file:
                 continue
