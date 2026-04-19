@@ -56,7 +56,6 @@ class Simulator:
         elif chr(keycode) == "L":
             self.watching = None
         elif keycode in control_actions:
-            # print("fuckk")
             # control_action = control_actions[keycode]
             # print(self.data.ctrl[:], control_action)
             # print("\n\n")
